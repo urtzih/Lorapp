@@ -83,3 +83,19 @@ async def update_preferences(
     db.commit()
     
     return MessageResponse(message="Preferences updated successfully")
+
+
+@router.delete("/profile", response_model=MessageResponse)
+async def delete_profile(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """
+    Delete the current user's account.
+
+    This is a permanent action and cannot be undone.
+    Requires authentication.
+    """
+    db.delete(current_user)
+    db.commit()
+    return MessageResponse(message="Your account has been successfully deleted.")
