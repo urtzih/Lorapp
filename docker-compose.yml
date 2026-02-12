@@ -67,6 +67,7 @@ services:
       DEBUG: ${DEBUG}
     volumes:
       - ./backend/uploads:/app/uploads
+      - ./logs/backend:/var/log/backend
       # - ./backend/google-credentials.json:/app/google-credentials.json:ro
     ports:
       - "${BACKEND_PORT}:8000"
@@ -104,9 +105,57 @@ services:
       retries: 3
       start_period: 20s
 
-# Volumes for data persistence
+
+  grafana:
+    image: grafana/grafana:10.2.3
+    container_name: lorapp-grafana
+    restart: unless-stopped
+    ports:
+      - "3001:3000"
+    networks:
+      - lorapp-network
+    depends_on:
+      - loki
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin123
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./monitoring/grafana/provisioning:/etc/grafana/provisioning
+
+  loki:
+    image: grafana/loki:2.9.4
+    container_name: lorapp-loki
+    restart: unless-stopped
+    user: root
+    entrypoint:
+      - /bin/sh
+      - -c
+      - mkdir -p /tmp/loki /wal && exec /usr/bin/loki -config.file=/etc/loki/local-config.yaml
+    ports:
+      - "3100:3100"
+    networks:
+      - lorapp-network
+    volumes:
+      - ./monitoring/loki/loki-config.yaml:/etc/loki/local-config.yaml:ro
+
+
+  promtail:
+    image: grafana/promtail:2.9.4
+    container_name: lorapp-promtail
+    restart: unless-stopped
+    volumes:
+      - ./monitoring/promtail/promtail-config.yaml:/etc/promtail/config.yaml:ro
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+    command: -config.file=/etc/promtail/config.yaml
+    networks:
+      - lorapp-network
+    depends_on:
+      - loki
+
 volumes:
   postgres_data:
+    driver: local
+  grafana_data:
     driver: local
 
 # Network for inter-container communication

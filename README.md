@@ -1,5 +1,7 @@
 # 🌱 Lorapp - Smart Garden Management System
 
+Email: test@example.com
+Contraseña: password123
 > **Gestión inteligente de huertas domésticas con IA, OCR, calendario agrícola y notificaciones push**
 
 [![Backend](https://img.shields.io/badge/Backend-FastAPI-009688?style=flat-square)](https://fastapi.tiangolo.com/)
@@ -29,11 +31,13 @@ docker-compose up -d
 # Frontend: http://localhost:3000
 # Backend: http://localhost:8000
 # API Docs: http://localhost:8000/api/docs
+# 📊 Monitoring (Grafana): http://localhost:3001
+# Dashboard de Logs: http://localhost:3001/d/lorapp-logs/lorapp-logs-dashboard
 ```
 
 **Listo en 5 minutos! 🎉**
 
-Ver documentación completa: **[DOCKER.md](DOCKER.md)**
+> Monitoreo centralizado con **Grafana + Loki** pre-configurado. Ver **[MONITORING.md](MONITORING.md)** para detalles.
 
 ---
 

@@ -1,0 +1,310 @@
+{
+  "annotations": {
+    "list": []
+  },
+  "description": "Lorapp Logs Dashboard - Monitoreo completo de todos los servicios con ordenamiento por timestamp",
+  "editable": true,
+  "gnetId": null,
+  "graphTooltip": 1,
+  "id": null,
+  "iteration": 1644654000,
+  "links": [],
+  "panels": [
+    {
+      "datasource": "Loki",
+      "description": "Logs en tiempo real del backend FastAPI - Ordenados más recientes primero",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {}
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 10,
+        "w": 12,
+        "x": 0,
+        "y": 0
+      },
+      "id": 2,
+      "options": {
+        "dedupStrategy": "exact",
+        "enableLogDetails": true,
+        "maxLines": 1000,
+        "prettifyLogMessage": true,
+        "showCommonLabels": false,
+        "showLabels": false,
+        "showTime": true,
+        "wrapLogMessage": true,
+        "sortOrder": 2
+      },
+      "targets": [
+        {
+          "expr": "{service=\"backend\"}",
+          "refId": "A",
+          "legendFormat": "Backend"
+        }
+      ],
+      "title": "🐍 Backend Logs (FastAPI)",
+      "type": "logs"
+    },
+    {
+      "datasource": "Loki",
+      "description": "Logs del servidor Nginx - Ordenados más recientes primero",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {}
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 10,
+        "w": 12,
+        "x": 12,
+        "y": 0
+      },
+      "id": 3,
+      "options": {
+        "dedupStrategy": "exact",
+        "enableLogDetails": true,
+        "maxLines": 1000,
+        "prettifyLogMessage": true,
+        "showCommonLabels": false,
+        "showLabels": false,
+        "showTime": true,
+        "wrapLogMessage": true,
+        "sortOrder": 2
+      },
+      "targets": [
+        {
+          "expr": "{service=\"frontend\"}",
+          "refId": "A",
+          "legendFormat": "Frontend"
+        }
+      ],
+      "title": "⚛️  Frontend Logs (Nginx)",
+      "type": "logs"
+    },
+    {
+      "datasource": "Loki",
+      "description": "Logs de la base de datos - Ordenados más recientes primero",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {}
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 10,
+        "w": 12,
+        "x": 0,
+        "y": 10
+      },
+      "id": 4,
+      "options": {
+        "dedupStrategy": "exact",
+        "enableLogDetails": true,
+        "maxLines": 1000,
+        "prettifyLogMessage": true,
+        "showCommonLabels": false,
+        "showLabels": false,
+        "showTime": true,
+        "wrapLogMessage": true,
+        "sortOrder": 2
+      },
+      "targets": [
+        {
+          "expr": "{service=\"postgres\"}",
+          "refId": "A",
+          "legendFormat": "PostgreSQL"
+        }
+      ],
+      "title": "🐘 Database Logs (PostgreSQL)",
+      "type": "logs"
+    },
+    {
+      "datasource": "Loki",
+      "description": "Todos los logs correlacionados - Ideal para debugging de issues que afectan múltiples servicios",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {}
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 10,
+        "w": 12,
+        "x": 12,
+        "y": 10
+      },
+      "id": 5,
+      "options": {
+        "dedupStrategy": "exact",
+        "enableLogDetails": true,
+        "maxLines": 500,
+        "prettifyLogMessage": true,
+        "showCommonLabels": false,
+        "showLabels": true,
+        "showTime": true,
+        "wrapLogMessage": true,
+        "sortOrder": 2
+      },
+      "targets": [
+        {
+          "expr": "{job=\"docker\", service=~\"backend|frontend|postgres\"}",
+          "refId": "A",
+          "legendFormat": "All Services"
+        }
+      ],
+      "title": "📊 All Services Combined",
+      "type": "logs"
+    },
+    {
+      "datasource": "Loki",
+      "description": "🚨 TODOS los errores de todos los servicios - PANEL CRÍTICO para debugging",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {}
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 12,
+        "w": 24,
+        "x": 0,
+        "y": 20
+      },
+      "id": 6,
+      "options": {
+        "dedupStrategy": "exact",
+        "enableLogDetails": true,
+        "maxLines": 500,
+        "prettifyLogMessage": true,
+        "showCommonLabels": false,
+        "showLabels": true,
+        "showTime": true,
+        "wrapLogMessage": true,
+        "sortOrder": 2
+      },
+      "targets": [
+        {
+          "expr": "{service=~\"backend|frontend|postgres\"} |~ \"(?i)(error|exception|critical|fail|500)\"",
+          "refId": "A",
+          "legendFormat": "Errors"
+        }
+      ],
+      "title": "🚨 CRITICAL ERRORS & EXCEPTIONS - Todos los servicios",
+      "type": "logs"
+    },
+    {
+      "datasource": "Loki",
+      "description": "Logs de autenticación - Login, tokens JWT, OAuth, etc.",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {}
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 10,
+        "w": 12,
+        "x": 0,
+        "y": 32
+      },
+      "id": 9,
+      "options": {
+        "dedupStrategy": "exact",
+        "enableLogDetails": true,
+        "maxLines": 500,
+        "prettifyLogMessage": true,
+        "showCommonLabels": false,
+        "showLabels": true,
+        "showTime": true,
+        "wrapLogMessage": true,
+        "sortOrder": 2
+      },
+      "targets": [
+        {
+          "expr": "{service=\"backend\"} |~ \"(?i)(login|auth|token|jwt|password)\"",
+          "refId": "A",
+          "legendFormat": "Authentication"
+        }
+      ],
+      "title": "🔐 Authentication & Login Logs",
+      "type": "logs"
+    },
+    {
+      "datasource": "Loki",
+      "description": "Logs de API requests - GET, POST, PUT, DELETE para debugging de endpoints",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {}
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 10,
+        "w": 12,
+        "x": 12,
+        "y": 32
+      },
+      "id": 10,
+      "options": {
+        "dedupStrategy": "exact",
+        "enableLogDetails": true,
+        "maxLines": 500,
+        "prettifyLogMessage": true,
+        "showCommonLabels": false,
+        "showLabels": true,
+        "showTime": true,
+        "wrapLogMessage": true,
+        "sortOrder": 2
+      },
+      "targets": [
+        {
+          "expr": "{service=\"backend\"} |~ \"(GET|POST|PUT|DELETE|PATCH)\"",
+          "refId": "A",
+          "legendFormat": "API Requests"
+        }
+      ],
+      "title": "🔗 API Requests & Endpoints",
+      "type": "logs"
+    }
+  ],
+  "refresh": "5s",
+  "schemaVersion": 27,
+  "style": "dark",
+  "tags": [
+    "lorapp",
+    "logs",
+    "monitoring",
+    "debug",
+    "timestamp"
+  ],
+  "templating": {
+    "list": []
+  },
+  "time": {
+    "from": "now-24h",
+    "to": "now"
+  },
+  "timepicker": {
+    "refresh_intervals": [
+      "5s",
+      "10s",
+      "30s",
+      "1m",
+      "5m",
+      "30m",
+      "1h",
+      "6h",
+      "24h"
+    ]
+  },
+  "timezone": "",
+  "title": "📊 Lorapp - Logs Dashboard (Ordenado por Timestamp)",
+  "uid": "lorapp-logs",
+  "version": 3
+}

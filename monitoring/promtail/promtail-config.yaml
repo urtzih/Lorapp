@@ -1,0 +1,73 @@
+server:
+  http_listen_port: 9080
+  grpc_listen_port: 0
+
+positions:
+  filename: /tmp/positions.yaml
+  sync_period: 10s
+
+clients:
+  - url: http://loki:3100/loki/api/v1/push
+    batchwait: 5s
+    batchsize: 1024000
+
+scrape_configs:
+  # Backend logs
+  - job_name: backend
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          job: docker
+          service: backend
+          container_name: lorapp-backend
+          __path__: /var/lib/docker/containers/035130f03d18*/*.log
+    pipeline_stages:
+      - json:
+          expressions:
+            output: log
+            stream: stream
+      - output:
+          source: output
+      - labels:
+          stream:
+  
+  # Frontend logs
+  - job_name: frontend
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          job: docker
+          service: frontend
+          container_name: lorapp-frontend
+          __path__: /var/lib/docker/containers/564d75ad27eb*/*.log
+    pipeline_stages:
+      - json:
+          expressions:
+            output: log
+            stream: stream
+      - output:
+          source: output
+      - labels:
+          stream:
+  
+  # Postgres logs
+  - job_name: postgres
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          job: docker
+          service: postgres
+          container_name: lorapp-postgres
+          __path__: /var/lib/docker/containers/557fc89f14ab*/*.log
+    pipeline_stages:
+      - json:
+          expressions:
+            output: log
+            stream: stream
+      - output:
+          source: output
+      - labels:
+          stream:
