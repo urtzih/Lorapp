@@ -24,15 +24,22 @@ export const AuthProvider = ({ children }) => {
     // Check if user is logged in on mount
     useEffect(() => {
         const initAuth = async () => {
+            console.log('[AuthContext] Initializing auth...');
             const storedToken = localStorage.getItem('token');
             const storedUser = localStorage.getItem('user');
+            console.log('[AuthContext] Stored token:', storedToken ? `${storedToken.substring(0, 30)}...` : 'NULL');
+            console.log('[AuthContext] Stored user:', storedUser ? JSON.parse(storedUser).email : 'NULL');
 
             if (storedToken && storedUser) {
                 setToken(storedToken);
                 setUser(JSON.parse(storedUser));
+                console.log('[AuthContext] Auth restored from localStorage');
+            } else {
+                console.log('[AuthContext] No stored auth found');
             }
 
             setLoading(false);
+            console.log('[AuthContext] Init complete, loading=false');
         };
 
         initAuth();
@@ -45,13 +52,17 @@ export const AuthProvider = ({ children }) => {
             console.log('[AuthContext] Login response:', response);
             const { access_token, user: userData } = response.data;
 
+            console.log('[AuthContext] Saving token to localStorage...');
             localStorage.setItem('token', access_token);
             localStorage.setItem('user', JSON.stringify(userData));
+            console.log('[AuthContext] Token saved:', localStorage.getItem('token') ? 'YES' : 'NO');
 
+            console.log('[AuthContext] Setting state...');
             setToken(access_token);
             setUser(userData);
+            console.log('[AuthContext] State set, token in state:', access_token ? 'YES' : 'NO');
 
-            console.log('[AuthContext] Login successful, user:', userData);
+            console.log('[AuthContext] Login successful, user:', userData.email);
 
             return userData;
         } catch (error) {
@@ -87,10 +98,12 @@ export const AuthProvider = ({ children }) => {
     };
 
     const logout = () => {
+        console.log('[AuthContext] Logging out...');
         localStorage.removeItem('token');
         localStorage.removeItem('user');
         setToken(null);
         setUser(null);
+        console.log('[AuthContext] Logout complete');
     };
 
     const updateUser = (updatedData) => {
@@ -99,11 +112,14 @@ export const AuthProvider = ({ children }) => {
         setUser(updatedUser);
     };
 
+    const isAuth = !!token || !!localStorage.getItem('token');
+    console.log('[AuthContext] Rendering - token:', token ? 'EXISTS' : 'NULL', 'localStorage:', localStorage.getItem('token') ? 'EXISTS' : 'NULL', 'isAuthenticated:', isAuth, 'loading:', loading);
+
     const value = {
         user,
         token,
         loading,
-        isAuthenticated: !!user,
+        isAuthenticated: isAuth,
         login,
         register,
         googleLogin,

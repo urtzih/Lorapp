@@ -16,17 +16,22 @@ export function Inventory() {
     const navigate = useNavigate();
     const { user } = useAuth();
 
+    console.log('[Inventory] Component mounted/rendered');
+
     useEffect(() => {
+        console.log('[Inventory] useEffect triggered, loading seeds...');
         loadSeeds();
     }, [filters]);
 
     const loadSeeds = async () => {
         try {
+            console.log('[Inventory] loadSeeds called with filters:', filters);
             setLoading(true);
             const response = await seedsAPI.list(filters);
+            console.log('[Inventory] Seeds loaded successfully:', response.data.length, 'seeds');
             setSeeds(response.data);
         } catch (error) {
-            console.error('Error loading seeds:', error);
+            console.error('[Inventory] Error loading seeds:', error.response?.status, error.response?.data);
         } finally {
             setLoading(false);
         }

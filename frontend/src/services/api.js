@@ -19,6 +19,7 @@ const api = axios.create({
 api.interceptors.request.use(
     (config) => {
         const token = localStorage.getItem('token');
+        console.log('[API Interceptor] Request to:', config.url, 'Token:', token ? `${token.substring(0, 20)}...` : 'NO TOKEN');
         if (token) {
             config.headers.Authorization = `Bearer ${token}`;
         }
@@ -32,8 +33,12 @@ api.interceptors.response.use(
     (response) => response,
     (error) => {
         if (error.response?.status === 401) {
+            console.error('[API Interceptor] 401 Unauthorized detected! Clearing auth...');
+            console.error('[API Interceptor] Request was:', error.config?.method, error.config?.url);
+            console.error('[API Interceptor] Response:', error.response?.data);
             localStorage.removeItem('token');
             localStorage.removeItem('user');
+            console.error('[API Interceptor] Auth cleared, redirecting to /login');
             window.location.href = '/login';
         }
         return Promise.reject(error);

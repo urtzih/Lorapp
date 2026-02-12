@@ -19,13 +19,27 @@ export function Login() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        console.log('[Login] handleSubmit called with:', { email, password });
         setError('');
         setLoading(true);
 
         try {
-            await login({ email, password });
+            console.log('[Login] Calling login function...');
+            const userData = await login({ email, password });
+            console.log('[Login] Login returned, userData:', userData);
+            console.log('[Login] Token in localStorage NOW:', localStorage.getItem('token') ? `${localStorage.getItem('token').substring(0, 30)}...` : 'MISSING');
+            console.log('[Login] User in localStorage NOW:', localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user')).email : 'MISSING');
+            
+            // INCREASED delay to ensure localStorage is fully synced
+            console.log('[Login] Waiting 500ms for localStorage to sync...');
+            await new Promise(resolve => setTimeout(resolve, 500));
+            
+            console.log('[Login] After 500ms delay - Token in localStorage:', localStorage.getItem('token') ? 'EXISTS' : 'MISSING');
+            console.log('[Login] About to navigate to /inventory');
             navigate('/inventory');
+            console.log('[Login] Navigation called, waiting for route change...');
         } catch (err) {
+            console.error('[Login] Error caught:', err.response?.status, err.response?.data?.detail);
             setError(err.response?.data?.detail || 'Error al iniciar sesión');
         } finally {
             setLoading(false);
@@ -36,6 +50,7 @@ export function Login() {
         onSuccess: async (tokenResponse) => {
             try {
                 await googleLogin(tokenResponse.access_token);
+                await new Promise(resolve => setTimeout(resolve, 500));
                 navigate('/inventory');
             } catch (err) {
                 setError('Error al iniciar sesión con Google');
@@ -49,7 +64,7 @@ export function Login() {
             <div className="card" style={{ maxWidth: '400px', width: '100%', margin: '1rem' }}>
                 <div className="text-center mb-6">
                     <h1 className="text-primary mb-2">🌱 Lorapp</h1>
-                    <p className="text-gray">Gestiona tu huerta con IA</p>
+                    <p className="text-gray">Gestiona tu huerta</p>
                 </div>
 
                 {error && (
@@ -60,7 +75,7 @@ export function Login() {
 
                 <form onSubmit={handleSubmit}>
                     <div className="form-group">
-                        <label className="form-label">Correo electrónico</label>
+                        <label className="form-label">Correo electrónico - test@example.com / password123</label>
                         <input
                             type="email"
                             className="input"

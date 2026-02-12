@@ -12,8 +12,11 @@ import Layout from './components/layout/Layout'
 
 function App() {
     const { isAuthenticated, loading } = useAuth();
+    
+    console.log('[App] Rendering - isAuthenticated:', isAuthenticated, 'loading:', loading);
 
     if (loading) {
+        console.log('[App] Still loading auth...');
         return (
             <div className="flex items-center justify-center" style={{ height: '100vh' }}>
                 <div className="spinner"></div>
@@ -33,18 +36,26 @@ function App() {
                 path="/*"
                 element={
                     isAuthenticated ? (
-                        <Layout>
-                            <Routes>
-                                <Route path="/" element={<Navigate to="/inventory" replace />} />
-                                <Route path="/inventory" element={<Inventory />} />
-                                <Route path="/seeds/:id" element={<SeedDetail />} />
-                                <Route path="/scan" element={<SeedScan />} />
-                                <Route path="/calendar" element={<Calendar />} />
-                                <Route path="/settings" element={<Settings />} />
-                            </Routes>
-                        </Layout>
+                        (() => {
+                            console.log('[App] Rendering protected routes - USER IS AUTHENTICATED');
+                            return (
+                                <Layout>
+                                    <Routes>
+                                        <Route path="/" element={<Navigate to="/inventory" replace />} />
+                                        <Route path="/inventory" element={<Inventory />} />
+                                        <Route path="/seeds/:id" element={<SeedDetail />} />
+                                        <Route path="/scan" element={<SeedScan />} />
+                                        <Route path="/calendar" element={<Calendar />} />
+                                        <Route path="/settings" element={<Settings />} />
+                                    </Routes>
+                                </Layout>
+                            );
+                        })()
                     ) : (
-                        <Navigate to="/onboarding" replace />
+                        (() => {
+                            console.log('[App] User NOT authenticated, redirecting to /onboarding');
+                            return <Navigate to="/onboarding" replace />;
+                        })()
                     )
                 }
             />

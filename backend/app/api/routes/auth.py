@@ -57,7 +57,7 @@ async def register(
     db.refresh(new_user)
     
     # Generate access token
-    access_token = create_access_token(data={"sub": new_user.id, "email": new_user.email})
+    access_token = create_access_token(data={"sub": str(new_user.id), "email": new_user.email})
     
     return TokenResponse(
         access_token=access_token,
@@ -94,7 +94,7 @@ async def login(
         )
     
     # Generate access token
-    access_token = create_access_token(data={"sub": user.id, "email": user.email})
+    access_token = create_access_token(data={"sub": str(user.id), "email": user.email})
     
     return TokenResponse(
         access_token=access_token,
@@ -159,7 +159,7 @@ async def google_auth(
         db.refresh(user)
     
     # Generate access token
-    access_token = create_access_token(data={"sub": user.id, "email": user.email})
+    access_token = create_access_token(data={"sub": str(user.id), "email": user.email})
     
     return TokenResponse(
         access_token=access_token,

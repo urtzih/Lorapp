@@ -76,7 +76,16 @@ def decode_access_token(token: str) -> Optional[Dict[str, Any]]:
         Dictionary of decoded claims if valid, None if invalid or expired
     """
     try:
+        print(f"[Security] Attempting to decode token: {token[:50]}...")
+        print(f"[Security] Using SECRET_KEY: {settings.SECRET_KEY[:30]}...")
+        print(f"[Security] Using ALGORITHM: {settings.ALGORITHM}")
         payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
+        print(f"[Security] Token decoded successfully: {payload}")
         return payload
-    except JWTError:
+    except JWTError as e:
+        print(f"[Security] JWT Error: {str(e)}")
+        print(f"[Security] Token: {token[:100]}...")
+        return None
+    except Exception as e:
+        print(f"[Security] Unexpected error: {str(e)}")
         return None
