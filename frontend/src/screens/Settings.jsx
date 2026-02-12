@@ -18,7 +18,9 @@ export function Settings() {
         notifications_enabled: user?.notifications_enabled !== false
     });
     const [pushSubscribed, setPushSubscribed] = useState(false);
+    const [isDeleteModalOpen, setDeleteModalOpen] = useState(false);
     const [loading, setLoading] = useState(false);
+    const [deleteLoading, setDeleteLoading] = useState(false);
     const [message, setMessage] = useState(null);
 
     useEffect(() => {
@@ -107,6 +109,22 @@ export function Settings() {
         } catch (error) {
             console.error('Error exporting CSV:', error);
             setMessage({ type: 'error', text: '❌ Error al exportar CSV' });
+        }
+    };
+
+    const handleDeleteAccount = async () => {
+        setDeleteLoading(true);
+        setMessage(null);
+        try {
+            await userAPI.deleteProfile();
+            setDeleteModalOpen(false);
+            logout(); // This will clear user data and redirect
+        } catch (error) {
+            console.error('Error deleting account:', error);
+            setMessage({ type: 'error', text: '❌ Error al eliminar la cuenta. Inténtalo de nuevo.' });
+            setDeleteModalOpen(false); // Close modal on error too
+        } finally {
+            setDeleteLoading(false);
         }
     };
 
@@ -261,10 +279,48 @@ export function Settings() {
             <div className="card">
                 <h2 className="mb-4">🔐 Cuenta</h2>
 
-                <button onClick={logout} className="btn" style={{ backgroundColor: 'var(--color-error)', color: 'white' }}>
-                    🚪 Cerrar sesión
-                </button>
+                <div className="flex gap-3">
+                    <button onClick={logout} className="btn btn-secondary">
+                        🚪 Cerrar sesión
+                    </button>
+                    <button onClick={() => setDeleteModalOpen(true)} className="btn" style={{ backgroundColor: 'var(--color-error)', color: 'white' }}>
+                        🗑️ Eliminar cuenta
+                    </button>
+                </div>
+
+                <p className="text-gray text-sm mt-4">
+                    <strong>Atención:</strong> La eliminación de la cuenta es permanente y no se puede deshacer.
+                </p>
             </div>
+
+            {/* Delete Confirmation Modal */}
+            {isDeleteModalOpen && (
+                <div className="modal-overlay">
+                    <div className="modal-content card">
+                        <h2 className="mb-4">🗑️ ¿Seguro que quieres eliminar tu cuenta?</h2>
+                        <p className="mb-6">
+                            Esta acción es irreversible. Se borrarán todos tus datos, incluyendo
+                            tu inventario de semillas y calendario.
+                        </p>
+                        <div className="flex justify-end gap-3">
+                            <button
+                                onClick={() => setDeleteModalOpen(false)}
+                                className="btn btn-secondary"
+                            >
+                                Cancelar
+                            </button>
+                            <button
+                                onClick={handleDeleteAccount}
+                                className="btn"
+                                style={{ backgroundColor: 'var(--color-error)', color: 'white' }}
+                                disabled={deleteLoading}
+                            >
+                                {deleteLoading ? 'Eliminando...' : 'Sí, eliminar mi cuenta'}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

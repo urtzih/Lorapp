@@ -54,6 +54,7 @@ export const userAPI = {
     getProfile: () => api.get('/users/profile'),
     updateProfile: (data) => api.put('/users/profile', data),
     updatePreferences: (data) => api.put('/users/preferences', data),
+    deleteProfile: () => api.delete('/users/profile'),
 };
 
 // ===== SEEDS API =====
