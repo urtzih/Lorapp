@@ -65,94 +65,219 @@ class TokenResponse(BaseModel):
     user: UserResponse
 
 
-# ============ Seed Schemas ============
+# ============ Especie Schemas ============
 
-class SeedBase(BaseModel):
-    """Base seed fields"""
-    commercial_name: str = Field(..., min_length=1, max_length=500)
-    species: Optional[str] = Field(None, max_length=255)
-    variety: Optional[str] = Field(None, max_length=255)
-    brand: Optional[str] = Field(None, max_length=255)
-    production_year: Optional[int] = Field(None, ge=1900, le=2100)
-    estimated_count: Optional[int] = Field(None, ge=0)
-    notes: Optional[str] = None
-
-
-class SeedCreate(SeedBase):
-    """Schema for creating a new seed entry"""
-    expiration_date: Optional[datetime] = None
-    photos: List[str] = Field(default_factory=list)
-    
-    # Agricultural parameters
-    planting_depth_cm: Optional[float] = Field(None, ge=0)
-    spacing_cm: Optional[float] = Field(None, ge=0)
-    row_spacing_cm: Optional[float] = Field(None, ge=0)
-    watering_frequency: Optional[str] = None
-    sun_exposure: Optional[str] = Field(None, pattern="^(full|partial|shade)$")
-    
-    # Calendar data
-    indoor_planting_months: List[int] = Field(default_factory=list)
-    outdoor_planting_months: List[int] = Field(default_factory=list)
-    germination_days: Optional[int] = Field(None, ge=0)
-    days_to_transplant: Optional[int] = Field(None, ge=0)
-    days_to_harvest: Optional[int] = Field(None, ge=0)
-    
-    crop_family: Optional[str] = None
+class EspecieBase(BaseModel):
+    """Base especie fields"""
+    nombre_comun: str = Field(..., min_length=1, max_length=255)
+    nombre_cientifico: Optional[str] = Field(None, max_length=255)
+    familia_botanica: Optional[str] = Field(None, max_length=100)
+    genero: Optional[str] = Field(None, max_length=100)
+    descripcion: Optional[str] = None
+    tipo_cultivo: Optional[str] = Field(None, max_length=50)
 
 
-class SeedUpdate(BaseModel):
-    """Schema for updating seed information"""
-    commercial_name: Optional[str] = Field(None, min_length=1, max_length=500)
-    species: Optional[str] = None
-    variety: Optional[str] = None
-    brand: Optional[str] = None
-    production_year: Optional[int] = Field(None, ge=1900, le=2100)
-    expiration_date: Optional[datetime] = None
-    estimated_count: Optional[int] = Field(None, ge=0)
-    notes: Optional[str] = None
-    
-    planting_depth_cm: Optional[float] = None
-    spacing_cm: Optional[float] = None
-    row_spacing_cm: Optional[float] = None
-    watering_frequency: Optional[str] = None
-    sun_exposure: Optional[str] = None
-    
-    indoor_planting_months: Optional[List[int]] = None
-    outdoor_planting_months: Optional[List[int]] = None
-    germination_days: Optional[int] = None
-    days_to_transplant: Optional[int] = None
-    days_to_harvest: Optional[int] = None
-    
-    crop_family: Optional[str] = None
-    is_planted: Optional[bool] = None
-    planting_date: Optional[datetime] = None
-
-
-class SeedResponse(SeedBase):
-    """Schema for seed data in API responses"""
+class EspecieResponse(EspecieBase):
+    """Response schema for Especie"""
     id: int
-    user_id: int
-    expiration_date: Optional[datetime]
-    photos: List[str]
+    profundidad_siembra_cm: Optional[float]
+    distancia_plantas_cm: Optional[float]
+    distancia_surcos_cm: Optional[float]
+    dias_germinacion_min: Optional[int]
+    dias_germinacion_max: Optional[int]
+    dias_hasta_trasplante: Optional[int]
+    dias_hasta_cosecha_min: Optional[int]
+    dias_hasta_cosecha_max: Optional[int]
+    meses_siembra_interior: List[int]
+    meses_siembra_exterior: List[int]
+    created_at: datetime
     
-    planting_depth_cm: Optional[float]
-    spacing_cm: Optional[float]
-    row_spacing_cm: Optional[float]
-    watering_frequency: Optional[str]
-    sun_exposure: Optional[str]
+    class Config:
+        from_attributes = True
+
+
+class EspecieUpdate(BaseModel):
+    """Schema for updating especie information"""
+    nombre_comun: Optional[str] = Field(None, min_length=1, max_length=255)
+    nombre_cientifico: Optional[str] = Field(None, max_length=255)
+    familia_botanica: Optional[str] = Field(None, max_length=100)
+    genero: Optional[str] = Field(None, max_length=100)
+    descripcion: Optional[str] = None
+    tipo_cultivo: Optional[str] = Field(None, max_length=50)
+    profundidad_siembra_cm: Optional[float] = Field(None, ge=0)
+    distancia_plantas_cm: Optional[float] = Field(None, ge=0)
+    distancia_surcos_cm: Optional[float] = Field(None, ge=0)
+    frecuencia_riego: Optional[str] = Field(
+        None,
+        pattern="^(diario|cada_dos_dias|semanal|cada_dos_semanas|mensual)$"
+    )
+    exposicion_solar: Optional[str] = Field(None, pattern="^(total|parcial|sombra)$")
+    dias_germinacion_min: Optional[int] = Field(None, ge=0)
+    dias_germinacion_max: Optional[int] = Field(None, ge=0)
+    dias_hasta_trasplante: Optional[int] = Field(None, ge=0)
+    dias_hasta_cosecha_min: Optional[int] = Field(None, ge=0)
+    dias_hasta_cosecha_max: Optional[int] = Field(None, ge=0)
+    meses_siembra_interior: Optional[List[int]] = None
+    meses_siembra_exterior: Optional[List[int]] = None
+    temperatura_minima_c: Optional[float] = None
+    temperatura_maxima_c: Optional[float] = None
+    zonas_climaticas_preferidas: Optional[List[str]] = None
+
+
+# ============ Variedad Schemas ============
+
+class VariedadBase(BaseModel):
+    """Base variedad fields"""
+    nombre_variedad: str = Field(..., min_length=1, max_length=255)
+    descripcion: Optional[str] = None
+    color_fruto: Optional[str] = Field(None, max_length=100)
+    tipo_origen: Optional[str] = Field(None, max_length=50)
+    procedencia: Optional[str] = Field(None, max_length=255)
+    anno_recoleccion: Optional[int] = Field(None, ge=1900, le=2100)
+    generacion: Optional[str] = Field(None, max_length=50)
+    tipo_polinizacion: Optional[str] = Field(None, max_length=100)
+
+
+class VariedadResponse(VariedadBase):
+    """Response schema for Variedad"""
+    id: int
+    especie_id: int
+    es_hija_f1: bool
+    es_variedad_antigua: bool
+    created_at: datetime
     
-    indoor_planting_months: List[int]
-    outdoor_planting_months: List[int]
-    germination_days: Optional[int]
-    days_to_transplant: Optional[int]
-    days_to_harvest: Optional[int]
+    # Nested relationships
+    especie: Optional[EspecieResponse] = None
     
-    crop_family: Optional[str]
-    is_planted: bool
-    planting_date: Optional[datetime]
-    transplant_date: Optional[datetime]
-    expected_harvest_date: Optional[datetime]
+    class Config:
+        from_attributes = True
+
+
+class VariedadUpdate(BaseModel):
+    """Schema for updating variedad information"""
+    nombre_variedad: Optional[str] = Field(None, min_length=1, max_length=255)
+    descripcion: Optional[str] = None
+    color_fruto: Optional[str] = Field(None, max_length=100)
+    sabor: Optional[str] = Field(None, max_length=255)
+    tamanio_planta: Optional[str] = Field(None, max_length=50)
+    profundidad_siembra_cm: Optional[float] = Field(None, ge=0)
+    distancia_plantas_cm: Optional[float] = Field(None, ge=0)
+    distancia_surcos_cm: Optional[float] = Field(None, ge=0)
+    dias_germinacion_min: Optional[int] = Field(None, ge=0)
+    dias_germinacion_max: Optional[int] = Field(None, ge=0)
+    dias_hasta_cosecha_min: Optional[int] = Field(None, ge=0)
+    dias_hasta_cosecha_max: Optional[int] = Field(None, ge=0)
+    resistencias: Optional[List[str]] = None
+    es_hija_f1: Optional[bool] = None
+    es_variedad_antigua: Optional[bool] = None
+    tipo_origen: Optional[str] = Field(None, max_length=50)
+    procedencia: Optional[str] = Field(None, max_length=255)
+    anno_recoleccion: Optional[int] = Field(None, ge=1900, le=2100)
+    generacion: Optional[str] = Field(None, max_length=50)
+    tipo_polinizacion: Optional[str] = Field(None, max_length=100)
+
+
+# ============ Lote Semillas Schemas ============
+
+class LoteSemillasBase(BaseModel):
+    """Base lote semillas fields"""
+    nombre_comercial: str = Field(..., min_length=1, max_length=500)
+    marca: Optional[str] = Field(None, max_length=255)
+    numero_lote: Optional[str] = Field(None, max_length=100)
+    cantidad_estimada: Optional[int] = Field(None, ge=0)
+    anno_produccion: Optional[int] = Field(None, ge=1900, le=2100)
+    notas: Optional[str] = None
+
+
+class LoteSemillasCreate(LoteSemillasBase):
+    """Schema for creating a new lote"""
+    variedad_id: int
+    fecha_vencimiento: Optional[datetime] = None
+    fecha_adquisicion: Optional[datetime] = None
+    lugar_almacenamiento: Optional[str] = Field(None, max_length=255)
+    temperatura_almacenamiento_c: Optional[float] = None
+    humedad_relativa: Optional[float] = Field(None, ge=0, le=100)
+    fotos: List[str] = Field(default_factory=list)
+
+
+class LoteSemillasUpdate(BaseModel):
+    """Schema for updating lote information"""
+    nombre_comercial: Optional[str] = Field(None, min_length=1, max_length=500)
+    marca: Optional[str] = None
+    numero_lote: Optional[str] = None
+    cantidad_estimada: Optional[int] = Field(None, ge=0)
+    cantidad_restante: Optional[int] = Field(None, ge=0)
+    anno_produccion: Optional[int] = None
+    fecha_vencimiento: Optional[datetime] = None
+    fecha_adquisicion: Optional[datetime] = None
+    lugar_almacenamiento: Optional[str] = None
+    temperatura_almacenamiento_c: Optional[float] = None
+    humedad_relativa: Optional[float] = None
+    estado: Optional[str] = Field(None, pattern="^(activo|agotado|vencido|descartado)$")
+    notas: Optional[str] = None
+
+
+class LoteSemillasResponse(LoteSemillasBase):
+    """Response schema for lote semillas"""
+    id: int
+    usuario_id: int
+    variedad_id: int
+    fecha_vencimiento: Optional[datetime]
+    fecha_adquisicion: Optional[datetime]
+    lugar_almacenamiento: Optional[str]
+    temperatura_almacenamiento_c: Optional[float]
+    humedad_relativa: Optional[float]
+    estado: str
+    cantidad_restante: Optional[int]
+    fotos: List[str]
+    created_at: datetime
+    updated_at: Optional[datetime]
     
+    # Nested relationships
+    variedad: Optional[VariedadResponse] = None
+    
+    class Config:
+        from_attributes = True
+
+
+# ============ Plantacion Schemas ============
+
+class PlantacionBase(BaseModel):
+    """Base plantacion fields"""
+    nombre_plantacion: str = Field(..., min_length=1, max_length=255)
+    fecha_siembra: datetime
+    tipo_siembra: str = Field(..., pattern="^(interior|exterior|terraza)$")
+    cantidad_semillas_plantadas: Optional[int] = Field(None, ge=0)
+    ubicacion_descripcion: Optional[str] = Field(None, max_length=255)
+    notas: Optional[str] = None
+
+
+class PlantacionCreate(PlantacionBase):
+    """Schema for creating plantacion"""
+    lote_semillas_id: int
+    fotos: List[str] = Field(default_factory=list)
+
+
+class PlantacionUpdate(BaseModel):
+    """Schema for updating plantacion"""
+    nombre_plantacion: Optional[str] = None
+    estado: Optional[str] = Field(None, pattern="^(planificada|sembrada|germinada|trasplantada|crecimiento|cosecha_cercana|cosechada|cancelada)$")
+    fecha_germinacion: Optional[datetime] = None
+    fecha_trasplante: Optional[datetime] = None
+    fecha_cosecha_estimada: Optional[datetime] = None
+    notas: Optional[str] = None
+
+
+class PlantacionResponse(PlantacionBase):
+    """Response schema for plantacion"""
+    id: int
+    usuario_id: int
+    lote_semillas_id: int
+    estado: str
+    fecha_germinacion: Optional[datetime]
+    fecha_trasplante: Optional[datetime]
+    fecha_cosecha_estimada: Optional[datetime]
+    fotos: List[str]
     created_at: datetime
     updated_at: Optional[datetime]
     
@@ -160,10 +285,12 @@ class SeedResponse(SeedBase):
         from_attributes = True
 
 
+# ============ OCR Result Schema ============
+
 class OCRResult(BaseModel):
     """Schema for OCR extraction results"""
     raw_text: str
-    extracted_data: SeedCreate
+    extracted_data: LoteSemillasCreate
     confidence: float = Field(..., ge=0, le=1)
 
 
@@ -176,6 +303,7 @@ class PushSubscriptionCreate(BaseModel):
     keys: Dict[str, str] = Field(..., description="Must contain 'p256dh' and 'auth' keys")
     
     @validator('keys')
+    @classmethod
     def validate_keys(cls, v):
         if 'p256dh' not in v or 'auth' not in v:
             raise ValueError("Keys must contain 'p256dh' and 'auth'")

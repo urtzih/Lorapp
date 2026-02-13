@@ -93,7 +93,7 @@ class NotificationScheduler:
                 
                 # Prepare notification content
                 month_name = datetime.now().strftime("%B")
-                seed_list = ", ".join([r["seed_name"] for r in recommendations[:5]])
+                seed_list = ", ".join([r["nombre"] for r in recommendations[:5]])
                 if len(recommendations) > 5:
                     seed_list += f" y {len(recommendations) - 5} más"
                 
@@ -147,10 +147,10 @@ class NotificationScheduler:
             
             for user in users:
                 # Get seeds expiring in 30 days
-                expiring_soon = calendar_service.get_expiring_seeds(user, days_ahead=30, db=db)
+                expiring_soon = calendar_service.get_expiring_lotes(user, days_ahead=30, db=db)
                 
                 # Get seeds expiring in 7 days (more urgent)
-                expiring_urgent = calendar_service.get_expiring_seeds(user, days_ahead=7, db=db)
+                expiring_urgent = calendar_service.get_expiring_lotes(user, days_ahead=7, db=db)
                 
                 if not expiring_soon:
                     continue
@@ -167,7 +167,7 @@ class NotificationScheduler:
                 if expiring_urgent:
                     seed = expiring_urgent[0]
                     title = "⚠️ Semilla próxima a caducar"
-                    body = f"{seed['seed_name']} caduca en {seed['days_until']} días"
+                    body = f"{seed['nombre']} caduca en {seed['days_until']} días"
                     
                     push_service.send_to_user(
                         subscriptions=subscriptions,
@@ -231,9 +231,9 @@ class NotificationScheduler:
                 for item in upcoming:
                     title = "🌿 Tiempo de trasplantar"
                     if item["days_until"] == 0:
-                        body = f"Hoy toca trasplantar {item['seed_name']}"
+                        body = f"Hoy toca trasplantar {item['nombre']}"
                     else:
-                        body = f"Trasplanta {item['seed_name']} en {item['days_until']} días"
+                        body = f"Trasplanta {item['nombre']} en {item['days_until']} días"
                     
                     push_service.send_to_user(
                         subscriptions=subscriptions,

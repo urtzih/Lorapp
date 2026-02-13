@@ -22,6 +22,7 @@ export function Settings() {
     const [loading, setLoading] = useState(false);
     const [deleteLoading, setDeleteLoading] = useState(false);
     const [message, setMessage] = useState(null);
+    const [expandedSection, setExpandedSection] = useState('profile'); // 'profile', 'notifications', 'data', 'account'
 
     useEffect(() => {
         checkPushSubscription();
@@ -38,10 +39,10 @@ export function Settings() {
         try {
             await userAPI.updateProfile(profile);
             updateUser(profile);
-            setMessage({ type: 'success', text: '✅ Perfil actualizado correctamente' });
+            setMessage({ type: 'success', text: 'Perfil actualizado correctamente' });
         } catch (error) {
             console.error('Error updating profile:', error);
-            setMessage({ type: 'error', text: '❌ Error al actualizar el perfil' });
+            setMessage({ type: 'error', text: 'Error al actualizar el perfil' });
         } finally {
             setLoading(false);
         }
@@ -49,24 +50,20 @@ export function Settings() {
 
     const handleEnableNotifications = async () => {
         try {
-            // Request browser permission
             const permitted = await requestNotificationPermission();
             if (!permitted) {
-                setMessage({ type: 'error', text: '❌ Permiso de notificaciones denegado' });
+                setMessage({ type: 'error', text: 'Permiso de notificaciones denegado' });
                 return;
             }
 
-            // Subscribe to push
             const subscription = await subscribeToPush();
-
-            // Send subscription to backend
             await notificationsAPI.subscribe(subscription);
 
             setPushSubscribed(true);
-            setMessage({ type: 'success', text: '✅ Notificaciones activadas correctamente' });
+            setMessage({ type: 'success', text: 'Notificaciones activadas correctamente' });
         } catch (error) {
             console.error('Error enabling notifications:', error);
-            setMessage({ type: 'error', text: '❌ Error al activar notificaciones' });
+            setMessage({ type: 'error', text: 'Error al activar notificaciones' });
         }
     };
 
@@ -78,20 +75,20 @@ export function Settings() {
             }
 
             setPushSubscribed(false);
-            setMessage({ type: 'success', text: '✅ Notificaciones desactivadas' });
+            setMessage({ type: 'success', text: 'Notificaciones desactivadas' });
         } catch (error) {
             console.error('Error disabling notifications:', error);
-            setMessage({ type: 'error', text: '❌ Error al desactivar notificaciones' });
+            setMessage({ type: 'error', text: 'Error al desactivar notificaciones' });
         }
     };
 
     const handleTestNotification = async () => {
         try {
             await notificationsAPI.test();
-            setMessage({ type: 'success', text: '✅ Notificación de prueba enviada' });
+            setMessage({ type: 'success', text: 'Notificación de prueba enviada' });
         } catch (error) {
             console.error('Error sending test notification:', error);
-            setMessage({ type: 'error', text: '❌ Error al enviar notificación' });
+            setMessage({ type: 'error', text: 'Error al enviar notificación' });
         }
     };
 
@@ -105,10 +102,10 @@ export function Settings() {
             document.body.appendChild(link);
             link.click();
             link.remove();
-            setMessage({ type: 'success', text: '✅ CSV exportado correctamente' });
+            setMessage({ type: 'success', text: 'CSV exportado correctamente' });
         } catch (error) {
             console.error('Error exporting CSV:', error);
-            setMessage({ type: 'error', text: '❌ Error al exportar CSV' });
+            setMessage({ type: 'error', text: 'Error al exportar CSV' });
         }
     };
 
@@ -118,11 +115,11 @@ export function Settings() {
         try {
             await userAPI.deleteProfile();
             setDeleteModalOpen(false);
-            logout(); // This will clear user data and redirect
+            logout();
         } catch (error) {
             console.error('Error deleting account:', error);
-            setMessage({ type: 'error', text: '❌ Error al eliminar la cuenta. Inténtalo de nuevo.' });
-            setDeleteModalOpen(false); // Close modal on error too
+            setMessage({ type: 'error', text: 'Error al eliminar la cuenta. Inténtalo de nuevo.' });
+            setDeleteModalOpen(false);
         } finally {
             setDeleteLoading(false);
         }
@@ -132,61 +129,89 @@ export function Settings() {
 
     return (
         <div className="container section">
-            <h1 className="mb-6">⚙️ Ajustes</h1>
+            <h1 className="mb-6">Ajustes</h1>
 
+            {/* Alert Message */}
             {message && (
-                <div
-                    className="mb-6 rounded"
-                    style={{
-                        padding: '1rem',
-                        backgroundColor: message.type === 'success' ? '#ecfdf5' : '#fee2e2',
-                        color: message.type === 'success' ? '#065f46' : '#991b1b'
-                    }}
-                >
+                <div className={`settings-alert mb-6 ${message.type === 'success' ? 'alert-success' : 'alert-error'}`}>
                     {message.text}
                 </div>
             )}
 
             {/* Profile Section */}
-            <div className="card mb-6">
-                <h2 className="mb-4">👤 Perfil</h2>
+            <div className="settings-card mb-6">
+                <button
+                    onClick={() => setExpandedSection(expandedSection === 'profile' ? '' : 'profile')}
+                    className="settings-header"
+                    style={{
+                        width: '100%',
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        padding: 'var(--space-4)',
+                        backgroundColor: 'transparent',
+                        border: 'none',
+                        cursor: 'pointer',
+                        borderBottom: expandedSection === 'profile' ? '1px solid var(--color-gray-200)' : 'none'
+                    }}
+                >
+                    <h2 style={{ margin: 0 }}>👤 Perfil</h2>
+                    <span style={{ 
+                        fontSize: '1.2rem',
+                        transform: expandedSection === 'profile' ? 'rotate(180deg)' : 'rotate(0deg)',
+                        transition: 'transform 0.3s ease'
+                    }}>
+                        ▼
+                    </span>
+                </button>
+                <div style={{
+                    maxHeight: expandedSection === 'profile' ? '2000px' : '0',
+                    opacity: expandedSection === 'profile' ? '1' : '0',
+                    overflow: 'hidden',
+                    transition: 'max-height 0.3s ease, opacity 0.3s ease, padding 0.3s ease',
+                    padding: expandedSection === 'profile' ? 'var(--space-4)' : '0 var(--space-4)'
+                }}>
 
                 <div className="form-group">
-                    <label className="form-label">Nombre</label>
+                    <label className="form-label" htmlFor="profile-name">Nombre</label>
                     <input
+                        id="profile-name"
                         type="text"
                         className="input"
                         value={profile.name}
                         onChange={(e) => setProfile({ ...profile, name: e.target.value })}
+                        placeholder="Tu nombre"
                     />
                 </div>
 
                 <div className="form-group">
-                    <label className="form-label">Email</label>
+                    <label className="form-label" htmlFor="profile-email">Email</label>
                     <input
+                        id="profile-email"
                         type="email"
                         className="input"
                         value={user?.email || ''}
                         disabled
-                        style={{ backgroundColor: 'var(--color-gray-100)' }}
                     />
                 </div>
 
                 <div className="form-group">
-                    <label className="form-label">Ubicación</label>
+                    <label className="form-label" htmlFor="profile-location">Ubicación</label>
                     <input
+                        id="profile-location"
                         type="text"
                         className="input"
                         value={profile.location}
                         onChange={(e) => setProfile({ ...profile, location: e.target.value })}
                         placeholder="ej: Bilbao, España"
                     />
-                    <small className="text-gray">Ayuda a calcular fechas óptimas de siembra</small>
+                    <small className="form-hint">Ayuda a calcular fechas óptimas de siembra</small>
                 </div>
 
                 <div className="form-group">
-                    <label className="form-label">Idioma</label>
+                    <label className="form-label" htmlFor="profile-language">Idioma</label>
                     <select
+                        id="profile-language"
                         className="input"
                         value={profile.language}
                         onChange={(e) => setProfile({ ...profile, language: e.target.value })}
@@ -198,121 +223,230 @@ export function Settings() {
 
                 <button
                     onClick={handleProfileUpdate}
-                    className="btn btn-primary"
+                    className="btn btn-primary btn-lg"
                     disabled={loading}
                 >
-                    {loading ? 'Guardando...' : '💾 Guardar cambios'}
+                    {loading ? 'Guardando...' : 'Guardar cambios'}
                 </button>
+                </div>
             </div>
 
             {/* Notifications Section */}
-            <div className="card mb-6">
-                <h2 className="mb-4">🔔 Notificaciones Push</h2>
+            <div className="settings-card mb-6">
+                <button
+                    onClick={() => setExpandedSection(expandedSection === 'notifications' ? '' : 'notifications')}
+                    className="settings-header"
+                    style={{
+                        width: '100%',
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        padding: 'var(--space-4)',
+                        backgroundColor: 'transparent',
+                        border: 'none',
+                        cursor: 'pointer',
+                        borderBottom: expandedSection === 'notifications' ? '1px solid var(--color-gray-200)' : 'none'
+                    }}
+                >
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
+                        <h2 style={{ margin: 0 }}>🔔 Notificaciones Push</h2>
+                        {pushSubscribed && (
+                            <span className="badge badge-success" style={{ fontSize: '0.7rem' }}>activas</span>
+                        )}
+                    </div>
+                    <span style={{ 
+                        fontSize: '1.2rem',
+                        transform: expandedSection === 'notifications' ? 'rotate(180deg)' : 'rotate(0deg)',
+                        transition: 'transform 0.3s ease'
+                    }}>
+                        ▼
+                    </span>
+                </button>
+                <div style={{
+                    maxHeight: expandedSection === 'notifications' ? '2000px' : '0',
+                    opacity: expandedSection === 'notifications' ? '1' : '0',
+                    overflow: 'hidden',
+                    transition: 'max-height 0.3s ease, opacity 0.3s ease, padding 0.3s ease',
+                    padding: expandedSection === 'notifications' ? 'var(--space-4)' : '0 var(--space-4)'
+                }}>
 
-                <div className="mb-4">
-                    <div className="flex items-center gap-3 mb-3">
-                        <div style={{
-                            width: '12px',
-                            height: '12px',
-                            borderRadius: '50%',
-                            backgroundColor: pushSubscribed ? 'var(--color-success)' : 'var(--color-gray-400)'
-                        }}></div>
-                        <span>
-                            Estado: <strong>{pushSubscribed ? 'Activadas' : 'Desactivadas'}</strong>
-                        </span>
+                <div className="notification-status mb-4">
+                    <div className="status-indicator">
+                        <span className={`status-dot ${pushSubscribed ? 'active' : 'inactive'}`}></span>
+                        <span>Estado: <strong>{pushSubscribed ? 'Activadas' : 'Desactivadas'}</strong></span>
                     </div>
 
                     {permissionStatus !== 'granted' && !pushSubscribed && (
-                        <div className="mb-4 rounded" style={{ padding: '0.75rem', backgroundColor: '#fef3c7', color: '#92400e' }}>
-                            ℹ️ Las notificaciones requieren permiso del navegador
+                        <div className="info-badge">
+                            Las notificaciones requieren permiso del navegador
                         </div>
                     )}
 
-                    <p className="text-gray text-sm mb-4">
+                    <p className="text-gray text-sm">
                         Recibe recordatorios de siembra, trasplante y caducidad de semillas
                     </p>
                 </div>
 
-                <div className="flex gap-3">
+                <div className="notification-buttons">
                     {!pushSubscribed ? (
-                        <button onClick={handleEnableNotifications} className="btn btn-primary">
-                            ✅ Activar notificaciones
+                        <button onClick={handleEnableNotifications} className="btn btn-primary btn-lg">
+                            Activar notificaciones
                         </button>
                     ) : (
                         <>
                             <button onClick={handleTestNotification} className="btn btn-accent">
-                                🔔 Probar notificación
+                                Probar notificación
                             </button>
-                            <button onClick={handleDisableNotifications} className="btn btn-secondary">
-                                ❌ Desactivar
+                            <button onClick={handleDisableNotifications} className="btn btn-secondary btn-sm">
+                                Desactivar
                             </button>
                         </>
                     )}
                 </div>
 
                 {pushSubscribed && (
-                    <div className="mt-4" style={{ padding: '1rem', backgroundColor: '#ecfdf5', borderRadius: 'var(--radius-md)' }}>
-                        <h4 className="mb-2">📅 Programación de notificaciones</h4>
-                        <ul className="text-sm text-gray" style={{ lineHeight: '1.8' }}>
-                            <li>• <strong>Día 1</strong> de cada mes: Recomendaciones de siembra</li>
-                            <li>• <strong>Diario 10:00</strong>: Alertas de caducidad (30 días antes)</li>
-                            <li>• <strong>Diario 08:00</strong>: Recordatorios de trasplante</li>
+                    <div className="notification-schedule">
+                        <h4>Horarios de notificaciones</h4>
+                        <ul>
+                            <li><strong>Día 1</strong> de cada mes: Recomendaciones de siembra</li>
+                            <li><strong>10:00</strong> cada día: Alertas de caducidad (30 días antes)</li>
+                            <li><strong>08:00</strong> cada día: Recordatorios de trasplante</li>
                         </ul>
                     </div>
                 )}
+                </div>
             </div>
 
             {/* Data Section */}
-            <div className="card mb-6">
-                <h2 className="mb-4">📊 Datos</h2>
-
-                <button onClick={handleExportCSV} className="btn btn-primary mb-3">
-                    📥 Exportar inventario a CSV
+            <div className="settings-card mb-6">
+                <button
+                    onClick={() => setExpandedSection(expandedSection === 'data' ? '' : 'data')}
+                    className="settings-header"
+                    style={{
+                        width: '100%',
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        padding: 'var(--space-4)',
+                        backgroundColor: 'transparent',
+                        border: 'none',
+                        cursor: 'pointer',
+                        borderBottom: expandedSection === 'data' ? '1px solid var(--color-gray-200)' : 'none'
+                    }}
+                >
+                    <h2 style={{ margin: 0 }}>📊 Datos</h2>
+                    <span style={{ 
+                        fontSize: '1.2rem',
+                        transform: expandedSection === 'data' ? 'rotate(180deg)' : 'rotate(0deg)',
+                        transition: 'transform 0.3s ease'
+                    }}>
+                        ▼
+                    </span>
                 </button>
+                <div style={{
+                    maxHeight: expandedSection === 'data' ? '2000px' : '0',
+                    opacity: expandedSection === 'data' ? '1' : '0',
+                    overflow: 'hidden',
+                    transition: 'max-height 0.3s ease, opacity 0.3s ease, padding 0.3s ease',
+                    padding: expandedSection === 'data' ? 'var(--space-4)' : '0 var(--space-4)'
+                }}>
 
-                <p className="text-gray text-sm">
+                <p className="text-gray text-sm mb-4">
                     Descarga todas tus semillas en formato CSV para análisis externo
                 </p>
+
+                <button onClick={handleExportCSV} className="btn btn-primary btn-lg">
+                    Exportar inventario a CSV
+                </button>
+                </div>
             </div>
 
             {/* Account Section */}
-            <div className="card">
-                <h2 className="mb-4">🔐 Cuenta</h2>
+            <div className="settings-card">
+                <button
+                    onClick={() => setExpandedSection(expandedSection === 'account' ? '' : 'account')}
+                    className="settings-header"
+                    style={{
+                        width: '100%',
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        padding: 'var(--space-4)',
+                        backgroundColor: 'transparent',
+                        border: 'none',
+                        cursor: 'pointer',
+                        borderBottom: expandedSection === 'account' ? '1px solid var(--color-gray-200)' : 'none'
+                    }}
+                >
+                    <h2 style={{ margin: 0 }}>⚙️ Cuenta</h2>
+                    <span style={{ 
+                        fontSize: '1.2rem',
+                        transform: expandedSection === 'account' ? 'rotate(180deg)' : 'rotate(0deg)',
+                        transition: 'transform 0.3s ease'
+                    }}>
+                        ▼
+                    </span>
+                </button>
+                <div style={{
+                    maxHeight: expandedSection === 'account' ? '2000px' : '0',
+                    opacity: expandedSection === 'account' ? '1' : '0',
+                    overflow: 'hidden',
+                    transition: 'max-height 0.3s ease, opacity 0.3s ease, padding 0.3s ease',
+                    padding: expandedSection === 'account' ? 'var(--space-4)' : '0 var(--space-4)'
+                }}>
 
-                <div className="flex gap-3">
-                    <button onClick={logout} className="btn btn-secondary">
-                        🚪 Cerrar sesión
+                <p className="text-gray text-sm mb-6">
+                    Gestiona tu sesión y cuenta
+                </p>
+
+                <div className="account-buttons">
+                    <button onClick={logout} className="btn btn-secondary btn-lg">
+                        Cerrar sesión
                     </button>
-                    <button onClick={() => setDeleteModalOpen(true)} className="btn" style={{ backgroundColor: 'var(--color-error)', color: 'white' }}>
-                        🗑️ Eliminar cuenta
+                    <button 
+                        onClick={() => setDeleteModalOpen(true)} 
+                        className="btn btn-danger btn-sm"
+                    >
+                        Eliminar cuenta
                     </button>
                 </div>
 
-                <p className="text-gray text-sm mt-4">
+                <p className="danger-notice">
                     <strong>Atención:</strong> La eliminación de la cuenta es permanente y no se puede deshacer.
                 </p>
+                </div>
             </div>
 
             {/* Delete Confirmation Modal */}
             {isDeleteModalOpen && (
-                <div className="modal-overlay">
-                    <div className="modal-content card">
-                        <h2 className="mb-4">🗑️ ¿Seguro que quieres eliminar tu cuenta?</h2>
-                        <p className="mb-6">
-                            Esta acción es irreversible. Se borrarán todos tus datos, incluyendo
-                            tu inventario de semillas y calendario.
-                        </p>
-                        <div className="flex justify-end gap-3">
+                <div className="modal-backdrop">
+                    <div className="modal">
+                        <div className="modal-header">
+                            <h2>Eliminar cuenta</h2>
+                            <button 
+                                className="modal-close" 
+                                onClick={() => setDeleteModalOpen(false)}
+                            >
+                                ✕
+                            </button>
+                        </div>
+
+                        <div className="modal-body">
+                            <p className="text-gray">
+                                Esta acción es irreversible. Se borrarán todos tus datos, incluyendo tu inventario de semillas y calendario.
+                            </p>
+                        </div>
+
+                        <div className="modal-footer">
                             <button
                                 onClick={() => setDeleteModalOpen(false)}
-                                className="btn btn-secondary"
+                                className="btn btn-secondary btn-lg"
                             >
                                 Cancelar
                             </button>
                             <button
                                 onClick={handleDeleteAccount}
-                                className="btn"
-                                style={{ backgroundColor: 'var(--color-error)', color: 'white' }}
+                                className="btn btn-danger btn-lg"
                                 disabled={deleteLoading}
                             >
                                 {deleteLoading ? 'Eliminando...' : 'Sí, eliminar mi cuenta'}

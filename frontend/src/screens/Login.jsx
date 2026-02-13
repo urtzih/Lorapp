@@ -75,8 +75,9 @@ export function Login() {
 
                 <form onSubmit={handleSubmit}>
                     <div className="form-group">
-                        <label className="form-label">Correo electrónico - test@example.com / password123</label>
+                        <label className="form-label" htmlFor="login-email">Correo electronico</label>
                         <input
+                            id="login-email"
                             type="email"
                             className="input"
                             value={email}
@@ -84,11 +85,13 @@ export function Login() {
                             required
                             placeholder="tu@email.com"
                         />
+                        <small className="form-hint">urtzid@gmail.com / admin123</small>
                     </div>
 
                     <div className="form-group">
-                        <label className="form-label">Contraseña</label>
+                        <label className="form-label" htmlFor="login-password">Contraseña</label>
                         <input
+                            id="login-password"
                             type="password"
                             className="input"
                             value={password}

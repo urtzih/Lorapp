@@ -1,0 +1,474 @@
+// ============================================================================
+// LORAPP - PRISMA SCHEMA - Banco de Semillas Avanzado
+// ============================================================================
+// Referencia para migración futura a Prisma
+// Compatible con MySQL 8.0+
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// ============================================================================
+// MODELOS EXISTENTES
+// ============================================================================
+
+model User {
+  id                    Int                   @id @default(autoincrement())
+  email                 String                @unique @db.VarChar(255)
+  hashedPassword        String?               @map("hashed_password")
+  name                  String                @db.VarChar(255)
+  location              String?               @db.VarChar(500)
+  latitude              Float?
+  longitude             Float?
+  climateZone           String?               @map("climate_zone") @db.VarChar(50)
+  language              String                @default("es") @db.VarChar(5)
+  notificationsEnabled  Boolean               @default(true) @map("notifications_enabled")
+  googleId              String?               @unique @map("google_id") @db.VarChar(255)
+  oauthProvider         String?               @map("oauth_provider") @db.VarChar(50)
+  
+  createdAt             DateTime              @default(now()) @map("created_at")
+  updatedAt             DateTime              @updatedAt @map("updated_at")
+  
+  // Relations
+  lotesSemillas         LoteSemillas[]
+  plantaciones          Plantacion[]
+  cosechas              Cosecha[]
+  cosechasSemillas      CosechaSemillas[]
+  pruebasGerminacion    PruebaGerminacion[]
+  pushSubscriptions     PushSubscription[]
+  notificationHistory   NotificationHistory[]
+
+  @@map("users")
+}
+
+
+// ============================================================================
+// ENUMS
+// ============================================================================
+
+enum EstadoLoteSemillas {
+  ACTIVO
+  AGOTADO
+  VENCIDO
+  DESCARTADO
+
+  @@map("estado_lote_semillas")
+}
+
+enum TipoExposicionSolar {
+  TOTAL
+  PARCIAL
+  SOMBRA
+
+  @@map("tipo_exposicion_solar")
+}
+
+enum FrecuenciaRiego {
+  DIARIO
+  CADA_DOS_DIAS
+  SEMANAL
+  CADA_DOS_SEMANAS
+  MENSUAL
+
+  @@map("frecuencia_riego")
+}
+
+enum EstadoPlantacion {
+  PLANIFICADA
+  SEMBRADA
+  GERMINADA
+  TRASPLANTADA
+  CRECIMIENTO
+  COSECHA_CERCANA
+  COSECHADA
+  CANCELADA
+
+  @@map("estado_plantacion")
+}
+
+enum TipoCosecha {
+  CONSUMO
+  SEMILLA
+  MIXTA
+
+  @@map("tipo_cosecha")
+}
+
+
+// ============================================================================
+// BANCO DE SEMILLAS - BOTÁNICA
+// ============================================================================
+
+model Especie {
+  id                          Int          @id @default(autoincrement())
+  nombreComun                 String       @unique @map("nombre_comun")
+  nombreCientifico            String?      @unique @map("nombre_cientifico")
+  familiaBocanica             String?      @map("familia_botanica")
+  genero                      String?
+  descripcion                 String?      @db.Text
+  tipoCultivo                 String?      @map("tipo_cultivo")
+  
+  // Parámetros agrícolas
+  profundidadSiembraCm        Float?       @map("profundidad_siembra_cm")
+  distanciaPlantasCm          Float?       @map("distancia_plantas_cm")
+  distanciaSurcosCm           Float?       @map("distancia_surcos_cm")
+  frecuenciaRiego             FrecuenciaRiego?
+  exposicionSolar             TipoExposicionSolar?
+  
+  // Ciclo de cultivo (días)
+  diasGerminacionMin          Int?         @map("dias_germinacion_min")
+  diasGerminacionMax          Int?         @map("dias_germinacion_max")
+  diasHastaTrasplante         Int?         @map("dias_hasta_trasplante")
+  diasHastaCosechaMin         Int?         @map("dias_hasta_cosecha_min")
+  diasHastaCosechaMax         Int?         @map("dias_hasta_cosecha_max")
+  
+  // Calendario
+  mesesSiembraInterior        Json         @default("[]") @map("meses_siembra_interior")
+  mesesSiembraExterior        Json         @default("[]") @map("meses_siembra_exterior")
+  
+  // Condiciones
+  temperaturaMinimaC          Float?       @map("temperatura_minima_c")
+  temperaturaMaximaC          Float?       @map("temperatura_maxima_c")
+  zonasClimaticasPreferidas   Json         @default("[]") @map("zonas_climaticas_preferidas")
+  
+  createdAt                   DateTime     @default(now()) @map("created_at")
+  updatedAt                   DateTime     @updatedAt @map("updated_at")
+  
+  // Relations
+  variedades                  Variedad[]
+
+  @@index([nombreComun])
+  @@map("especies")
+}
+
+model Variedad {
+  id                          Int          @id @default(autoincrement())
+  especieId                   Int          @map("especie_id")
+  nombreVariedad              String       @map("nombre_variedad")
+  codigoInterno               String?      @unique @map("codigo_interno")
+  
+  descripcion                 String?      @db.Text
+  colorFruto                  String?      @map("color_fruto")
+  sabor                       String?
+  tamanioPlanta               String?      @map("tamanio_planta")
+  
+  // Parámetros específicos de variedad
+  profundidadSiembraCm        Float?       @map("profundidad_siembra_cm")
+  distanciaPlantasCm          Float?       @map("distancia_plantas_cm")
+  distanciaSurcosCm           Float?       @map("distancia_surcos_cm")
+  diasGerminacionMin          Int?         @map("dias_germinacion_min")
+  diasGerminacionMax          Int?         @map("dias_germinacion_max")
+  diasHastaCosechaMin         Int?         @map("dias_hasta_cosecha_min")
+  diasHastaCosechaMax         Int?         @map("dias_hasta_cosecha_max")
+  
+  // Características especiales
+  resistencias                Json         @default("[]")
+  esHibridoF1                 Boolean      @default(false) @map("es_hibrido_f1")
+  esVariedadAntigua           Boolean      @default(false) @map("es_variedad_antigua")
+  
+  createdAt                   DateTime     @default(now()) @map("created_at")
+  updatedAt                   DateTime     @updatedAt @map("updated_at")
+  
+  // Relations
+  especie                     Especie      @relation(fields: [especieId], references: [id], onDelete: Cascade)
+  lotesSemillas               LoteSemillas[]
+
+  @@index([especieId])
+  @@index([nombreVariedad])
+  @@index([codigoInterno])
+  @@map("variedades")
+}
+
+
+// ============================================================================
+// INVENTARIO DE SEMILLAS
+// ============================================================================
+
+model LoteSemillas {
+  id                          Int          @id @default(autoincrement())
+  usuarioId                   Int          @map("usuario_id")
+  variedadId                  Int          @map("variedad_id")
+  
+  nombreComercial             String       @map("nombre_comercial")
+  marca                       String?
+  numeroLote                  String?      @map("numero_lote")
+  
+  cantidadEstimada            Int?         @map("cantidad_estimada")
+  annoProduccion              Int?         @map("anno_produccion")
+  fechaVencimiento            DateTime?    @map("fecha_vencimiento") @db.DateTime
+  fechaAdquisicion            DateTime?    @map("fecha_adquisicion") @db.DateTime
+  
+  lugarAlmacenamiento         String?      @map("lugar_almacenamiento")
+  temperaturaAlmacenamientoCc Float?       @map("temperatura_almacenamiento_c")
+  humedadRelativa             Float?       @map("humedad_relativa")
+  
+  estado                      EstadoLoteSemillas @default(ACTIVO)
+  cantidadRestante            Int?         @map("cantidad_restante")
+  
+  fotos                       Json         @default("[]")
+  notas                       String?      @db.Text
+  informacionProveedor        Json?        @map("informacion_proveedor")
+  
+  createdAt                   DateTime     @default(now()) @map("created_at")
+  updatedAt                   DateTime     @updatedAt @map("updated_at")
+  
+  // Relations
+  usuario                     User         @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+  variedad                    Variedad     @relation(fields: [variedadId], references: [id], onDelete: Cascade)
+  plantaciones                Plantacion[]
+  pruebasGerminacion          PruebaGerminacion[]
+
+  @@index([usuarioId])
+  @@index([variedadId])
+  @@index([estado])
+  @@index([numeroLote])
+  @@map("lotes_semillas")
+}
+
+
+// ============================================================================
+// CONTROL DE CALIDAD
+// ============================================================================
+
+model PruebaGerminacion {
+  id                          Int          @id @default(autoincrement())
+  usuarioId                   Int          @map("usuario_id")
+  loteSemillasId              Int          @map("lote_semillas_id")
+  
+  fechaPrueba                 DateTime     @map("fecha_prueba")
+  cantidadSemillasProbadas    Int          @map("cantidad_semillas_probadas")
+  cantidadGerminadas          Int          @map("cantidad_germinadas")
+  
+  porcentajeGerminacion       Float?       @map("porcentaje_germinacion")
+  diasGerminacionPromedio     Float?       @map("dias_germinacion_promedio")
+  
+  temperaturaPruebaCc         Float?       @map("temperatura_prueba_c")
+  humedadPruebaRelativa       Float?       @map("humedad_prueba_relativa")
+  medioGerminacion            String?      @map("medio_germinacion")
+  
+  observaciones               String?      @db.Text
+  
+  createdAt                   DateTime     @default(now()) @map("created_at")
+  updatedAt                   DateTime     @updatedAt @map("updated_at")
+  
+  // Relations
+  usuario                     User         @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+  loteSemillas                LoteSemillas @relation(fields: [loteSemillasId], references: [id], onDelete: Cascade)
+
+  @@index([usuarioId])
+  @@index([loteSemillasId])
+  @@index([fechaPrueba])
+  @@map("pruebas_germinacion")
+}
+
+
+// ============================================================================
+// GESTIÓN DE CULTIVOS
+// ============================================================================
+
+model Temporada {
+  id                          Int          @id @default(autoincrement())
+  nombre                      String       @db.VarChar(100)
+  anno                        Int
+  mesInicio                   Int          @map("mes_inicio")
+  mesFin                      Int          @map("mes_fin")
+  descripcion                 String?      @db.Text
+  climaEsperado               String?      @map("clima_esperado")
+  
+  createdAt                   DateTime     @default(now()) @map("created_at")
+  updatedAt                   DateTime     @updatedAt @map("updated_at")
+
+  @@unique([nombre, anno])
+  @@index([anno])
+  @@map("temporadas")
+}
+
+model Plantacion {
+  id                          Int          @id @default(autoincrement())
+  usuarioId                   Int          @map("usuario_id")
+  loteSemillasId              Int          @map("lote_semillas_id")
+  
+  nombrePlantacion            String       @map("nombre_plantacion")
+  fechaSiembra                DateTime     @map("fecha_siembra")
+  tipoSiembra                 String
+  cantidadSemillasPlantadas   Int?         @map("cantidad_semillas_plantadas")
+  
+  ubicacionDescripcion        String?      @map("ubicacion_descripcion")
+  coordenadasX                Float?       @map("coordenadas_x")
+  coordenadasY                Float?       @map("coordenadas_y")
+  
+  estado                      EstadoPlantacion @default(PLANIFICADA)
+  fechaGerminacion            DateTime?    @map("fecha_germinacion") @db.DateTime
+  fechaTrasplante             DateTime?    @map("fecha_trasplante") @db.DateTime
+  fechaCosechaEstimada        DateTime?    @map("fecha_cosecha_estimada") @db.DateTime
+  
+  fotos                       Json         @default("[]")
+  notas                       String?      @db.Text
+  
+  createdAt                   DateTime     @default(now()) @map("created_at")
+  updatedAt                   DateTime     @updatedAt @map("updated_at")
+  
+  // Relations
+  usuario                     User         @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+  loteSemillas                LoteSemillas @relation(fields: [loteSemillasId], references: [id], onDelete: Cascade)
+  cosechas                    Cosecha[]
+  cosechasSemillas            CosechaSemillas[]
+
+  @@index([usuarioId])
+  @@index([loteSemillasId])
+  @@index([estado])
+  @@index([fechaSiembra])
+  @@map("plantaciones")
+}
+
+model Cosecha {
+  id                          Int          @id @default(autoincrement())
+  usuarioId                   Int          @map("usuario_id")
+  plantacionId                Int          @map("plantacion_id")
+  
+  fechaCosecha                DateTime     @map("fecha_cosecha")
+  cantidadKg                  Float?       @map("cantidad_kg")
+  cantidadUnidades            Int?         @map("cantidad_unidades")
+  
+  descripcion                 String?      @db.Text
+  calidadObservada            String?      @map("calidad_observada")
+  
+  metodoAlmacenamiento        String?      @map("metodo_almacenamiento")
+  fechaConsumoInicio          DateTime?    @map("fecha_consumo_inicio") @db.DateTime
+  
+  fotos                       Json         @default("[]")
+  notas                       String?      @db.Text
+  
+  createdAt                   DateTime     @default(now()) @map("created_at")
+  updatedAt                   DateTime     @updatedAt @map("updated_at")
+  
+  // Relations
+  usuario                     User         @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+  plantacion                  Plantacion   @relation(fields: [plantacionId], references: [id], onDelete: Cascade)
+
+  @@index([usuarioId])
+  @@index([plantacionId])
+  @@index([fechaCosecha])
+  @@map("cosechas")
+}
+
+model CosechaSemillas {
+  id                          Int          @id @default(autoincrement())
+  usuarioId                   Int          @map("usuario_id")
+  plantacionId                Int          @map("plantacion_id")
+  
+  fechaCosecha                DateTime     @map("fecha_cosecha")
+  cantidadSemillasEstimada    Int?         @map("cantidad_semillas_estimada")
+  
+  descripcion                 String?      @db.Text
+  metodoSecado                String?      @map("metodo_secado")
+  fechaSecadoCompletado       DateTime?    @map("fecha_secado_completado") @db.DateTime
+  
+  porcentajeViabilidadInicial Float?       @map("porcentaje_viabilidad_inicial")
+  
+  lugarAlmacenamiento         String?      @map("lugar_almacenamiento")
+  temperaturaAlmacenamientoCc Float?       @map("temperatura_almacenamiento_c")
+  humedadRelativa             Float?       @map("humedad_relativa")
+  
+  fotos                       Json         @default("[]")
+  notas                       String?      @db.Text
+  
+  createdAt                   DateTime     @default(now()) @map("created_at")
+  updatedAt                   DateTime     @updatedAt @map("updated_at")
+  
+  // Relations
+  usuario                     User         @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+  plantacion                  Plantacion   @relation(fields: [plantacionId], references: [id], onDelete: Cascade)
+
+  @@index([usuarioId])
+  @@index([plantacionId])
+  @@index([fechaCosecha])
+  @@map("cosechas_semillas")
+}
+
+
+// ============================================================================
+// NOTIFICACIONES Y SUSCRIPCIONES
+// ============================================================================
+
+model PushSubscription {
+  id                          Int          @id @default(autoincrement())
+  usuarioId                   Int          @map("usuario_id")
+  
+  endpoint                    String       @unique
+  expirationTime              DateTime?    @map("expiration_time") @db.DateTime
+  p256dh                      String
+  auth                        String
+  
+  isActive                    Boolean      @default(true) @map("is_active")
+  userAgent                   String?      @map("user_agent")
+  
+  createdAt                   DateTime     @default(now()) @map("created_at")
+  lastUsedAt                  DateTime?    @map("last_used_at") @db.DateTime
+  
+  // Relations
+  usuario                     User         @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+
+  @@index([usuarioId])
+  @@map("push_subscriptions")
+}
+
+model NotificationHistory {
+  id                          Int          @id @default(autoincrement())
+  usuarioId                   Int          @map("usuario_id")
+  
+  notificationType            String       @map("notification_type")
+  title                       String
+  body                        String       @db.Text
+  data                        Json         @default("{}")
+  
+  sentAt                      DateTime     @default(now()) @map("sent_at")
+  success                     Boolean      @default(true)
+  errorMessage                String?      @map("error_message") @db.Text
+  
+  createdAt                   DateTime     @default(now()) @map("created_at")
+  
+  // Relations (Usuario no es relación explícita pero se vincula por ID)
+
+  @@index([usuarioId])
+  @@map("notification_history")
+}
+
+
+// ============================================================================
+// TABLAS HEREDADAS (RETROCOMPATIBILIDAD)
+// ============================================================================
+
+model CropRule {
+  id                          Int          @id @default(autoincrement())
+  cropFamily                  String       @unique @map("crop_family")
+  commonNames                 Json         @default("[]") @map("common_names")
+  
+  indoorPlantingMonths        Json         @default("[]") @map("indoor_planting_months")
+  outdoorPlantingMonths       Json         @default("[]") @map("outdoor_planting_months")
+  
+  germinationDaysMin          Int?         @map("germination_days_min")
+  germinationDaysMax          Int?         @map("germination_days_max")
+  daysToTransplant            Int?         @map("days_to_transplant")
+  daysToHarvestMin            Int?         @map("days_to_harvest_min")
+  daysToHarvestMax            Int?         @map("days_to_harvest_max")
+  
+  minTemperatureC             Float?       @map("min_temperature_c")
+  maxTemperatureC             Float?       @map("max_temperature_c")
+  preferredClimateZones       Json         @default("[]") @map("preferred_climate_zones")
+  
+  plantingDepthCm             Float?       @map("planting_depth_cm")
+  spacingCm                   Float?       @map("spacing_cm")
+  rowSpacingCm                Float?       @map("row_spacing_cm")
+  
+  createdAt                   DateTime     @default(now()) @map("created_at")
+  updatedAt                   DateTime     @updatedAt @map("updated_at")
+
+  @@index([cropFamily])
+  @@map("crop_rules")
+}

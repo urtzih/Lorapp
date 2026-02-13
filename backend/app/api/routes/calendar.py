@@ -136,7 +136,7 @@ async def get_expiring_seeds(
     
     Returns list of seeds approaching expiration date.
     """
-    expiring = calendar_service.get_expiring_seeds(
+    expiring = calendar_service.get_expiring_lotes(
         user=current_user,
         days_ahead=days,
         db=db

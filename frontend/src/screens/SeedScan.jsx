@@ -152,11 +152,11 @@ export function SeedScan() {
                         >
                             {scanning ? (
                                 <>
-                                    <div className="spinner" style={{ width: '20px', height: '20px' }}></div>
-                                    Escaneando con IA...
+                                    <span className="spinner" style={{ width: '20px', height: '20px', marginRight: '8px' }}></span>
+                                    Analizando imágenes...
                                 </>
                             ) : (
-                                '🤖 Escanear con IA'
+                                '🔍 Escanear y extraer datos'
                             )}
                         </button>
                     )}
@@ -177,8 +177,9 @@ export function SeedScan() {
                         <h3 className="mb-4">2. Revisa y edita la información</h3>
 
                         <div className="form-group">
-                            <label className="form-label">Nombre comercial *</label>
+                            <label className="form-label" htmlFor="scan-commercial-name">Nombre comercial *</label>
                             <input
+                                id="scan-commercial-name"
                                 type="text"
                                 className="input"
                                 value={editedData.commercial_name || ''}
@@ -189,8 +190,9 @@ export function SeedScan() {
 
                         <div className="grid grid-2 gap-4">
                             <div className="form-group">
-                                <label className="form-label">Variedad</label>
+                                <label className="form-label" htmlFor="scan-variety">Variedad</label>
                                 <input
+                                    id="scan-variety"
                                     type="text"
                                     className="input"
                                     value={editedData.variety || ''}
@@ -199,8 +201,9 @@ export function SeedScan() {
                             </div>
 
                             <div className="form-group">
-                                <label className="form-label">Marca</label>
+                                <label className="form-label" htmlFor="scan-brand">Marca</label>
                                 <input
+                                    id="scan-brand"
                                     type="text"
                                     className="input"
                                     value={editedData.brand || ''}
@@ -211,8 +214,9 @@ export function SeedScan() {
 
                         <div className="grid grid-2 gap-4">
                             <div className="form-group">
-                                <label className="form-label">Año de producción</label>
+                                <label className="form-label" htmlFor="scan-production-year">Año de producción</label>
                                 <input
+                                    id="scan-production-year"
                                     type="number"
                                     className="input"
                                     value={editedData.production_year || ''}
@@ -221,8 +225,9 @@ export function SeedScan() {
                             </div>
 
                             <div className="form-group">
-                                <label className="form-label">Fecha de caducidad</label>
+                                <label className="form-label" htmlFor="scan-expiration-date">Fecha de caducidad</label>
                                 <input
+                                    id="scan-expiration-date"
                                     type="date"
                                     className="input"
                                     value={editedData.expiration_date ? editedData.expiration_date.split('T')[0] : ''}
@@ -232,8 +237,9 @@ export function SeedScan() {
                         </div>
 
                         <div className="form-group">
-                            <label className="form-label">Familia de cultivo</label>
+                            <label className="form-label" htmlFor="scan-crop-family">Familia de cultivo</label>
                             <input
+                                id="scan-crop-family"
                                 type="text"
                                 className="input"
                                 value={editedData.crop_family || ''}
@@ -243,8 +249,9 @@ export function SeedScan() {
                         </div>
 
                         <div className="form-group">
-                            <label className="form-label">Notas</label>
+                            <label className="form-label" htmlFor="scan-notes">Notas</label>
                             <textarea
+                                id="scan-notes"
                                 className="input"
                                 rows="3"
                                 value={editedData.notes || ''}

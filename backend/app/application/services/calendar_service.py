@@ -7,14 +7,16 @@ based on crop rules, climate zones, and user location.
 from typing import List, Dict, Any, Optional
 from datetime import datetime, timedelta
 from calendar import monthrange
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 
-from app.infrastructure.database.models import Seed, CropRule, User
+from app.infrastructure.database.models import (
+    LoteSemillas, Variedad, Especie, Plantacion, CropRule, User
+)
 
 
 class CalendarService:
     """
-    Service for generating agricultural calendar based on seeds and climate data.
+    Service for generating agricultural calendar based on lotes and climate data.
     """
     
     def get_monthly_tasks(
@@ -43,66 +45,84 @@ class CalendarService:
             "reminders": []
         }
         
-        # Get user's seeds
-        seeds = db.query(Seed).filter(Seed.user_id == user.id).all()
+        # Get user's lotes with variedad and especie data
+        lotes = db.query(LoteSemillas).filter(
+            LoteSemillas.usuario_id == user.id,
+            LoteSemillas.estado == "activo"
+        ).options(
+            joinedload(LoteSemillas.variedad).joinedload(Variedad.especie)
+        ).all()
         
-        for seed in seeds:
+        for lote in lotes:
+            especie = lote.variedad.especie
+            variedad = lote.variedad
+            
             # Check if this month is good for indoor planting
-            if seed.indoor_planting_months and month in seed.indoor_planting_months:
+            if especie.meses_siembra_interior and month in especie.meses_siembra_interior:
                 tasks["planting"].append({
-                    "seed_id": seed.id,
-                    "seed_name": seed.commercial_name,
+                    "lote_id": lote.id,
+                    "nombre": lote.nombre_comercial,
+                    "especie": especie.nombre_comun,
+                    "variedad": variedad.nombre_variedad,
                     "type": "indoor",
-                    "description": f"Siembra interior de {seed.commercial_name}",
-                    "variety": seed.variety,
-                    "crop_family": seed.crop_family
+                    "description": f"Siembra interior de {especie.nombre_comun} - {variedad.nombre_variedad}"
                 })
             
             # Check if this month is good for outdoor planting
-            if seed.outdoor_planting_months and month in seed.outdoor_planting_months:
+            if especie.meses_siembra_exterior and month in especie.meses_siembra_exterior:
                 tasks["planting"].append({
-                    "seed_id": seed.id,
-                    "seed_name": seed.commercial_name,
+                    "lote_id": lote.id,
+                    "nombre": lote.nombre_comercial,
+                    "especie": especie.nombre_comun,
+                    "variedad": variedad.nombre_variedad,
                     "type": "outdoor",
-                    "description": f"Siembra exterior de {seed.commercial_name}",
-                    "variety": seed.variety,
-                    "crop_family": seed.crop_family
+                    "description": f"Siembra exterior de {especie.nombre_comun} - {variedad.nombre_variedad}"
                 })
+        
+        # Get user's plantaciones
+        plantaciones = db.query(Plantacion).filter(
+            Plantacion.usuario_id == user.id,
+            Plantacion.estado.in_(["sembrada", "germinada", "trasplantada", "crecimiento"])
+        ).options(
+            joinedload(Plantacion.lote_semillas).joinedload(LoteSemillas.variedad).joinedload(Variedad.especie)
+        ).all()
+        
+        for plantacion in plantaciones:
+            especie = plantacion.lote_semillas.variedad.especie
             
-            # Check for transplanting tasks (if seed was planted)
-            if seed.is_planted and seed.planting_date and seed.days_to_transplant:
-                transplant_date = seed.planting_date + timedelta(days=seed.days_to_transplant)
+            # Check for transplanting tasks
+            if plantacion.estado == "germinada" and especie.dias_hasta_trasplante:
+                transplant_date = plantacion.fecha_siembra + timedelta(days=especie.dias_hasta_trasplante)
                 if transplant_date.month == month and transplant_date.year == year:
                     tasks["transplanting"].append({
-                        "seed_id": seed.id,
-                        "seed_name": seed.commercial_name,
+                        "plantacion_id": plantacion.id,
+                        "nombre": plantacion.nombre_plantacion,
                         "date": transplant_date,
-                        "description": f"Trasplante de {seed.commercial_name}",
-                        "variety": seed.variety
+                        "description": f"Trasplante de {plantacion.nombre_plantacion}"
                     })
             
             # Check for harvesting tasks
-            if seed.is_planted and seed.planting_date and seed.days_to_harvest:
-                harvest_date = seed.planting_date + timedelta(days=seed.days_to_harvest)
+            if plantacion.fecha_cosecha_estimada:
+                harvest_date = plantacion.fecha_cosecha_estimada
                 if harvest_date.month == month and harvest_date.year == year:
                     tasks["harvesting"].append({
-                        "seed_id": seed.id,
-                        "seed_name": seed.commercial_name,
+                        "plantacion_id": plantacion.id,
+                        "nombre": plantacion.nombre_plantacion,
                         "date": harvest_date,
-                        "description": f"Cosecha de {seed.commercial_name}",
-                        "variety": seed.variety
+                        "description": f"Cosecha de {plantacion.nombre_plantacion}"
                     })
-            
-            # Check for expiration reminders (30 days before)
-            if seed.expiration_date:
-                warning_date = seed.expiration_date - timedelta(days=30)
+        
+        # Check for expiration reminders (30 days before)
+        for lote in lotes:
+            if lote.fecha_vencimiento:
+                warning_date = lote.fecha_vencimiento - timedelta(days=30)
                 if warning_date.month == month and warning_date.year == year:
                     tasks["reminders"].append({
-                        "seed_id": seed.id,
-                        "seed_name": seed.commercial_name,
+                        "lote_id": lote.id,
+                        "nombre": lote.nombre_comercial,
                         "type": "expiration_warning",
-                        "description": f"{seed.commercial_name} caduca el {seed.expiration_date.strftime('%d/%m/%Y')}",
-                        "expiration_date": seed.expiration_date
+                        "description": f"{lote.nombre_comercial} caduca el {lote.fecha_vencimiento.strftime('%d/%m/%Y')}",
+                        "expiration_date": lote.fecha_vencimiento
                     })
         
         return tasks
@@ -121,26 +141,35 @@ class CalendarService:
             db: Database session
             
         Returns:
-            List of seeds that can be planted this month
+            List of lotes that can be planted this month
         """
         now = datetime.now()
         current_month = now.month
         
-        seeds = db.query(Seed).filter(Seed.user_id == user.id).all()
+        lotes = db.query(LoteSemillas).filter(
+            LoteSemillas.usuario_id == user.id,
+            LoteSemillas.estado == "activo"
+        ).options(
+            joinedload(LoteSemillas.variedad).joinedload(Variedad.especie)
+        ).all()
+        
         recommendations = []
         
-        for seed in seeds:
-            can_plant_indoor = seed.indoor_planting_months and current_month in seed.indoor_planting_months
-            can_plant_outdoor = seed.outdoor_planting_months and current_month in seed.outdoor_planting_months
+        for lote in lotes:
+            especie = lote.variedad.especie
+            can_plant_indoor = especie.meses_siembra_interior and current_month in especie.meses_siembra_interior
+            can_plant_outdoor = especie.meses_siembra_exterior and current_month in especie.meses_siembra_exterior
             
             if can_plant_indoor or can_plant_outdoor:
                 recommendations.append({
-                    "seed_id": seed.id,
-                    "seed_name": seed.commercial_name,
-                    "variety": seed.variety,
+                    "lote_id": lote.id,
+                    "nombre": lote.nombre_comercial,
+                    "especie": especie.nombre_comun,
+                    "variedad": lote.variedad.nombre_variedad,
                     "can_plant_indoor": can_plant_indoor,
                     "can_plant_outdoor": can_plant_outdoor,
-                    "germination_days": seed.germination_days
+                    "germination_days_min": especie.dias_germinacion_min,
+                    "germination_days_max": especie.dias_germinacion_max
                 })
         
         return recommendations
@@ -152,7 +181,7 @@ class CalendarService:
         db: Session
     ) -> List[Dict[str, Any]]:
         """
-        Get seeds that need to be transplanted in the next X days.
+        Get plantaciones that need to be transplanted in the next X days.
         
         Args:
             user: User object
@@ -160,41 +189,43 @@ class CalendarService:
             db: Database session
             
         Returns:
-            List of seeds needing transplanting
+            List of plantaciones needing transplanting
         """
         now = datetime.now()
         end_date = now + timedelta(days=days_ahead)
         
-        seeds = db.query(Seed).filter(
-            Seed.user_id == user.id,
-            Seed.is_planted == True,
-            Seed.planting_date != None,
-            Seed.days_to_transplant != None
+        plantaciones = db.query(Plantacion).filter(
+            Plantacion.usuario_id == user.id,
+            Plantacion.estado == "germinada"
+        ).options(
+            joinedload(Plantacion.lote_semillas).joinedload(LoteSemillas.variedad).joinedload(Variedad.especie)
         ).all()
         
         upcoming = []
-        for seed in seeds:
-            transplant_date = seed.planting_date + timedelta(days=seed.days_to_transplant)
-            if now <= transplant_date <= end_date:
-                days_until = (transplant_date - now).days
-                upcoming.append({
-                    "seed_id": seed.id,
-                    "seed_name": seed.commercial_name,
-                    "variety": seed.variety,
-                    "transplant_date": transplant_date,
-                    "days_until": days_until
-                })
+        for plantacion in plantaciones:
+            especie = plantacion.lote_semillas.variedad.especie
+            if especie.dias_hasta_trasplante:
+                transplant_date = plantacion.fecha_siembra + timedelta(days=especie.dias_hasta_trasplante)
+                if now <= transplant_date <= end_date:
+                    days_until = (transplant_date - now).days
+                    upcoming.append({
+                        "plantacion_id": plantacion.id,
+                        "nombre": plantacion.nombre_plantacion,
+                        "especie": especie.nombre_comun,
+                        "transplant_date": transplant_date,
+                        "days_until": days_until
+                    })
         
         return upcoming
     
-    def get_expiring_seeds(
+    def get_expiring_lotes(
         self,
         user: User,
         days_ahead: int,
         db: Session
     ) -> List[Dict[str, Any]]:
         """
-        Get seeds expiring in the next X days.
+        Get lotes expiring in the next X days.
         
         Args:
             user: User object
@@ -202,26 +233,29 @@ class CalendarService:
             db: Database session
             
         Returns:
-            List of expiring seeds
+            List of expiring lotes
         """
         now = datetime.now()
         end_date = now + timedelta(days=days_ahead)
         
-        seeds = db.query(Seed).filter(
-            Seed.user_id == user.id,
-            Seed.expiration_date != None,
-            Seed.expiration_date <= end_date
+        lotes = db.query(LoteSemillas).filter(
+            LoteSemillas.usuario_id == user.id,
+            LoteSemillas.fecha_vencimiento != None,
+            LoteSemillas.fecha_vencimiento <= end_date,
+            LoteSemillas.estado == "activo"
+        ).options(
+            joinedload(LoteSemillas.variedad)
         ).all()
         
         expiring = []
-        for seed in seeds:
-            days_until = (seed.expiration_date - now).days
+        for lote in lotes:
+            days_until = (lote.fecha_vencimiento - now).days
             if days_until >= 0:  # Not already expired
                 expiring.append({
-                    "seed_id": seed.id,
-                    "seed_name": seed.commercial_name,
-                    "variety": seed.variety,
-                    "expiration_date": seed.expiration_date,
+                    "lote_id": lote.id,
+                    "nombre": lote.nombre_comercial,
+                    "variedad": lote.variedad.nombre_variedad,
+                    "expiration_date": lote.fecha_vencimiento,
                     "days_until": days_until
                 })
         

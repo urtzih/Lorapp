@@ -64,8 +64,9 @@ export function Register() {
 
                 <form onSubmit={handleSubmit}>
                     <div className="form-group">
-                        <label className="form-label">Nombre completo</label>
+                        <label className="form-label" htmlFor="register-name">Nombre completo</label>
                         <input
+                            id="register-name"
                             type="text"
                             name="name"
                             className="input"
@@ -77,8 +78,9 @@ export function Register() {
                     </div>
 
                     <div className="form-group">
-                        <label className="form-label">Correo electrónico</label>
+                        <label className="form-label" htmlFor="register-email">Correo electrónico</label>
                         <input
+                            id="register-email"
                             type="email"
                             name="email"
                             className="input"
@@ -90,8 +92,9 @@ export function Register() {
                     </div>
 
                     <div className="form-group">
-                        <label className="form-label">Contraseña</label>
+                        <label className="form-label" htmlFor="register-password">Contraseña</label>
                         <input
+                            id="register-password"
                             type="password"
                             name="password"
                             className="input"
@@ -104,8 +107,8 @@ export function Register() {
                     </div>
 
                     <div className="form-group">
-                        <label className="form-label">Idioma preferido</label>
-                        <select name="language" className="input" value={formData.language} onChange={handleChange}>
+                        <label className="form-label" htmlFor="register-language">Idioma preferido</label>
+                        <select id="register-language" name="language" className="input" value={formData.language} onChange={handleChange}>
                             <option value="es">Español</option>
                             <option value="eu">Euskera</option>
                         </select>

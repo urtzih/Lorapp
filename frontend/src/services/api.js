@@ -71,6 +71,12 @@ export const seedsAPI = {
     list: (filters = {}) => api.get('/seeds', { params: filters }),
     getOne: (id) => api.get(`/seeds/${id}`),
     update: (id, data) => api.put(`/seeds/${id}`, data),
+    updateVariedad: (id, data) => api.put(`/seeds/variedades/${id}`, data),
+    updateEspecie: (id, data) => api.put(`/seeds/especies/${id}`, data),
+    addPhotos: (id, formData) => api.post(`/seeds/${id}/photos`, formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+    }),
+    deletePhoto: (id, photo) => api.delete(`/seeds/${id}/photos`, { params: { photo } }),
     delete: (id) => api.delete(`/seeds/${id}`),
     exportCSV: () => api.get('/seeds/export/csv', { responseType: 'blob' }),
 };
