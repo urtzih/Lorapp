@@ -124,29 +124,6 @@ class Especie(Base):
     descripcion = Column(Text, nullable=True)
     tipo_cultivo = Column(String(50), nullable=True)  # "hortaliza", "fruta", "flor", "aromática"
     
-    # Parámetros agrícolas estándar
-    profundidad_siembra_cm = Column(Float, nullable=True)
-    distancia_plantas_cm = Column(Float, nullable=True)
-    distancia_surcos_cm = Column(Float, nullable=True)
-    frecuencia_riego = Column(SQLEnum(FrecuenciaRiego), nullable=True)
-    exposicion_solar = Column(SQLEnum(TipoExposicionSolar), nullable=True)
-    
-    # Ciclo de cultivo
-    dias_germinacion_min = Column(Integer, nullable=True)
-    dias_germinacion_max = Column(Integer, nullable=True)
-    dias_hasta_trasplante = Column(Integer, nullable=True)
-    dias_hasta_cosecha_min = Column(Integer, nullable=True)
-    dias_hasta_cosecha_max = Column(Integer, nullable=True)
-    
-    # Calendario de siembra
-    meses_siembra_interior = Column(JSON, default=list)  # [1, 2, 3]
-    meses_siembra_exterior = Column(JSON, default=list)  # [4, 5, 6]
-    
-    # Condiciones de crecimiento
-    temperatura_minima_c = Column(Float, nullable=True)
-    temperatura_maxima_c = Column(Float, nullable=True)
-    zonas_climaticas_preferidas = Column(JSON, default=list)
-    
     # Timestamps
     created_at = Column(DateTime(timezone=True), server_default=text("CURRENT_TIMESTAMP"))  # type: ignore
     updated_at = Column(DateTime(timezone=True), onupdate=text("CURRENT_TIMESTAMP"))  # type: ignore
@@ -175,14 +152,26 @@ class Variedad(Base):
     sabor = Column(String(255), nullable=True)
     tamanio_planta = Column(String(50), nullable=True)  # "enana", "compacta", "grande", "trepadoras"
     
-    # Parámetros heredados de especie (pueden ser sobrescritos)
+    # Parámetros de cultivo específicos de la variedad
     profundidad_siembra_cm = Column(Float, nullable=True)
     distancia_plantas_cm = Column(Float, nullable=True)
     distancia_surcos_cm = Column(Float, nullable=True)
+    frecuencia_riego = Column(SQLEnum(FrecuenciaRiego), nullable=True)
+    exposicion_solar = Column(SQLEnum(TipoExposicionSolar), nullable=True)
     dias_germinacion_min = Column(Integer, nullable=True)
     dias_germinacion_max = Column(Integer, nullable=True)
+    dias_hasta_trasplante = Column(Integer, nullable=True)
     dias_hasta_cosecha_min = Column(Integer, nullable=True)
     dias_hasta_cosecha_max = Column(Integer, nullable=True)
+    
+    # Calendario de siembra específico
+    meses_siembra_interior = Column(JSON, default=list)  # [1, 2, 3]
+    meses_siembra_exterior = Column(JSON, default=list)  # [4, 5, 6]
+    
+    # Condiciones de crecimiento específicas
+    temperatura_minima_c = Column(Float, nullable=True)
+    temperatura_maxima_c = Column(Float, nullable=True)
+    zonas_climaticas_preferidas = Column(JSON, default=list)
     
     # Resistencias y características especiales
     resistencias = Column(JSON, default=list)  # ["plagas", "enfermedades"]
@@ -193,6 +182,9 @@ class Variedad(Base):
     procedencia = Column(String(255), nullable=True)  # Proveedor o lugar de origen
     generacion = Column(String(50), nullable=True)  # "F1", "F2", "F3", "OP" (open pollinated), etc
     tipo_polinizacion = Column(String(100), nullable=True)  # "abierta", "autopolinizante", "polinización cruzada"
+    
+    # Documentación con fotos
+    fotos = Column(JSON, default=list)  # Fotos de la variedad (planta, fruto, semillas)
     
     # Timestamps
     created_at = Column(DateTime(timezone=True), server_default=text("CURRENT_TIMESTAMP"))  # type: ignore
@@ -222,8 +214,8 @@ class LoteSemillas(Base):
     # Datos del paquete
     cantidad_estimada = Column(Integer, nullable=True)  # Número de semillas
     anno_produccion = Column(Integer, nullable=True)
-    fecha_vencimiento = Column(DateTime, nullable=True)
     fecha_adquisicion = Column(DateTime, nullable=True)
+    anos_viabilidad_semilla = Column(Integer, nullable=True)  # Años que la semilla mantiene viabilidad
     
     # Información de almacenamiento
     lugar_almacenamiento = Column(String(255), nullable=True)  # "frigo", "despensa", etc.
@@ -241,13 +233,21 @@ class LoteSemillas(Base):
     generacion = Column(String(100), nullable=True, index=True)  # "Original", "F2", "F3", etc.
     
     # Documentación
-    fotos = Column(JSON, default=list)  # Rutas de imágenes
     notas = Column(Text, nullable=True)
     informacion_proveedor = Column(JSON, nullable=True)  # {"url": "...", "contacto": "..."}
     
     # Timestamps
     created_at = Column(DateTime(timezone=True), server_default=text("CURRENT_TIMESTAMP"))  # type: ignore
     updated_at = Column(DateTime(timezone=True), onupdate=text("CURRENT_TIMESTAMP"))  # type: ignore
+    
+    # Propiedades calculadas
+    @property
+    def fecha_vencimiento(self):
+        """Calcula la fecha de vencimiento basado en fecha_adquisicion y anos_viabilidad_semilla"""
+        if self.fecha_adquisicion and self.anos_viabilidad_semilla:
+            from datetime import timedelta
+            return self.fecha_adquisicion + timedelta(days=365.25 * self.anos_viabilidad_semilla)
+        return None
     
     # Relationships
     usuario = relationship("User", back_populates="lotes_semillas")

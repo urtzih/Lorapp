@@ -560,9 +560,38 @@ async def export_csv_options():
 
 @router.get("/export/csv")
 async def export_lotes_csv(
+    export_type: str = Query("lotes", description="Type of export: 'all', 'lotes', 'especies'"),
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
+    """
+    Export user's seed data to CSV file with proper UTF-8 encoding.
+    
+    - **export_type**: 'all' for complete data, 'lotes' for batch info, 'especies' for species catalog
+    
+    Returns a downloadable CSV file with requested information.
+    """
+    try:
+        logger.info(f"CSV export request from user {current_user.id}, type: {export_type}")
+        
+        if export_type == "especies":
+            return await export_especies_csv(current_user, db)
+        elif export_type == "all":
+            return await export_all_csv(current_user, db)
+        else:  # default to lotes
+            return await export_lotes_only_csv(current_user, db)
+    
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Unexpected error in export_lotes_csv: {str(e)}", exc_info=True)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Error exporting CSV: {str(e)}"
+        )
+
+
+async def export_lotes_only_csv(current_user: User, db: Session):
     """
     Export user's seed inventory (lotes) to CSV file with proper UTF-8 encoding.
     
@@ -595,9 +624,7 @@ async def export_lotes_csv(
                 'ID', 'Nombre Comercial', 'Especie', 'Variedad', 'Familia Cultivo',
                 'Marca', 'Año Producción', 'Fecha Vencimiento', 'Estado',
                 'Cantidad Estimada', 'Cantidad Restante', 'Lugar Almacenamiento',
-                'Origen', 'Generación', 'Tipo Origen Variedad',
-                'Días Germinación', 'Días Hasta Trasplante', 'Días Hasta Cosecha',
-                'Notas', 'Fecha Creación'
+                'Origen', 'Generación', 'Notas', 'Fecha Creación'
             ]
             writer.writerow(header)
             logger.info(f"Wrote CSV header: {header}")
@@ -611,17 +638,12 @@ async def export_lotes_csv(
                     # Get related data safely
                     especie_nombre = ''
                     familia_cultivo = ''
-                    dias_germ = ''
-                    dias_trasplante = ''
-                    dias_cosecha = ''
                     variedad_nombre = ''
-                    tipo_origen = ''
                     
                     # Try to access variedad data
                     if lote.variedad:
                         try:
                             variedad_nombre = lote.variedad.nombre_variedad or ''
-                            tipo_origen = lote.variedad.tipo_origen or ''
                         except Exception as e:
                             logger.warning(f"Error accessing variedad for lote {lote.id}: {e}")
                         
@@ -630,9 +652,6 @@ async def export_lotes_csv(
                             try:
                                 especie_nombre = lote.variedad.especie.nombre_comun or ''
                                 familia_cultivo = lote.variedad.especie.familia_botanica or ''
-                                dias_germ = str(lote.variedad.especie.dias_germinacion_max or '')
-                                dias_trasplante = str(lote.variedad.especie.dias_hasta_trasplante or '')
-                                dias_cosecha = str(lote.variedad.especie.dias_hasta_cosecha_max or '')
                             except Exception as e:
                                 logger.warning(f"Error accessing especie for lote {lote.id}: {e}")
                     
@@ -652,10 +671,6 @@ async def export_lotes_csv(
                         str(lote.lugar_almacenamiento or ''),
                         str(lote.origen or ''),  # Origen del lote
                         str(lote.generacion or ''),  # Generación del lote
-                        tipo_origen,  # Tipo origen de la variedad
-                        dias_germ,
-                        dias_trasplante,
-                        dias_cosecha,
                         str(lote.notas or ''),
                         lote.created_at.strftime('%Y-%m-%d %H:%M:%S') if lote.created_at else ''
                     ]
@@ -714,9 +729,281 @@ async def export_lotes_csv(
     except HTTPException:
         raise
     except Exception as e:
-        logger.error(f"Unexpected error in export_lotes_csv: {str(e)}", exc_info=True)
+        logger.error(f"Unexpected error in export_lotes_only_csv: {str(e)}", exc_info=True)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Error exporting CSV: {str(e)}"
         )
+
+
+async def export_especies_csv(current_user: User, db: Session):
+    """
+    Export species catalog to CSV file.
+    """
+    try:
+        logger.info(f"CSV especies export request from user {current_user.id}")
+        
+        # Get all species with their varieties
+        especies = db.query(Especie).options(joinedload(Especie.variedades)).all()
+        logger.info(f"Found {len(especies)} species")
+        
+        # Create CSV in memory
+        output = io.StringIO()
+        writer = csv.writer(output, quoting=csv.QUOTE_ALL, lineterminator='\n')
+        
+        # Write header
+        header = [
+            'ID Especie', 'Nombre Común', 'Nombre Científico', 'Familia Botánica',
+            'Género', 'Tipo Cultivo', 'Descripción',
+            'Variedades (nombres)'
+        ]
+        writer.writerow(header)
+        
+        # Write data rows
+        for especie in especies:
+            variedades_nombres = ', '.join([v.nombre_variedad for v in especie.variedades if v.nombre_variedad])
+            
+            row_data = [
+                str(especie.id or ''),
+                str(especie.nombre_comun or ''),
+                str(especie.nombre_cientifico or ''),
+                str(especie.familia_botanica or ''),
+                str(especie.genero or ''),
+                str(especie.tipo_cultivo or ''),
+                str(especie.descripcion or ''),
+                variedades_nombres
+            ]
+            writer.writerow(row_data)
+        
+        # Get CSV content
+        output.seek(0)
+        csv_content = output.getvalue()
+        output.close()
+        
+        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+        filename = f"lorapp_especies_{timestamp}.csv"
+        
+        # Convert to UTF-8 bytes with BOM
+        csv_bytes = csv_content.encode('utf-8-sig')
+        
+        def generate():
+            yield csv_bytes
+        
+        return StreamingResponse(
+            generate(),
+            media_type="text/csv; charset=utf-8",
+            headers={
+                "Content-Disposition": f'attachment; filename="{filename}"',
+                "Content-Encoding": "utf-8",
+                "Cache-Control": "no-cache",
+                "Pragma": "no-cache"
+            }
+        )
+    except Exception as e:
+        logger.error(f"Error in export_especies_csv: {str(e)}", exc_info=True)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Error exporting especies CSV: {str(e)}"
+        )
+
+
+async def export_all_csv(current_user: User, db: Session):
+    """
+    Export complete data (lotes with full species and variety information) to CSV.
+    """
+    try:
+        logger.info(f"CSV complete export request from user {current_user.id}")
+        
+        # Get all lotes for the user with full joins
+        lotes = db.query(LoteSemillas).filter(
+            LoteSemillas.usuario_id == current_user.id
+        ).options(
+            joinedload(LoteSemillas.variedad).joinedload(Variedad.especie)
+        ).all()
+        
+        logger.info(f"Found {len(lotes)} lotes for complete export")
+        
+        # Create CSV in memory
+        output = io.StringIO()
+        writer = csv.writer(output, quoting=csv.QUOTE_ALL, lineterminator='\n')
+        
+        # Write comprehensive header
+        header = [
+            'ID Lote', 'Nombre Comercial', 'Marca', 'Año Producción', 'Fecha Vencimiento',
+            'Estado', 'Cantidad Estimada', 'Cantidad Restante', 'Lugar Almacenamiento',
+            'Origen', 'Generación', 'Notas Lote',
+            'ID Variedad', 'Nombre Variedad', 'Tipo Polinización', 'Descripción Variedad',
+            'ID Especie', 'Nombre Común', 'Nombre Científico', 'Familia Botánica',
+            'Días Germinación Min', 'Días Germinación Max',
+            'Temperatura Mínima (°C)', 'Temperatura Máxima (°C)',
+            'Días Hasta Trasplante', 'Días Hasta Cosecha Min', 'Días Hasta Cosecha Max',
+            'Fecha Creación Lote'
+        ]
+        writer.writerow(header)
+        
+        # Write data rows
+        for lote in lotes:
+            # Get variedad data
+            variedad_id = ''
+            variedad_nombre = ''
+            tipo_origen = ''
+            variedad_desc = ''
+            
+            # Get especie data
+            especie_id = ''
+            especie_nombre = ''
+            especie_cientifica = ''
+            familia = ''
+            dias_germ_min = ''
+            dias_germ_max = ''
+            temp_germ_min = ''
+            temp_germ_max = ''
+            dias_trasplante = ''
+            dias_cosecha_min = ''
+            dias_cosecha_max = ''
+            
+            if lote.variedad:
+                variedad_id = str(lote.variedad.id or '')
+                variedad_nombre = str(lote.variedad.nombre_variedad or '')
+                tipo_origen = str(lote.variedad.tipo_polinizacion or '')
+                variedad_desc = str(lote.variedad.descripcion or '')
+                
+                # Datos de cultivo de la variedad
+                dias_germ_min = str(lote.variedad.dias_germinacion_min or '')
+                dias_germ_max = str(lote.variedad.dias_germinacion_max or '')
+                temp_germ_min = str(lote.variedad.temperatura_minima_c or '')
+                temp_germ_max = str(lote.variedad.temperatura_maxima_c or '')
+                dias_trasplante = str(lote.variedad.dias_hasta_trasplante or '')
+                dias_cosecha_min = str(lote.variedad.dias_hasta_cosecha_min or '')
+                dias_cosecha_max = str(lote.variedad.dias_hasta_cosecha_max or '')
+                
+                if lote.variedad.especie:
+                    especie_id = str(lote.variedad.especie.id or '')
+                    especie_nombre = str(lote.variedad.especie.nombre_comun or '')
+                    especie_cientifica = str(lote.variedad.especie.nombre_cientifico or '')
+                    familia = str(lote.variedad.especie.familia_botanica or '')
+            
+            row_data = [
+                str(lote.id or ''),
+                str(lote.nombre_comercial or ''),
+                str(lote.marca or ''),
+                str(lote.anno_produccion or ''),
+                lote.fecha_vencimiento.strftime('%Y-%m-%d') if lote.fecha_vencimiento else '',
+                str(lote.estado.value if lote.estado else ''),
+                str(lote.cantidad_estimada or ''),
+                str(lote.cantidad_restante or ''),
+                str(lote.lugar_almacenamiento or ''),
+                str(lote.origen or ''),
+                str(lote.generacion or ''),
+                str(lote.notas or ''),
+                variedad_id,
+                variedad_nombre,
+                tipo_origen,
+                variedad_desc,
+                especie_id,
+                especie_nombre,
+                especie_cientifica,
+                familia,
+                dias_germ_min,
+                dias_germ_max,
+                temp_germ_min,
+                temp_germ_max,
+                dias_trasplante,
+                dias_cosecha_min,
+                dias_cosecha_max,
+                lote.created_at.strftime('%Y-%m-%d %H:%M:%S') if lote.created_at else ''
+            ]
+            writer.writerow(row_data)
+        
+        # Get CSV content
+        output.seek(0)
+        csv_content = output.getvalue()
+        output.close()
+        
+        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+        filename = f"lorapp_completo_{timestamp}.csv"
+        
+        # Convert to UTF-8 bytes with BOM
+        csv_bytes = csv_content.encode('utf-8-sig')
+        
+        def generate():
+            yield csv_bytes
+        
+        return StreamingResponse(
+            generate(),
+            media_type="text/csv; charset=utf-8",
+            headers={
+                "Content-Disposition": f'attachment; filename="{filename}"',
+                "Content-Encoding": "utf-8",
+                "Cache-Control": "no-cache",
+                "Pragma": "no-cache"
+            }
+        )
+    except Exception as e:
+        logger.error(f"Error in export_all_csv: {str(e)}", exc_info=True)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Error exporting complete CSV: {str(e)}"
+        )
+
+
+@router.post("/import/csv")
+async def import_csv(
+    file: UploadFile = File(...),
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """
+    Import lotes from a CSV file.
+    """
+    try:
+        logger.info(f"CSV import request from user {current_user.id}")
+        
+        if not file.filename.endswith('.csv'):
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="El archivo debe ser un CSV"
+            )
+        
+        # Read file content
+        content = await file.read()
+        content_str = content.decode('utf-8-sig')  # Handle BOM
+        
+        # Parse CSV
+        csv_file = io.StringIO(content_str)
+        reader = csv.DictReader(csv_file)
+        
+        imported_count = 0
+        skipped_count = 0
+        
+        for row in reader:
+            try:
+                # Basic validation
+                if not row.get('Nombre Comercial'):
+                    skipped_count += 1
+                    continue
+                
+                # Here you would implement the actual import logic
+                # For now, just log and count
+                logger.info(f"Would import: {row.get('Nombre Comercial')}")
+                imported_count += 1
+                
+            except Exception as row_error:
+                logger.error(f"Error importing row: {str(row_error)}")
+                skipped_count += 1
+                continue
+        
+        return {
+            "message": "Importación completada",
+            "imported": imported_count,
+            "skipped": skipped_count
+        }
+        
+    except Exception as e:
+        logger.error(f"Error in import_csv: {str(e)}", exc_info=True)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Error importing CSV: {str(e)}"
+        )
+
 

@@ -11,3 +11,4 @@ export { SeedDetail } from './SeedDetail';
 export { SeedScan } from './SeedScan';
 export { Calendar } from './Calendar';
 export { Settings } from './Settings';
+export { CSVManager } from './CSVManager';

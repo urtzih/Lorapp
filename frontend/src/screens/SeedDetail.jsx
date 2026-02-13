@@ -333,7 +333,7 @@ export function SeedDetail() {
                     >
                         ←
                     </button>
-                    <div style={{ display: 'flex', gap: '0.5rem' }}>
+                    <div style={{ display: 'flex', gap: '0.5rem', minWidth: '140px', justifyContent: 'flex-end' }}>
                         {!editing ? (
                             <>
                                 <button 
@@ -343,13 +343,14 @@ export function SeedDetail() {
                                         color: 'white',
                                         border: 'none',
                                         borderRadius: '8px',
-                                        padding: '0.5rem 1rem',
+                                        padding: '0.5rem 0.75rem',
                                         fontSize: '0.9rem',
                                         cursor: 'pointer',
-                                        fontWeight: '500'
+                                        fontWeight: '500',
+                                        minWidth: '70px'
                                     }}
                                 >
-                                    ✏️ Editar
+                                    ✏️
                                 </button>
                                 <button 
                                     onClick={handleDelete} 
@@ -358,9 +359,10 @@ export function SeedDetail() {
                                         color: 'white',
                                         border: 'none',
                                         borderRadius: '8px',
-                                        padding: '0.5rem 1rem',
+                                        padding: '0.5rem 0.75rem',
                                         fontSize: '0.9rem',
-                                        cursor: 'pointer'
+                                        cursor: 'pointer',
+                                        minWidth: '40px'
                                     }}
                                 >
                                     🗑️
@@ -374,13 +376,14 @@ export function SeedDetail() {
                                     color: 'white',
                                     border: 'none',
                                     borderRadius: '8px',
-                                    padding: '0.5rem 1rem',
+                                    padding: '0.5rem 0.75rem',
                                     fontSize: '0.9rem',
                                     cursor: 'pointer',
-                                    fontWeight: '500'
+                                    fontWeight: '500',
+                                    minWidth: '110px'
                                 }}
                             >
-                                ✖ Cancelar
+                                ✖ Salir
                             </button>
                         )}
                     </div>

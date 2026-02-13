@@ -8,6 +8,7 @@ import SeedDetail from './screens/SeedDetail'
 import SeedScan from './screens/SeedScan'
 import Calendar from './screens/Calendar'
 import Settings from './screens/Settings'
+import CSVManager from './screens/CSVManager'
 import Layout from './components/layout/Layout'
 
 function App() {
@@ -47,6 +48,7 @@ function App() {
                                         <Route path="/scan" element={<SeedScan />} />
                                         <Route path="/calendar" element={<Calendar />} />
                                         <Route path="/settings" element={<Settings />} />
+                                        <Route path="/csv-manager" element={<CSVManager />} />
                                     </Routes>
                                 </Layout>
                             );

@@ -136,63 +136,6 @@ export function Inventory() {
         return Array.from(generaciones).sort();
     };
 
-    const handleExportCSV = async () => {
-        try {
-            console.log('Iniciando exportación CSV...');
-            const response = await seedsAPI.exportCSV();
-            console.log('Respuesta recibida:', response);
-            console.log('Response data type:', typeof response.data);
-            console.log('Response data size:', response.data ? response.data.length : 'null');
-            
-            // Ensure we have data
-            if (!response.data) {
-                throw new Error('No data received from server');
-            }
-            
-            // Log first 500 chars of CSV
-            if (typeof response.data === 'string') {
-                console.log('CSV content preview:', response.data.substring(0, 500));
-            }
-            
-            // Create blob from response data
-            const blob = new Blob([response.data], { type: 'text/csv;charset=utf-8;' });
-            console.log('Blob creado:', blob);
-            console.log('Blob size:', blob.size);
-            
-            // Create download link
-            const url = window.URL.createObjectURL(blob);
-            const link = document.createElement('a');
-            link.href = url;
-            
-            const downloadName = `lorapp_seeds_${new Date().toISOString().split('T')[0]}.csv`;
-            link.setAttribute('download', downloadName);
-            link.style.display = 'none';
-            document.body.appendChild(link);
-            
-            console.log('Descargando archivo:', downloadName);
-            link.click();
-            
-            // Cleanup
-            setTimeout(() => {
-                document.body.removeChild(link);
-                window.URL.revokeObjectURL(url);
-                console.log('Descarga completada y recursos liberados');
-            }, 100);
-        } catch (error) {
-            console.error('Error exporting CSV:', error);
-            console.error('Error details:', {
-                message: error.message,
-                response: error.response?.data,
-                status: error.response?.status
-            });
-            alert('Error al exportar CSV: ' + (error.response?.data?.detail || error.message));
-        }
-    };
-
-    const handleImportCSV = () => {
-        alert('Importar CSV estara disponible pronto.');
-    };
-
     const handleCreateList = () => {
         alert('Crear lista estara disponible pronto.');
     };
@@ -648,11 +591,8 @@ export function Inventory() {
                             <button className="fab-action" onClick={() => { setFabOpen(false); navigate('/scan'); }} role="menuitem">
                                 ➕ Añadir semilla
                             </button>
-                            <button className="fab-action" onClick={() => { setFabOpen(false); handleExportCSV(); }} role="menuitem">
-                                📊 Exportar CSV
-                            </button>
-                            <button className="fab-action" onClick={() => { setFabOpen(false); handleImportCSV(); }} role="menuitem">
-                                📥 Importar CSV
+                            <button className="fab-action" onClick={() => { setFabOpen(false); navigate('/csv-manager'); }} role="menuitem">
+                                📊 Gestionar CSV
                             </button>
                             <button className="fab-action" onClick={() => { setFabOpen(false); handleCreateList(); }} role="menuitem">
                                 🗂️ Crear lista
