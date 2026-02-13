@@ -90,7 +90,7 @@ class User(Base):
     
     # Timestamps
     created_at = Column(DateTime(timezone=True), server_default=text("CURRENT_TIMESTAMP"))  # type: ignore
-    updated_at = Column(DateTime(timezone=True), onupdate=text("CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP"))  # type: ignore
+    updated_at = Column(DateTime(timezone=True), onupdate=text("CURRENT_TIMESTAMP"))  # type: ignore
     
     # Relationships
     lotes_semillas = relationship("LoteSemillas", back_populates="usuario", cascade="all, delete-orphan")
@@ -149,7 +149,7 @@ class Especie(Base):
     
     # Timestamps
     created_at = Column(DateTime(timezone=True), server_default=text("CURRENT_TIMESTAMP"))  # type: ignore
-    updated_at = Column(DateTime(timezone=True), onupdate=text("CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP"))  # type: ignore
+    updated_at = Column(DateTime(timezone=True), onupdate=text("CURRENT_TIMESTAMP"))  # type: ignore
     
     # Relationships
     variedades = relationship("Variedad", back_populates="especie", cascade="all, delete-orphan")
@@ -198,7 +198,7 @@ class Variedad(Base):
     
     # Timestamps
     created_at = Column(DateTime(timezone=True), server_default=text("CURRENT_TIMESTAMP"))  # type: ignore
-    updated_at = Column(DateTime(timezone=True), onupdate=text("CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP"))  # type: ignore
+    updated_at = Column(DateTime(timezone=True), onupdate=text("CURRENT_TIMESTAMP"))  # type: ignore
     
     # Relationships
     especie = relationship("Especie", back_populates="variedades")
@@ -236,6 +236,10 @@ class LoteSemillas(Base):
     estado = Column(SQLEnum(EstadoLoteSemillas), default=EstadoLoteSemillas.ACTIVO)
     cantidad_restante = Column(Integer, nullable=True)
     
+    # Trazabilidad de origen y generación
+    origen = Column(String(255), nullable=True, index=True)  # "Latanina", "Huerta Urtzi", etc.
+    generacion = Column(String(100), nullable=True, index=True)  # "Original", "F2", "F3", etc.
+    
     # Documentación
     fotos = Column(JSON, default=list)  # Rutas de imágenes
     notas = Column(Text, nullable=True)
@@ -243,7 +247,7 @@ class LoteSemillas(Base):
     
     # Timestamps
     created_at = Column(DateTime(timezone=True), server_default=text("CURRENT_TIMESTAMP"))  # type: ignore
-    updated_at = Column(DateTime(timezone=True), onupdate=text("CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP"))  # type: ignore
+    updated_at = Column(DateTime(timezone=True), onupdate=text("CURRENT_TIMESTAMP"))  # type: ignore
     
     # Relationships
     usuario = relationship("User", back_populates="lotes_semillas")
@@ -286,7 +290,7 @@ class PruebaGerminacion(Base):
     
     # Timestamps
     created_at = Column(DateTime(timezone=True), server_default=text("CURRENT_TIMESTAMP"))  # type: ignore
-    updated_at = Column(DateTime(timezone=True), onupdate=text("CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP"))  # type: ignore
+    updated_at = Column(DateTime(timezone=True), onupdate=text("CURRENT_TIMESTAMP"))  # type: ignore
     
     # Relationships
     usuario = relationship("User", back_populates="pruebas_germinacion")
@@ -320,7 +324,7 @@ class Temporada(Base):
     
     # Timestamps
     created_at = Column(DateTime(timezone=True), server_default=text("CURRENT_TIMESTAMP"))  # type: ignore
-    updated_at = Column(DateTime(timezone=True), onupdate=text("CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP"))  # type: ignore
+    updated_at = Column(DateTime(timezone=True), onupdate=text("CURRENT_TIMESTAMP"))  # type: ignore
 
 
 class Plantacion(Base):
@@ -357,7 +361,7 @@ class Plantacion(Base):
     
     # Timestamps
     created_at = Column(DateTime(timezone=True), server_default=text("CURRENT_TIMESTAMP"))  # type: ignore
-    updated_at = Column(DateTime(timezone=True), onupdate=text("CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP"))  # type: ignore
+    updated_at = Column(DateTime(timezone=True), onupdate=text("CURRENT_TIMESTAMP"))  # type: ignore
     
     # Relationships
     usuario = relationship("User", back_populates="plantaciones")
@@ -395,7 +399,7 @@ class Cosecha(Base):
     
     # Timestamps
     created_at = Column(DateTime(timezone=True), server_default=text("CURRENT_TIMESTAMP"))  # type: ignore
-    updated_at = Column(DateTime(timezone=True), onupdate=text("CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP"))  # type: ignore
+    updated_at = Column(DateTime(timezone=True), onupdate=text("CURRENT_TIMESTAMP"))  # type: ignore
     
     # Relationships
     usuario = relationship("User", back_populates="cosechas")
@@ -436,7 +440,7 @@ class CosechaSemillas(Base):
     
     # Timestamps
     created_at = Column(DateTime(timezone=True), server_default=text("CURRENT_TIMESTAMP"))  # type: ignore
-    updated_at = Column(DateTime(timezone=True), onupdate=text("CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP"))  # type: ignore
+    updated_at = Column(DateTime(timezone=True), onupdate=text("CURRENT_TIMESTAMP"))  # type: ignore
     
     # Relationships
     usuario = relationship("User", back_populates="cosechas_semillas")
@@ -507,7 +511,7 @@ class CropRule(Base):
     
     # Timestamps
     created_at = Column(DateTime(timezone=True), server_default=text("CURRENT_TIMESTAMP"))  # type: ignore
-    updated_at = Column(DateTime(timezone=True), onupdate=text("CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP"))  # type: ignore
+    updated_at = Column(DateTime(timezone=True), onupdate=text("CURRENT_TIMESTAMP"))  # type: ignore
 
 
 class NotificationHistory(Base):
@@ -533,3 +537,4 @@ class NotificationHistory(Base):
     
     # Timestamps
     created_at = Column(DateTime(timezone=True), server_default=text("CURRENT_TIMESTAMP"))  # type: ignore
+

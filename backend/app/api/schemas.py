@@ -186,6 +186,8 @@ class LoteSemillasBase(BaseModel):
     numero_lote: Optional[str] = Field(None, max_length=100)
     cantidad_estimada: Optional[int] = Field(None, ge=0)
     anno_produccion: Optional[int] = Field(None, ge=1900, le=2100)
+    origen: Optional[str] = Field(None, max_length=255)  # "Latanina", "Huerta Urtzi", etc.
+    generacion: Optional[str] = Field(None, max_length=100)  # "Original", "F2", "F3", etc.
     notas: Optional[str] = None
 
 
@@ -208,6 +210,8 @@ class LoteSemillasUpdate(BaseModel):
     cantidad_estimada: Optional[int] = Field(None, ge=0)
     cantidad_restante: Optional[int] = Field(None, ge=0)
     anno_produccion: Optional[int] = None
+    origen: Optional[str] = Field(None, max_length=255)
+    generacion: Optional[str] = Field(None, max_length=100)
     fecha_vencimiento: Optional[datetime] = None
     fecha_adquisicion: Optional[datetime] = None
     lugar_almacenamiento: Optional[str] = None

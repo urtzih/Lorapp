@@ -15,7 +15,9 @@ export function Inventory() {
         brand: '',
         is_planted: null,
         especie: '',
-        familia: ''
+        familia: '',
+        origen: '',
+        generacion: ''
     });
 
     const navigate = useNavigate();
@@ -56,7 +58,7 @@ export function Inventory() {
         return grouped;
     };
 
-    // Filtrar semillas localmente por especie, familia y marca
+    // Filtrar semillas localmente por especie, familia, marca, origen y generación
     const getFilteredSeeds = () => {
         return seeds.filter(seed => {
             // Filtro por especie
@@ -69,6 +71,14 @@ export function Inventory() {
             }
             // Filtro por marca
             if (filters.brand && seed.marca !== filters.brand) {
+                return false;
+            }
+            // Filtro por origen
+            if (filters.origen && seed.origen !== filters.origen) {
+                return false;
+            }
+            // Filtro por generación
+            if (filters.generacion && seed.generacion !== filters.generacion) {
                 return false;
             }
             return true;
@@ -106,18 +116,76 @@ export function Inventory() {
         return Array.from(brands).sort();
     };
 
+    const getUniqueOrig = () => {
+        const origenes = new Set();
+        seeds.forEach(seed => {
+            if (seed.origen) {
+                origenes.add(seed.origen);
+            }
+        });
+        return Array.from(origenes).sort();
+    };
+
+    const getUniqueGenerations = () => {
+        const generaciones = new Set();
+        seeds.forEach(seed => {
+            if (seed.generacion) {
+                generaciones.add(seed.generacion);
+            }
+        });
+        return Array.from(generaciones).sort();
+    };
+
     const handleExportCSV = async () => {
         try {
+            console.log('Iniciando exportación CSV...');
             const response = await seedsAPI.exportCSV();
-            const url = window.URL.createObjectURL(new Blob([response.data]));
+            console.log('Respuesta recibida:', response);
+            console.log('Response data type:', typeof response.data);
+            console.log('Response data size:', response.data ? response.data.length : 'null');
+            
+            // Ensure we have data
+            if (!response.data) {
+                throw new Error('No data received from server');
+            }
+            
+            // Log first 500 chars of CSV
+            if (typeof response.data === 'string') {
+                console.log('CSV content preview:', response.data.substring(0, 500));
+            }
+            
+            // Create blob from response data
+            const blob = new Blob([response.data], { type: 'text/csv;charset=utf-8;' });
+            console.log('Blob creado:', blob);
+            console.log('Blob size:', blob.size);
+            
+            // Create download link
+            const url = window.URL.createObjectURL(blob);
             const link = document.createElement('a');
             link.href = url;
-            link.setAttribute('download', `lorapp_seeds_${new Date().toISOString().split('T')[0]}.csv`);
+            
+            const downloadName = `lorapp_seeds_${new Date().toISOString().split('T')[0]}.csv`;
+            link.setAttribute('download', downloadName);
+            link.style.display = 'none';
             document.body.appendChild(link);
+            
+            console.log('Descargando archivo:', downloadName);
             link.click();
-            link.remove();
+            
+            // Cleanup
+            setTimeout(() => {
+                document.body.removeChild(link);
+                window.URL.revokeObjectURL(url);
+                console.log('Descarga completada y recursos liberados');
+            }, 100);
         } catch (error) {
             console.error('Error exporting CSV:', error);
+            console.error('Error details:', {
+                message: error.message,
+                response: error.response?.data,
+                status: error.response?.status
+            });
+            alert('Error al exportar CSV: ' + (error.response?.data?.detail || error.message));
         }
     };
 
@@ -191,8 +259,18 @@ export function Inventory() {
                                 </span>
                             )}
                             {seed.variedad?.procedencia && (
-                                <span className="badge badge-info" title="Origen">
+                                <span className="badge badge-info" title="Origen de la Variedad">
                                     📍 {seed.variedad.procedencia}
+                                </span>
+                            )}
+                            {seed.origen && (
+                                <span className="badge badge-success" title="Origen del Lote">
+                                    🏠 {seed.origen}
+                                </span>
+                            )}
+                            {seed.generacion && (
+                                <span className="badge badge-warning" title="Generación">
+                                    🔄 {seed.generacion}
                                 </span>
                             )}
                         </div>
@@ -269,7 +347,7 @@ export function Inventory() {
     };
 
     return (
-        <div className="container section" style={{ padding: 'var(--space-4)' }}>
+        <div className="container section" style={{ padding: 'var(--space-4)', paddingBottom: '150px' }}>
             {/* Header Section */}
             <h1 style={{ margin: 0, marginBottom: 'var(--space-2)' }}>Mi Inventario</h1>
             <div className="flex justify-between items-center" style={{ marginBottom: 'var(--space-6)' }}>
@@ -335,7 +413,7 @@ export function Inventory() {
                     >
                         <span style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
                             🔍 Filtros
-                            {(filters.search || filters.especie || filters.familia || filters.brand || filters.is_planted !== null) && (
+                            {(filters.search || filters.especie || filters.familia || filters.brand || filters.origen || filters.generacion || filters.is_planted !== null) && (
                                 <span className="badge badge-primary" style={{ fontSize: '0.75rem' }}>
                                     activos
                                 </span>
@@ -426,13 +504,45 @@ export function Inventory() {
                                 <option value="true">Plantadas</option>
                             </select>
                         </div>
+
+                        <div className="filter-group">
+                            <label className="form-label" htmlFor="filter-origen" style={{ fontSize: '0.85rem', fontWeight: '600' }}>🏠 Origen del Lote</label>
+                            <select
+                                className="input"
+                                id="filter-origen"
+                                value={filters.origen}
+                                onChange={(e) => setFilters({ ...filters, origen: e.target.value })}
+                                style={{ fontSize: '0.9rem' }}
+                            >
+                                <option value="">Todos los orígenes</option>
+                                {getUniqueOrig().map(origen => (
+                                    <option key={origen} value={origen}>{origen}</option>
+                                ))}
+                            </select>
+                        </div>
+
+                        <div className="filter-group">
+                            <label className="form-label" htmlFor="filter-generacion" style={{ fontSize: '0.85rem', fontWeight: '600' }}>🔄 Generación</label>
+                            <select
+                                className="input"
+                                id="filter-generacion"
+                                value={filters.generacion}
+                                onChange={(e) => setFilters({ ...filters, generacion: e.target.value })}
+                                style={{ fontSize: '0.9rem' }}
+                            >
+                                <option value="">Todas las generaciones</option>
+                                {getUniqueGenerations().map(gen => (
+                                    <option key={gen} value={gen}>{gen}</option>
+                                ))}
+                            </select>
+                        </div>
                     </div>
 
                         {/* Botón para limpiar filtros */}
-                        {(filters.search || filters.especie || filters.familia || filters.brand || filters.is_planted !== null) && (
+                        {(filters.search || filters.especie || filters.familia || filters.brand || filters.origen || filters.generacion || filters.is_planted !== null) && (
                             <div style={{ marginTop: 'var(--space-3)', textAlign: 'center' }}>
                                 <button 
-                                    onClick={() => setFilters({ search: '', especie: '', familia: '', brand: '', is_planted: null })}
+                                    onClick={() => setFilters({ search: '', especie: '', familia: '', brand: '', origen: '', generacion: '', is_planted: null })}
                                     className="btn btn-secondary btn-sm"
                                     style={{ fontSize: '0.85rem' }}
                                 >

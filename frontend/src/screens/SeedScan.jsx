@@ -72,7 +72,7 @@ export function SeedScan() {
     };
 
     return (
-        <div className="container section">
+        <div className="container section" style={{ paddingBottom: '150px' }}>
             <h1 className="mb-6">📸 Escanear Semilla</h1>
 
             {!ocrResult ? (

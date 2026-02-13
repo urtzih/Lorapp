@@ -93,7 +93,7 @@ export function Calendar() {
     }
 
     return (
-        <div className="container section">
+        <div className="container section" style={{ paddingBottom: '150px' }}>
             <div style={{ marginBottom: 'var(--space-6)' }}>
                 <h1 style={{ marginBottom: '0.5rem' }}>📅 Calendario Agrícola</h1>
                 <p className="text-gray">Planifica tus siembras y trasplantes</p>

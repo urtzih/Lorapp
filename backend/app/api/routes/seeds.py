@@ -9,6 +9,7 @@ from sqlalchemy.orm import Session, joinedload
 from typing import List, Optional
 import io
 import csv
+import logging
 from datetime import datetime
 
 from app.api.schemas import (
@@ -23,6 +24,7 @@ from app.infrastructure.storage.file_service import storage_service
 
 
 router = APIRouter(prefix="/seeds", tags=["Seeds"])
+logger = logging.getLogger(__name__)
 
 
 @router.post("/scan", response_model=OCRResult)
@@ -235,29 +237,79 @@ async def add_lote_photos(
 ):
     """
     Add photos to an existing lote.
+    
+    Args:
+        lote_id: ID of the lote to add photos to
+        files: 1-5 image files (JPG, PNG, WebP)
+        current_user: Authenticated user
+        db: Database session
+        
+    Returns:
+        Updated lote with new photos
+        
+    Raises:
+        404: Lote not found or not owned by user
+        400: Invalid file format or too many files
     """
-    lote = db.query(LoteSemillas).filter(
-        LoteSemillas.id == lote_id,
-        LoteSemillas.usuario_id == current_user.id
-    ).first()
+    try:
+        logger.info(f"[Photos] User {current_user.id} adding {len(files)} photos to lote {lote_id}")
+        
+        # Validate lote exists and belongs to user
+        lote = db.query(LoteSemillas).filter(
+            LoteSemillas.id == lote_id,
+            LoteSemillas.usuario_id == current_user.id
+        ).first()
 
-    if not lote:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Lote not found"
+        if not lote:
+            logger.warning(f"[Photos] Lote {lote_id} not found for user {current_user.id}")
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Lote {lote_id} not found"
+            )
+        
+        # Validate number of files
+        if len(files) > 5:
+            logger.warning(f"[Photos] Too many files: {len(files)} > 5")
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Maximum 5 photos allowed per request"
+            )
+        
+        if len(files) == 0:
+            logger.warning(f"[Photos] No files provided")
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="At least one file is required"
+            )
+
+        # Save photos
+        logger.debug(f"[Photos] Saving {len(files)} photos for lote {lote_id}")
+        new_paths = await storage_service.save_seed_photos(
+            user_id=current_user.id,
+            seed_id=lote_id,
+            files=files
         )
+        
+        logger.info(f"[Photos] Successfully saved {len(new_paths)} photos for lote {lote_id}")
 
-    new_paths = await storage_service.save_seed_photos(
-        user_id=current_user.id,
-        seed_id=lote_id,
-        files=files
-    )
+        # Update lote with new photos
+        lote.fotos = (lote.fotos or []) + new_paths
+        db.commit()
+        db.refresh(lote)
+        
+        logger.info(f"[Photos] Lote {lote_id} updated with new photos. Total photos: {len(lote.fotos)}")
 
-    lote.fotos = (lote.fotos or []) + new_paths
-    db.commit()
-    db.refresh(lote)
-
-    return LoteSemillasResponse.from_orm(lote)
+        return LoteSemillasResponse.from_orm(lote)
+        
+    except HTTPException:
+        # Re-raise HTTP exceptions as-is
+        raise
+    except Exception as e:
+        logger.error(f"[Photos] Error adding photos to lote {lote_id}: {str(e)}", exc_info=True)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Error processing photos: {str(e)}"
+        )
 
 
 @router.delete("/{lote_id}/photos", response_model=LoteSemillasResponse)
@@ -269,30 +321,65 @@ async def delete_lote_photo(
 ):
     """
     Remove a specific photo from a lote.
+    
+    Args:
+        lote_id: ID of the lote
+        photo: Relative file path of the photo to delete
+        current_user: Authenticated user
+        db: Database session
+        
+    Returns:
+        Updated lote with photo removed
+        
+    Raises:
+        404: Lote not found or photo not found
     """
-    lote = db.query(LoteSemillas).filter(
-        LoteSemillas.id == lote_id,
-        LoteSemillas.usuario_id == current_user.id
-    ).first()
+    try:
+        logger.info(f"[Photos] User {current_user.id} deleting photo from lote {lote_id}: {photo}")
+        
+        # Validate lote exists and belongs to user
+        lote = db.query(LoteSemillas).filter(
+            LoteSemillas.id == lote_id,
+            LoteSemillas.usuario_id == current_user.id
+        ).first()
 
-    if not lote:
+        if not lote:
+            logger.warning(f"[Photos] Lote {lote_id} not found for user {current_user.id}")
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Lote {lote_id} not found"
+            )
+
+        # Check if photo exists in lote
+        if not lote.fotos or photo not in lote.fotos:
+            logger.warning(f"[Photos] Photo not found in lote {lote_id}: {photo}")
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Photo not found: {photo}"
+            )
+
+        # Delete photo from filesystem
+        logger.debug(f"[Photos] Deleting file: {photo}")
+        storage_service.delete_file(photo)
+        
+        # Remove from lote
+        lote.fotos = [p for p in lote.fotos if p != photo]
+        db.commit()
+        db.refresh(lote)
+        
+        logger.info(f"[Photos] Successfully deleted photo from lote {lote_id}. Remaining photos: {len(lote.fotos)}")
+
+        return LoteSemillasResponse.from_orm(lote)
+        
+    except HTTPException:
+        # Re-raise HTTP exceptions as-is
+        raise
+    except Exception as e:
+        logger.error(f"[Photos] Error deleting photo from lote {lote_id}: {str(e)}", exc_info=True)
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Lote not found"
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Error deleting photo: {str(e)}"
         )
-
-    if not lote.fotos or photo not in lote.fotos:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Photo not found"
-        )
-
-    storage_service.delete_file(photo)
-    lote.fotos = [p for p in lote.fotos if p != photo]
-    db.commit()
-    db.refresh(lote)
-
-    return LoteSemillasResponse.from_orm(lote)
 
 
 @router.put("/variedades/{variedad_id}", response_model=VariedadResponse)
@@ -395,65 +482,171 @@ async def delete_lote(
     return MessageResponse(message="Lote deleted successfully")
 
 
+@router.options("/export/csv")
+async def export_csv_options():
+    """Handle OPTIONS request for CORS preflight"""
+    return {"status": "ok"}
+
+
 @router.get("/export/csv")
 async def export_lotes_csv(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
     """
-    Export user's seed inventory (lotes) to CSV file.
+    Export user's seed inventory (lotes) to CSV file with proper UTF-8 encoding.
     
     Returns a downloadable CSV file with all lote information.
     """
-    lotes = db.query(LoteSemillas).options(
-        joinedload(LoteSemillas.variedad).joinedload(Variedad.especie)
-    ).filter(LoteSemillas.usuario_id == current_user.id).all()
-    
-    # Create CSV in memory
-    output = io.StringIO()
-    writer = csv.writer(output)
-    
-    # Write header (Spanish)
-    writer.writerow([
-        'ID', 'Nombre Comercial', 'Especie', 'Variedad', 'Familia Cultivo',
-        'Marca', 'Año Producción', 'Fecha Vencimiento', 'Estado',
-        'Cantidad Estimada', 'Cantidad Restante', 'Lugar Almacenamiento',
-        'Días Germinación', 'Días Hasta Trasplante', 'Días Hasta Cosecha',
-        'Tipo Origen', 'Notas', 'Fecha Creación'
-    ])
-    
-    # Write data rows
-    for lote in lotes:
-        especie = lote.variedad.especie if lote.variedad else None
-        writer.writerow([
-            lote.id,
-            lote.nombre_comercial or '',
-            especie.nombre_comun if especie else '',
-            lote.variedad.nombre_variedad if lote.variedad else '',
-            especie.familia_cultivo if especie else '',
-            lote.marca or '',
-            lote.anno_produccion or '',
-            lote.fecha_vencimiento.strftime('%Y-%m-%d') if lote.fecha_vencimiento else '',
-            lote.estado,
-            lote.cantidad_estimada or '',
-            lote.cantidad_restante or '',
-            lote.lugar_almacenamiento or '',
-            especie.dias_germinacion if especie else '',
-            especie.dias_hasta_trasplante if especie else '',
-            especie.dias_hasta_cosecha if especie else '',
-            lote.variedad.tipo_origen if lote.variedad else '',
-            lote.notas or '',
-            lote.created_at.strftime('%Y-%m-%d %H:%M:%S')
-        ])
-    
-    # Prepare response
-    output.seek(0)
-    timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-    filename = f"lorapp_lotes_{timestamp}.csv"
-    
-    return StreamingResponse(
-        iter([output.getvalue()]),
-        media_type="text/csv",
-        headers={"Content-Disposition": f"attachment; filename={filename}"}
-    )
+    try:
+        logger.info(f"CSV export request from user {current_user.id}")
+        
+        # Simple query without complex joins to avoid issues
+        try:
+            lotes = db.query(LoteSemillas).filter(
+                LoteSemillas.usuario_id == current_user.id
+            ).all()
+            logger.info(f"Found {len(lotes)} lotes for user {current_user.id}")
+        except Exception as db_error:
+            logger.error(f"Database query error: {str(db_error)}", exc_info=True)
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail=f"Database query error: {str(db_error)}"
+            )
+        
+        # Create CSV in memory with UTF-8 encoding
+        try:
+            # Use StringIO for text mode
+            output = io.StringIO()
+            writer = csv.writer(output, quoting=csv.QUOTE_ALL, lineterminator='\n')
+            
+            # Write header with proper Spanish characters - using BOM-safe strings
+            header = [
+                'ID', 'Nombre Comercial', 'Especie', 'Variedad', 'Familia Cultivo',
+                'Marca', 'Año Producción', 'Fecha Vencimiento', 'Estado',
+                'Cantidad Estimada', 'Cantidad Restante', 'Lugar Almacenamiento',
+                'Origen', 'Generación', 'Tipo Origen Variedad',
+                'Días Germinación', 'Días Hasta Trasplante', 'Días Hasta Cosecha',
+                'Notas', 'Fecha Creación'
+            ]
+            writer.writerow(header)
+            logger.info(f"Wrote CSV header: {header}")
+            
+            # Write data rows
+            rows_written = 0
+            error_count = 0
+            
+            for lote in lotes:
+                try:
+                    # Get related data safely
+                    especie_nombre = ''
+                    familia_cultivo = ''
+                    dias_germ = ''
+                    dias_trasplante = ''
+                    dias_cosecha = ''
+                    variedad_nombre = ''
+                    tipo_origen = ''
+                    
+                    # Try to access variedad data
+                    if lote.variedad:
+                        try:
+                            variedad_nombre = lote.variedad.nombre_variedad or ''
+                            tipo_origen = lote.variedad.tipo_origen or ''
+                        except Exception as e:
+                            logger.warning(f"Error accessing variedad for lote {lote.id}: {e}")
+                        
+                        # Try to access especie data through variedad
+                        if lote.variedad.especie:
+                            try:
+                                especie_nombre = lote.variedad.especie.nombre_comun or ''
+                                familia_cultivo = lote.variedad.especie.familia_botanica or ''
+                                dias_germ = str(lote.variedad.especie.dias_germinacion_max or '')
+                                dias_trasplante = str(lote.variedad.especie.dias_hasta_trasplante or '')
+                                dias_cosecha = str(lote.variedad.especie.dias_hasta_cosecha_max or '')
+                            except Exception as e:
+                                logger.warning(f"Error accessing especie for lote {lote.id}: {e}")
+                    
+                    # Prepare row data - everything as string to avoid encoding issues
+                    row_data = [
+                        str(lote.id or ''),
+                        str(lote.nombre_comercial or ''),
+                        especie_nombre,
+                        variedad_nombre,
+                        familia_cultivo,
+                        str(lote.marca or ''),
+                        str(lote.anno_produccion or ''),
+                        lote.fecha_vencimiento.strftime('%Y-%m-%d') if lote.fecha_vencimiento else '',
+                        str(lote.estado.value if lote.estado else ''),  # Get enum value
+                        str(lote.cantidad_estimada or ''),
+                        str(lote.cantidad_restante or ''),
+                        str(lote.lugar_almacenamiento or ''),
+                        str(lote.origen or ''),  # Origen del lote
+                        str(lote.generacion or ''),  # Generación del lote
+                        tipo_origen,  # Tipo origen de la variedad
+                        dias_germ,
+                        dias_trasplante,
+                        dias_cosecha,
+                        str(lote.notas or ''),
+                        lote.created_at.strftime('%Y-%m-%d %H:%M:%S') if lote.created_at else ''
+                    ]
+                    
+                    writer.writerow(row_data)
+                    rows_written += 1
+                    
+                    if rows_written % 10 == 0:
+                        logger.debug(f"Wrote {rows_written} rows so far")
+                    
+                except Exception as row_error:
+                    error_count += 1
+                    logger.error(f"Error writing row for lote {lote.id}: {str(row_error)}", exc_info=True)
+                    continue
+            
+            logger.info(f"CSV export completed: wrote {rows_written} rows, {error_count} errors")
+            
+            # Get CSV content
+            output.seek(0)
+            csv_content = output.getvalue()
+            output.close()
+            
+            logger.info(f"CSV content length: {len(csv_content)} chars")
+            
+            if rows_written == 0:
+                logger.warning("CSV export produced no data rows")
+            
+            timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+            filename = f"lorapp_lotes_{timestamp}.csv"
+            
+            # Convert to UTF-8 bytes with BOM for proper encoding in Excel
+            csv_bytes = csv_content.encode('utf-8-sig')
+            logger.info(f"CSV bytes prepared: {len(csv_bytes)} bytes")
+            
+            # Return as bytes with proper encoding headers
+            def generate():
+                yield csv_bytes
+            
+            return StreamingResponse(
+                generate(),
+                media_type="text/csv; charset=utf-8",
+                headers={
+                    "Content-Disposition": f'attachment; filename="{filename}"',
+                    "Content-Encoding": "utf-8",
+                    "Cache-Control": "no-cache",
+                    "Pragma": "no-cache"
+                }
+            )
+        except Exception as csv_error:
+            logger.error(f"CSV creation error: {str(csv_error)}", exc_info=True)
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail=f"Error creating CSV: {str(csv_error)}"
+            )
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Unexpected error in export_lotes_csv: {str(e)}", exc_info=True)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Error exporting CSV: {str(e)}"
+        )
 

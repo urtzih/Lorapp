@@ -94,18 +94,32 @@ export function Settings() {
 
     const handleExportCSV = async () => {
         try {
+            console.log('Iniciando exportación CSV...');
             const response = await seedsAPI.exportCSV();
-            const url = window.URL.createObjectURL(new Blob([response.data]));
+            console.log('Respuesta recibida:', response);
+            
+            // Ensure we have data
+            if (!response.data) {
+                throw new Error('No data received from server');
+            }
+            
+            // Create blob from response data
+            const blob = new Blob([response.data], { type: 'text/csv;charset=utf-8;' });
+            console.log('Blob creado:', blob);
+            
+            const url = window.URL.createObjectURL(blob);
             const link = document.createElement('a');
             link.href = url;
             link.setAttribute('download', `lorapp_seeds_${new Date().toISOString().split('T')[0]}.csv`);
             document.body.appendChild(link);
             link.click();
             link.remove();
+            window.URL.revokeObjectURL(url);
             setMessage({ type: 'success', text: 'CSV exportado correctamente' });
+            console.log('Archivo descargado exitosamente');
         } catch (error) {
             console.error('Error exporting CSV:', error);
-            setMessage({ type: 'error', text: 'Error al exportar CSV' });
+            setMessage({ type: 'error', text: 'Error al exportar CSV: ' + (error.response?.data?.detail || error.message) });
         }
     };
 
@@ -128,7 +142,7 @@ export function Settings() {
     const permissionStatus = getNotificationPermission();
 
     return (
-        <div className="container section">
+        <div className="container section" style={{ paddingBottom: '150px' }}>
             <h1 className="mb-6">Ajustes</h1>
 
             {/* Alert Message */}
