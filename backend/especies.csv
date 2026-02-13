@@ -1,0 +1,28 @@
+id,nombre_comun,nombre_cientifico,familia_botanica,genero,descripcion,tipo_cultivo
+1,Tomate,Solanum lycopersicum,Solanáceas,Solanum,Hortaliza de fruto de verano,Anual
+2,Chile,Capiscum chinense,Solanáceas,Capsicum,Pimiento picante tipo chile,Anual
+3,Pimiento,Capsicum annuum,Solanáceas,Capsicum,Pimiento dulce o picante suave,Anual
+4,Berenjena,Solanum melongena,Solanáceas,Solanum,Hortaliza de fruto de verano,Anual
+5,Pepino,Cucumis sativus,Cucurbitáceas,Cucumis,Hortaliza rastrera de verano,Anual
+6,Melón,Cucumis melo,Cucurbitáceas,Cucumis,Fruto dulce de verano,Anual
+7,Almorta,Lathyrus sativus,Fabáceas,Lathyrus,Leguminosa resistente a sequía,Anual
+8,Mostaza,Sinapis alba,Brasicáceas,Sinapis,Hoja y semilla condimentaria,Anual
+9,Rábano,Raphanus sativus,Brasicáceas,Raphanus,Raíz de ciclo corto,Anual
+10,Capuchina,Tropaeolum majus,Tropaeoláceas,Tropaeolum,Flor comestible y ornamental,Anual
+11,Amapola,Papaver rhoeas,Papaveráceas,Papaver,Flor ornamental y melífera,Anual
+12,Durillo,Viburnum tinus,Adoxaceae,Viburnum,Arbusto ornamental perenne,Perenne
+13,Hinojo,Foeniculum vulgare,Apiáceas,Foeniculum,Aromática y bulbosa,Bienal
+14,Clavel del poeta,Dianthus barbatus,Cariofiláceas,Dianthus,Flor ornamental,Bienal
+15,Vinagreira,Hibiscus sabdariffa,Malváceas,Hibiscus,Planta acidulante y ornamental,Anual
+16,Chumbera,Opuntia ficus-indica,Cactáceas,Opuntia,Cactus productor de higos chumbos,Perenne
+17,Calabacín,Cucurbita pepo,Cucurbitáceas,Cucurbita,Hortaliza de fruto rápido,Anual
+18,Calabaza,Cucurbita maxima,Cucurbitáceas,Cucurbita,Hortaliza de guarda,Anual
+19,Zanahoria,Daucus carota,Apiáceas,Daucus,Raíz comestible,Bienal
+20,Rúcula,Eruca vesicaria,Brasicáceas,Eruca,Hoja de crecimiento rápido,Anual
+21,Pak-Choi,Brassica rapa,Brasicáceas,Brassica,Col asiática de hoja,Anual
+22,Romanoesco,Brassica oleracea,Brasicáceas,Brassica,Col de inflorescencia,Anual
+23,Cilantro,Coriandrum sativum,Apiáceas,Coriandrum,Aromática anual,Anual
+24,Perejil,Petroselinum crispum,Apiáceas,Petroselinum,Aromática culinaria,Bienal
+25,Cebollino,Allium schoenoprasum,Amaryllidaceae,Allium,Aromática perenne,Perenne
+26,Manzanilla,Matricaria chamomilla,Asteraceae,Matricaria,Planta medicinal,Anual
+27,Maíz,Zea mays,Poaceae,Zea,Cereal de verano,Anual

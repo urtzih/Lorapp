@@ -1,0 +1,62 @@
+id,especie_id,nombre_variedad,color_fruto,sabor,tamano_planta,profundidad_siembra_cm,distancia_plantas_cm,distancia_surcos_cm,frecuencia_riego,exposicion_solar,dias_germinacion_min,dias_germinacion_max,dias_hasta_cosecha_min,dias_hasta_cosecha_max,temperatura_minima_c,temperatura_maxima_c,es_hibrido,es_variedad_antigua,generacion
+1,1,Orange Truffle,Naranja,Dulce-afrutado,180cm,0.5,40,80,Media-Alta,Sol pleno,5,10,80,95,10,35,false,true,Original
+2,1,Rebel Starfighter Prime,Multicolor,Dulce-intenso,180cm,0.5,40,80,Media-Alta,Sol pleno,5,10,80,95,10,35,false,true,Original
+3,1,Rebel Starfighter Kaleigh Anne,Rosa-dorado,Dulce,170cm,0.5,40,80,Media-Alta,Sol pleno,5,10,80,95,10,35,false,true,Original
+4,1,Tanageto Rojo Robinson,Rojo,Equilibrado,150cm,0.5,40,80,Media-Alta,Sol pleno,5,10,75,90,10,35,false,true,Original
+5,1,Panamorous,Rosa,Dulce,180cm,0.5,40,80,Media-Alta,Sol pleno,5,10,80,95,10,35,false,true,Original
+6,1,Schokoladniy Marmalade,Marrón,Dulce-ahumado,170cm,0.5,40,80,Media-Alta,Sol pleno,5,10,80,95,10,35,false,true,Original
+7,1,Rosa Aretxabaleta,Rosa,Dulce tradicional,180cm,0.5,40,80,Media-Alta,Sol pleno,5,10,80,100,10,35,false,true,F2
+8,1,Cassady's Folly,Rosa,Dulce,170cm,0.5,40,80,Media-Alta,Sol pleno,5,10,80,100,10,35,false,true,F2
+9,1,Cherry Amarillo,Amarillo,Dulce,130cm,0.5,30,60,Media,Sol pleno,5,8,65,75,10,35,false,true,F2
+10,1,Cherry Blush,Rosa,Dulce,130cm,0.5,30,60,Media,Sol pleno,5,8,65,75,10,35,false,true,F2
+11,1,Cherry Gold Berry,Amarillo,Dulce,130cm,0.5,30,60,Media,Sol pleno,5,8,65,75,10,35,false,true,F2
+12,1,Cherry Negro,Negro,Dulce intenso,140cm,0.5,30,60,Media,Sol pleno,5,8,70,80,10,35,false,true,F2
+13,1,Cherry Rojo,Rojo,Dulce,130cm,0.5,30,60,Media,Sol pleno,5,8,65,75,10,35,false,true,F2
+14,1,Cherry Rosa,Rosa,Dulce,130cm,0.5,30,60,Media,Sol pleno,5,8,65,75,10,35,false,true,F2
+15,1,Green Zebra,Verde rayado,Ácido-dulce,160cm,0.5,40,80,Media-Alta,Sol pleno,5,10,75,90,10,35,false,true,F2
+16,1,Kryptonite,Verde,Dulce,170cm,0.5,40,80,Media-Alta,Sol pleno,5,10,80,95,10,35,false,true,F2
+17,1,Tomacó de Lavi Cisco,Rosa tradicional,Dulce intenso,180cm,0.5,40,80,Media-Alta,Sol pleno,5,10,85,100,10,35,false,true,F2
+18,1,Tomata,Rojo,Equilibrado,170cm,0.5,40,80,Media-Alta,Sol pleno,5,10,80,95,10,35,false,true,F2
+19,1,Tomata Asier,Rojo,Dulce,170cm,0.5,40,80,Media-Alta,Sol pleno,5,10,80,100,10,35,false,true,F2
+20,1,País,Rojo tradicional,Sabor intenso,180cm,0.5,40,80,Media-Alta,Sol pleno,5,10,80,100,10,35,false,true,F2
+21,2,Scotch Bonnet,Rojo muy picante,Extremadamente picante,100cm,0.5,40,50,Media,Sol pleno,7,14,90,120,15,35,false,true,Original
+22,2,Dátil,Rojo,Dulce-picante,80cm,0.5,40,50,Media,Sol pleno,7,14,85,100,15,35,false,true,Original
+23,2,Fish Pepper,Crema rayado,Picante medio,100cm,0.5,40,50,Media,Sol pleno,7,14,85,110,15,35,false,true,Original
+24,2,Hang Jiao 10,Rojo,Picante medio,90cm,0.5,40,50,Media,Sol pleno,7,14,80,95,15,35,false,true,Original
+25,3,Banana Dulce,Amarillo,Dulce suave,70cm,0.5,30,50,Media,Sol pleno,7,14,70,85,12,35,false,true,Original
+26,3,Pepperoni Friarielli,Verde,Dulce italiano,80cm,0.5,30,50,Media,Sol pleno,7,14,75,90,12,35,false,true,Original
+27,3,Carolina Reaper,Rojo,Extremadamente picante,100cm,0.5,40,50,Media,Sol pleno,7,14,100,140,15,35,false,false,F2
+28,3,Padrón,Verde,Dulce con picor ocasional,70cm,0.5,30,50,Media,Sol pleno,7,14,60,75,12,35,false,true,F2
+29,3,Piparra,Verde,Dulce suave,80cm,0.5,30,50,Media,Sol pleno,7,14,65,80,12,35,false,true,F2
+30,4,Figuig,Morado,Suave,100cm,1,50,70,Media,Sol pleno,7,14,80,100,15,35,false,true,Original
+31,4,Bangladeshi Long,Morado largo,Suave,120cm,1,50,70,Media,Sol pleno,7,14,80,100,15,35,false,true,Original
+32,4,Dishgothi,Morado,Suave,100cm,1,50,70,Media,Sol pleno,7,14,85,105,15,35,false,true,Original
+33,4,Vilmorin,Morado clásico,Suave,90cm,1,50,70,Media,Sol pleno,7,14,80,100,15,35,false,true,Original
+34,5,Hmong Red,Rojo,Refrescante,200cm,2,80,100,Alta,Sol pleno,5,10,60,75,15,35,false,true,Original
+35,5,Medio Largo Ashley,Verde,Suave,200cm,2,80,100,Alta,Sol pleno,5,10,55,70,15,35,false,true,F2
+36,6,Sweet Passion,Verde claro,Dulce intenso,Rastrera,2,100,150,Alta,Sol pleno,5,10,90,110,15,35,false,true,Original
+37,7,Castellana,Beige,Leguminosa,70cm,3,30,50,Baja,Sol pleno,7,14,90,120,8,30,false,true,Original
+38,8,Vibrant Ultraviolet,Morado,Pungente,60cm,1,20,30,Media,Sol-Semisol,4,8,40,60,5,25,false,true,Original
+39,8,Blanca,Blanco,Pungente,60cm,1,20,30,Media,Sol-Semisol,4,8,40,60,5,25,false,true,F2
+40,9,Daikon Mino Early,Blanco,Suave,40cm,1,10,20,Media,Sol-Semisol,3,7,35,60,5,25,false,true,Original
+41,10,Purple Emperor,Naranja,Dulce floral,40cm,1,25,30,Media,Sol pleno,7,14,60,80,10,30,false,true,Original
+42,11,Panadera,Rojo,Ornamental,50cm,0.5,20,20,Baja,Sol pleno,7,14,90,120,5,30,false,true,Original
+43,12,Blanco francés,Blanco,Ornamental,250cm,1,150,150,Media,Sol-Semisol,30,60,730,900,-5,30,false,true,Original
+44,13,Smokey,Verde,Aromático,120cm,1,30,40,Media,Sol pleno,7,14,80,100,5,30,false,true,Original
+45,14,Clavel del poeta base,Multicolor,Ornamental,60cm,0.5,30,40,Media,Sol pleno,7,14,120,150,0,30,false,true,Original
+46,15,Roja,Rojo ácido,Ácido,120cm,2,60,60,Media,Sol pleno,7,14,120,150,15,35,false,true,Original
+47,16,Roja,Rojo,Dulce,300cm,3,200,200,Baja,Sol pleno,14,30,900,1200,5,45,false,true,Original
+48,17,Black Beauty,Verde oscuro,Suave,70cm,2,80,100,Alta,Sol pleno,5,10,45,60,12,35,false,true,F2
+49,17,Amarillo,Amarillo,Suave,70cm,2,80,100,Alta,Sol pleno,5,10,45,60,12,35,false,true,F2
+50,17,Blanco,Blanco,Suave,70cm,2,80,100,Alta,Sol pleno,5,10,50,65,12,35,false,true,F2
+51,17,Redondo,Verde,Suave,70cm,2,80,100,Alta,Sol pleno,5,10,50,65,12,35,false,true,F2
+52,18,Vasca,Naranja,Dulce,300cm,3,120,150,Alta,Sol pleno,7,14,100,130,12,35,false,true,F2
+53,19,Zanahoria base,Naranja,Dulce,30cm,1,10,20,Media,Sol-Semisol,7,14,70,100,5,25,false,true,F2
+54,20,Rúcula base,Verde,Pungente,30cm,0.5,15,20,Media,Sol-Semisol,3,7,30,45,5,25,false,true,F2
+55,21,Pak-Choi base,Verde,Suave,40cm,1,30,40,Media,Sol-Semisol,4,8,45,60,5,25,false,true,F2
+56,22,Romanoesco base,Verde,Suave,80cm,1,50,60,Media,Sol-Semisol,5,10,75,100,5,25,false,true,F2
+57,23,Cilantro base,Verde,Aromático,40cm,1,20,30,Media,Sol-Semisol,7,14,45,60,5,30,false,true,F2
+58,24,Común,Verde,Aromático,40cm,1,20,30,Media,Sol-Semisol,14,21,70,90,0,30,false,true,F2
+59,25,Anual,Verde,Aromático,30cm,1,10,20,Media,Sol-Semisol,10,20,60,80,-10,30,false,true,F2
+60,26,Camomila,Blanco,Floral,50cm,0.5,20,20,Baja,Sol pleno,7,14,60,90,5,30,false,true,F2
+61,27,Golden Bantam,Amarillo,Dulce,200cm,3,30,60,Media-Alta,Sol pleno,5,10,80,100,12,35,false,true,F2

@@ -84,6 +84,7 @@ export function Login() {
                             onChange={(e) => setEmail(e.target.value)}
                             required
                             placeholder="tu@email.com"
+                            autoComplete="email"
                         />
                         <small className="form-hint">urtzid@gmail.com / admin123</small>
                     </div>
@@ -98,6 +99,7 @@ export function Login() {
                             onChange={(e) => setPassword(e.target.value)}
                             required
                             placeholder="••••••••"
+                            autoComplete="current-password"
                         />
                     </div>
 
