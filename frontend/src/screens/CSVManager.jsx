@@ -101,12 +101,15 @@ export function CSVManager() {
         }
     };
 
+    const [fileInputKey, setFileInputKey] = useState(0);
+
     const handleImportCSV = async (event) => {
         const file = event.target.files[0];
         if (!file) return;
 
         setLoading(true);
         setMessage(null);
+        
         try {
             const formData = new FormData();
             formData.append('file', file);
@@ -117,20 +120,37 @@ export function CSVManager() {
                 },
             });
 
-            setMessage({ 
-                type: 'success', 
-                text: `Importación exitosa: ${response.data.imported || 0} registros importados` 
-            });
+            console.log('Import response:', response.data);
+
+            const { imported = 0, total_errors = 0, errors = [], message: apiMessage = 'Importación completada' } = response.data || {};
+            
+            if (total_errors > 0) {
+                // Mostrar resumen con errores
+                const errorList = errors.slice(0, 5).map(e => 
+                    `Fila ${e.fila} (${e.nombre}): ${e.error}`
+                ).join('\n');
+                
+                setMessage({ 
+                    type: 'warning', 
+                    text: `${apiMessage}\n\nPrimeros errores:\n${errorList}${errors.length > 5 ? '\n... y más' : ''}`
+                });
+            } else {
+                setMessage({ 
+                    type: 'success', 
+                    text: `✅ ${apiMessage}\n${imported} lote(s) importado(s) exitosamente`
+                });
+            }
         } catch (error) {
             console.error('Error importing CSV:', error);
+            const errorMsg = error.response?.data?.detail || error.message || 'Error desconocido al importar';
             setMessage({ 
                 type: 'error', 
-                text: 'Error al importar: ' + (error.response?.data?.detail || error.message) 
+                text: 'Error al importar: ' + errorMsg
             });
         } finally {
             setLoading(false);
-            // Reset file input
-            event.target.value = '';
+            // Reset file input para permitir seleccionar el mismo archivo nuevamente
+            setFileInputKey(prev => prev + 1);
         }
     };
 
@@ -142,6 +162,15 @@ export function CSVManager() {
                 </button>
                 <h1>📊 Gestión de CSV</h1>
             </header>
+
+            {loading && (
+                <div className="loader-overlay">
+                    <div className="loader-container">
+                        <div className="spinner"></div>
+                        <p>Procesando...</p>
+                    </div>
+                </div>
+            )}
 
             {message && (
                 <div className={`message ${message.type}`}>
@@ -198,6 +227,7 @@ export function CSVManager() {
                             <h3>Seleccionar archivo CSV</h3>
                             <p>Haz clic para seleccionar un archivo o arrastra aquí</p>
                             <input 
+                                key={fileInputKey}
                                 id="csv-file-input"
                                 type="file" 
                                 accept=".csv"

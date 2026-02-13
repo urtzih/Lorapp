@@ -73,7 +73,7 @@ class VisionOCRService:
             "nombre_comercial": None,
             "marca": None,
             "anno_produccion": None,
-            "fecha_vencimiento": None,
+            # NOTE: fecha_vencimiento is no longer used, use anos_viabilidad_semilla instead
             "cantidad_estimada": None,
             "lugar_almacenamiento": None,
             "notas": None,
@@ -134,24 +134,8 @@ class VisionOCRService:
             if year_match:
                 lote_data["anno_produccion"] = int(year_match.group(1))
         
-        # Extract expiration date
-        exp_patterns = [
-            r'caducidad[:\s]*(\d{1,2})[/-](\d{1,2})[/-](\d{2,4})',
-            r'expir[a-z]*[:\s]*(\d{1,2})[/-](\d{1,2})[/-](\d{2,4})',
-            r'válido hasta[:\s]*(\d{1,2})[/-](\d{1,2})[/-](\d{2,4})',
-        ]
-        for pattern in exp_patterns:
-            match = re.search(pattern, text_lower)
-            if match:
-                day, month, year = match.groups()
-                year = int(year)
-                if year < 100:  # Convert 2-digit year
-                    year += 2000
-                try:
-                    lote_data["fecha_vencimiento"] = datetime(year, int(month), int(day))
-                except ValueError:
-                    pass
-                break
+        # NOTE: Expiration date extraction removed - use anos_viabilidad_semilla field instead
+        # which is set by the user when creating/editing a lote
         
         # Extract quantity if mentioned
         qty_patterns = [
@@ -239,8 +223,8 @@ class VisionOCRService:
         lote_info = self.parse_seed_information(raw_text)
         
         # Calculate confidence based on how many fields were extracted
-        # Core fields: nombre_comercial, marca, anno_produccion, fecha_vencimiento
-        core_fields = ["nombre_comercial", "marca", "anno_produccion", "fecha_vencimiento"]
+        # Core fields for seed lot identification
+        core_fields = ["nombre_comercial", "marca", "anno_produccion"]
         extracted_core = sum(1 for field in core_fields if field in lote_info)
         confidence = min(extracted_core / len(core_fields), 1.0)
         

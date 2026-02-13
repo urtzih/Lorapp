@@ -78,18 +78,8 @@ class EspecieBase(BaseModel):
 
 
 class EspecieResponse(EspecieBase):
-    """Response schema for Especie"""
+    """Response schema for Especie (solo información taxonómica básica)"""
     id: int
-    profundidad_siembra_cm: Optional[float]
-    distancia_plantas_cm: Optional[float]
-    distancia_surcos_cm: Optional[float]
-    dias_germinacion_min: Optional[int]
-    dias_germinacion_max: Optional[int]
-    dias_hasta_trasplante: Optional[int]
-    dias_hasta_cosecha_min: Optional[int]
-    dias_hasta_cosecha_max: Optional[int]
-    meses_siembra_interior: List[int]
-    meses_siembra_exterior: List[int]
     created_at: datetime
     
     class Config:
@@ -139,11 +129,31 @@ class VariedadBase(BaseModel):
 
 
 class VariedadResponse(VariedadBase):
-    """Response schema for Variedad"""
+    """Response schema for Variedad (con toda la información de cultivo y fotos)"""
     id: int
     especie_id: int
+    codigo_interno: Optional[str]
+    sabor: Optional[str]
+    tamanio_planta: Optional[str]
+    profundidad_siembra_cm: Optional[float]
+    distancia_plantas_cm: Optional[float]
+    distancia_surcos_cm: Optional[float]
+    frecuencia_riego: Optional[str]
+    exposicion_solar: Optional[str]
+    dias_germinacion_min: Optional[int]
+    dias_germinacion_max: Optional[int]
+    dias_hasta_trasplante: Optional[int]
+    dias_hasta_cosecha_min: Optional[int]
+    dias_hasta_cosecha_max: Optional[int]
+    meses_siembra_interior: List[int]
+    meses_siembra_exterior: List[int]
+    temperatura_minima_c: Optional[float]
+    temperatura_maxima_c: Optional[float]
+    zonas_climaticas_preferidas: List[str]
+    resistencias: List[str]
     es_hija_f1: bool
     es_variedad_antigua: bool
+    fotos: List[str]
     created_at: datetime
     
     # Nested relationships
@@ -196,12 +206,11 @@ class LoteSemillasBase(BaseModel):
 class LoteSemillasCreate(LoteSemillasBase):
     """Schema for creating a new lote"""
     variedad_id: int
-    fecha_vencimiento: Optional[datetime] = None
     fecha_adquisicion: Optional[datetime] = None
+    anos_viabilidad_semilla: Optional[int] = Field(None, ge=1, le=10)
     lugar_almacenamiento: Optional[str] = Field(None, max_length=255)
     temperatura_almacenamiento_c: Optional[float] = None
     humedad_relativa: Optional[float] = Field(None, ge=0, le=100)
-    fotos: List[str] = Field(default_factory=list)
 
 
 class LoteSemillasUpdate(BaseModel):
@@ -216,8 +225,8 @@ class LoteSemillasUpdate(BaseModel):
     tipo_origen: Optional[str] = Field(None, max_length=50)
     anno_recoleccion: Optional[int] = None
     generacion: Optional[str] = Field(None, max_length=100)
-    fecha_vencimiento: Optional[datetime] = None
     fecha_adquisicion: Optional[datetime] = None
+    anos_viabilidad_semilla: Optional[int] = Field(None, ge=1, le=10)
     lugar_almacenamiento: Optional[str] = None
     temperatura_almacenamiento_c: Optional[float] = None
     humedad_relativa: Optional[float] = None
@@ -230,14 +239,13 @@ class LoteSemillasResponse(LoteSemillasBase):
     id: int
     usuario_id: int
     variedad_id: int
-    fecha_vencimiento: Optional[datetime]
     fecha_adquisicion: Optional[datetime]
+    anos_viabilidad_semilla: Optional[int]
     lugar_almacenamiento: Optional[str]
     temperatura_almacenamiento_c: Optional[float]
     humedad_relativa: Optional[float]
     estado: str
     cantidad_restante: Optional[int]
-    fotos: List[str]
     created_at: datetime
     updated_at: Optional[datetime]
     

@@ -63,22 +63,21 @@ async def scan_seed_packet(
         first_image_path = storage_service.get_absolute_path(temp_paths[0])
         raw_text, lote_data_dict, confidence = ocr_service.process_image(first_image_path)
         
-        # Add photo paths
-        lote_data_dict["fotos"] = temp_paths
-        
         # Create LoteSemillasCreate with placeholder variedad_id
         # User MUST change this to a valid variedad_id before POST
+        # NOTE: Photos are now stored at the Variedad level, not here
         lote_data = LoteSemillasCreate(
             variedad_id=0,  # Placeholder - user must select from UI
             nombre_comercial=lote_data_dict.get("nombre_comercial", "Semilla escaneada"),
             marca=lote_data_dict.get("marca"),
             anno_produccion=lote_data_dict.get("anno_produccion"),
-            fecha_vencimiento=lote_data_dict.get("fecha_vencimiento"),
             cantidad_estimada=lote_data_dict.get("cantidad_estimada"),
             lugar_almacenamiento=lote_data_dict.get("lugar_almacenamiento"),
-            notas=lote_data_dict.get("notas"),
-            fotos=temp_paths
+            notas=lote_data_dict.get("notas")
         )
+        
+        # Store photo paths in temp for later use by frontend
+        lote_data_dict["temporal_fotos"] = temp_paths
         
         return OCRResult(
             raw_text=raw_text,
@@ -293,11 +292,11 @@ async def add_lote_photos(
         logger.info(f"[Photos] Successfully saved {len(new_paths)} photos for lote {lote_id}")
 
         # Update lote with new photos
-        lote.fotos = (lote.fotos or []) + new_paths
+        lote.variedad.fotos = (lote.variedad.fotos or []) + new_paths
         db.commit()
         db.refresh(lote)
         
-        logger.info(f"[Photos] Lote {lote_id} updated with new photos. Total photos: {len(lote.fotos)}")
+        logger.info(f"[Photos] Variedad {lote.variedad_id} updated with new photos. Total photos: {len(lote.variedad.fotos)}")
 
         return LoteSemillasResponse.from_orm(lote)
         
@@ -350,9 +349,9 @@ async def delete_lote_photo(
                 detail=f"Lote {lote_id} not found"
             )
 
-        # Check if photo exists in lote
-        if not lote.fotos or photo not in lote.fotos:
-            logger.warning(f"[Photos] Photo not found in lote {lote_id}: {photo}")
+        # Check if photo exists in variedad (fotos are at Variedad level now)
+        if not lote.variedad.fotos or photo not in lote.variedad.fotos:
+            logger.warning(f"[Photos] Photo not found in variedad {lote.variedad_id}: {photo}")
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail=f"Photo not found: {photo}"
@@ -362,12 +361,12 @@ async def delete_lote_photo(
         logger.debug(f"[Photos] Deleting file: {photo}")
         storage_service.delete_file(photo)
         
-        # Remove from lote
-        lote.fotos = [p for p in lote.fotos if p != photo]
+        # Remove from variedad
+        lote.variedad.fotos = [p for p in lote.variedad.fotos if p != photo]
         db.commit()
         db.refresh(lote)
         
-        logger.info(f"[Photos] Successfully deleted photo from lote {lote_id}. Remaining photos: {len(lote.fotos)}")
+        logger.info(f"[Photos] Successfully deleted photo from variedad {lote.variedad_id}. Remaining photos: {len(lote.variedad.fotos)}")
 
         return LoteSemillasResponse.from_orm(lote)
         
@@ -420,24 +419,24 @@ async def set_principal_photo(
                 detail=f"Lote {lote_id} not found"
             )
 
-        # Check if photo exists in lote
-        if not lote.fotos or photo not in lote.fotos:
-            logger.warning(f"[Photos] Photo not found in lote {lote_id}: {photo}")
+        # Check if photo exists in variedad (fotos are at Variedad level now)
+        if not lote.variedad.fotos or photo not in lote.variedad.fotos:
+            logger.warning(f"[Photos] Photo not found in variedad {lote.variedad_id}: {photo}")
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail=f"Photo not found: {photo}"
             )
 
         # Move photo to first position
-        fotos_list = lote.fotos.copy()
+        fotos_list = lote.variedad.fotos.copy()
         fotos_list.remove(photo)
         fotos_list.insert(0, photo)
-        lote.fotos = fotos_list
+        lote.variedad.fotos = fotos_list
         
         db.commit()
         db.refresh(lote)
         
-        logger.info(f"[Photos] Successfully set principal photo for lote {lote_id}")
+        logger.info(f"[Photos] Successfully set principal photo for variedad {lote.variedad_id}")
 
         return LoteSemillasResponse.from_orm(lote)
         
@@ -664,7 +663,7 @@ async def export_lotes_only_csv(current_user: User, db: Session):
                         familia_cultivo,
                         str(lote.marca or ''),
                         str(lote.anno_produccion or ''),
-                        lote.fecha_vencimiento.strftime('%Y-%m-%d') if lote.fecha_vencimiento else '',
+                        (datetime.now() + timedelta(days=365 * (lote.anos_viabilidad_semilla or 1))).strftime('%Y-%m-%d') if lote.anos_viabilidad_semilla else '',
                         str(lote.estado.value if lote.estado else ''),  # Get enum value
                         str(lote.cantidad_estimada or ''),
                         str(lote.cantidad_restante or ''),
@@ -888,7 +887,7 @@ async def export_all_csv(current_user: User, db: Session):
                 str(lote.nombre_comercial or ''),
                 str(lote.marca or ''),
                 str(lote.anno_produccion or ''),
-                lote.fecha_vencimiento.strftime('%Y-%m-%d') if lote.fecha_vencimiento else '',
+                (datetime.now() + timedelta(days=365 * (lote.anos_viabilidad_semilla or 1))).strftime('%Y-%m-%d') if lote.anos_viabilidad_semilla else '',
                 str(lote.estado.value if lote.estado else ''),
                 str(lote.cantidad_estimada or ''),
                 str(lote.cantidad_restante or ''),
@@ -955,6 +954,11 @@ async def import_csv(
 ):
     """
     Import lotes from a CSV file.
+    
+    Flexible columnas: acepta cualquier subset de las columnas esperadas.
+    Valores vacíos se guardan como NULL en la BDD.
+    
+    Requiere columnas: ID_Variedad, Nombre Comercial
     """
     try:
         logger.info(f"CSV import request from user {current_user.id}")
@@ -973,37 +977,196 @@ async def import_csv(
         csv_file = io.StringIO(content_str)
         reader = csv.DictReader(csv_file)
         
-        imported_count = 0
-        skipped_count = 0
+        if not reader.fieldnames:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="CSV vacío o sin columnas"
+            )
         
-        for row in reader:
+        imported_count = 0
+        error_rows = []
+        
+        # Mapeo entre nombres de columnas CSV y atributos del modelo
+        # Acepta múltiples variantes de nombres
+        field_mapping = {
+            'ID_Variedad': 'variedad_id',
+            'ID': 'variedad_id',  # Variante corta
+            'Nombre Comercial': 'nombre_comercial',
+            'Nombre comercial': 'nombre_comercial',
+            'Marca': 'marca',
+            'Número de Lote': 'numero_lote',
+            'Numero Lote': 'numero_lote',
+            'Cantidad Estimada': 'cantidad_estimada',
+            'Cantidad estimada': 'cantidad_estimada',
+            'Año Producción': 'anno_produccion',
+            'Año producción': 'anno_produccion',
+            'Año Recolección': 'anno_recoleccion',
+            'Año recolección': 'anno_recoleccion',
+            'Lugar Almacenamiento': 'lugar_almacenamiento',
+            'Lugar almacenamiento': 'lugar_almacenamiento',
+            'Temperatura Almacenamiento (°C)': 'temperatura_almacenamiento_c',
+            'Temperatura almacenamiento': 'temperatura_almacenamiento_c',
+            'Humedad Relativa (%)': 'humedad_relativa',
+            'Humedad relativa': 'humedad_relativa',
+            'Humedad': 'humedad_relativa',
+            'Estado': 'estado',
+            'Cantidad Restante': 'cantidad_restante',
+            'Cantidad restante': 'cantidad_restante',
+            'Origen': 'origen',
+            'Tipo Origen': 'tipo_origen',
+            'Tipo origen': 'tipo_origen',
+            'Generación': 'generacion',
+            'Generacion': 'generacion',
+            'Notas': 'notas',
+        }
+        
+        # Encontrar variantes de columnas en el CSV
+        actual_to_standard = {}
+        for csv_col in reader.fieldnames:
+            if csv_col in field_mapping:
+                actual_to_standard[csv_col] = field_mapping[csv_col]
+        
+        # Validar que tenemos al menos las columnas requeridas
+        has_variedad_id = any(field_mapping.get(col) == 'variedad_id' for col in actual_to_standard.keys())
+        has_nombre = any(field_mapping.get(col) == 'nombre_comercial' for col in actual_to_standard.keys())
+        
+        if not has_variedad_id:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="CSV debe incluir columna 'ID' o 'ID_Variedad'"
+            )
+        
+        if not has_nombre:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="CSV debe incluir columna 'Nombre Comercial'"
+            )
+        
+        logger.info(f"Columnas detectadas: {list(actual_to_standard.keys())}")
+        
+        for row_num, row in enumerate(reader, start=2):
             try:
-                # Basic validation
-                if not row.get('Nombre Comercial'):
-                    skipped_count += 1
+                # Obtener variedad_id y nombre_comercial
+                variedad_id_str = ''
+                nombre_comercial = ''
+                
+                for csv_col, model_field in actual_to_standard.items():
+                    if model_field == 'variedad_id':
+                        variedad_id_str = row.get(csv_col, '').strip()
+                    elif model_field == 'nombre_comercial':
+                        nombre_comercial = row.get(csv_col, '').strip()
+                
+                if not variedad_id_str:
+                    error_rows.append({
+                        'fila': row_num,
+                        'nombre': nombre_comercial or '(S/N)',
+                        'error': 'Falta ID o ID_Variedad'
+                    })
                     continue
                 
-                # Here you would implement the actual import logic
-                # For now, just log and count
-                logger.info(f"Would import: {row.get('Nombre Comercial')}")
-                imported_count += 1
+                if not nombre_comercial:
+                    error_rows.append({
+                        'fila': row_num,
+                        'nombre': f'ID:{variedad_id_str}',
+                        'error': 'Falta Nombre Comercial'
+                    })
+                    continue
+                
+                # Validar y convertir variedad_id
+                try:
+                    variedad_id = int(variedad_id_str)
+                except ValueError:
+                    error_rows.append({
+                        'fila': row_num,
+                        'nombre': nombre_comercial,
+                        'error': f'ID_Variedad inválido: "{variedad_id_str}"'
+                    })
+                    continue
+                
+                # Validar que la variedad existe
+                variedad = db.query(Variedad).filter(Variedad.id == variedad_id).first()
+                if not variedad:
+                    error_rows.append({
+                        'fila': row_num,
+                        'nombre': nombre_comercial,
+                        'error': f'Variedad ID {variedad_id} no encontrada'
+                    })
+                    continue
+                
+                # Construir el lote
+                lote_data = {
+                    'usuario_id': current_user.id,
+                    'variedad_id': variedad_id,
+                    'nombre_comercial': nombre_comercial
+                }
+                
+                # Procesar campos opcionales
+                for csv_col, model_field in actual_to_standard.items():
+                    if model_field not in ['variedad_id', 'nombre_comercial']:
+                        value = row.get(csv_col, '').strip() if row.get(csv_col) else None
+                        
+                        # Conversión de tipos
+                        try:
+                            if model_field in ['cantidad_estimada', 'anno_produccion', 
+                                             'anno_recoleccion', 'cantidad_restante']:
+                                lote_data[model_field] = int(value) if value else None
+                            
+                            elif model_field in ['temperatura_almacenamiento_c', 'humedad_relativa']:
+                                lote_data[model_field] = float(value) if value else None
+                            
+                            else:
+                                # Campos de texto
+                                lote_data[model_field] = value
+                        
+                        except ValueError as conv_err:
+                            error_rows.append({
+                                'fila': row_num,
+                                'nombre': nombre_comercial,
+                                'error': f'Campo "{csv_col}" tiene valor inválido: "{value}"'
+                            })
+                            continue
+                
+                # Crear y guardar el lote
+                try:
+                    nuevo_lote = LoteSemillas(**lote_data)
+                    db.add(nuevo_lote)
+                    db.commit()
+                    imported_count += 1
+                    logger.info(f"✓ Lote importado: {nombre_comercial} (variedad_id={variedad_id})")
+                    
+                except Exception as db_error:
+                    db.rollback()
+                    error_rows.append({
+                        'fila': row_num,
+                        'nombre': nombre_comercial,
+                        'error': f'Error BD: {str(db_error)[:100]}'
+                    })
+                    continue
                 
             except Exception as row_error:
-                logger.error(f"Error importing row: {str(row_error)}")
-                skipped_count += 1
+                logger.error(f"Error fila {row_num}: {str(row_error)}")
+                error_rows.append({
+                    'fila': row_num,
+                    'nombre': '(error)',
+                    'error': f'Error inesperado: {str(row_error)[:100]}'
+                })
                 continue
         
         return {
-            "message": "Importación completada",
+            "success": len(error_rows) == 0,
+            "message": f"Importación completada: {imported_count} importados, {len(error_rows)} errores",
             "imported": imported_count,
-            "skipped": skipped_count
+            "errors": error_rows,
+            "total_errors": len(error_rows)
         }
         
+    except HTTPException:
+        raise
     except Exception as e:
         logger.error(f"Error in import_csv: {str(e)}", exc_info=True)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Error importing CSV: {str(e)}"
+            detail=f"Error importando CSV: {str(e)}"
         )
 
 
