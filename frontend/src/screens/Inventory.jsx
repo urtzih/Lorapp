@@ -16,8 +16,7 @@ export function Inventory() {
         is_planted: null,
         especie: '',
         familia: '',
-        origen: '',
-        generacion: ''
+        origen: ''
     });
 
     const navigate = useNavigate();
@@ -58,7 +57,7 @@ export function Inventory() {
         return grouped;
     };
 
-    // Filtrar semillas localmente por especie, familia, marca, origen y generación
+    // Filtrar semillas localmente por especie, familia, marca, origen
     const getFilteredSeeds = () => {
         return seeds.filter(seed => {
             // Filtro por especie
@@ -75,10 +74,6 @@ export function Inventory() {
             }
             // Filtro por origen
             if (filters.origen && seed.origen !== filters.origen) {
-                return false;
-            }
-            // Filtro por generación
-            if (filters.generacion && seed.generacion !== filters.generacion) {
                 return false;
             }
             return true;
@@ -124,16 +119,6 @@ export function Inventory() {
             }
         });
         return Array.from(origenes).sort();
-    };
-
-    const getUniqueGenerations = () => {
-        const generaciones = new Set();
-        seeds.forEach(seed => {
-            if (seed.generacion) {
-                generaciones.add(seed.generacion);
-            }
-        });
-        return Array.from(generaciones).sort();
     };
 
     const handleCreateList = () => {
@@ -201,27 +186,14 @@ export function Inventory() {
                                     🌿 {seed.variedad.especie.familia_botanica}
                                 </span>
                             )}
-                            {seed.variedad?.procedencia && (
-                                <span className="badge badge-info" title="Origen de la Variedad">
-                                    📍 {seed.variedad.procedencia}
-                                </span>
-                            )}
                             {seed.origen && (
                                 <span className="badge badge-success" title="Origen del Lote">
                                     🏠 {seed.origen}
                                 </span>
                             )}
-                            {seed.generacion && (
-                                <span className="badge badge-warning" title="Generación">
-                                    🔄 {seed.generacion}
-                                </span>
-                            )}
                         </div>
 
                         <div style={{ marginTop: 'var(--space-3)', fontSize: '0.85rem', color: 'var(--color-gray-600)' }}>
-                            {seed.variedad?.anno_recoleccion && (
-                                <div>📅 Recolección: {seed.variedad.anno_recoleccion}</div>
-                            )}
                             {mesesSiembra && (
                                 <div>🌱 Siembra: {mesesSiembra}</div>
                             )}
@@ -275,8 +247,6 @@ export function Inventory() {
                             <div style={{ display: 'flex', gap: 'var(--space-2)', marginTop: 'var(--space-2)', flexWrap: 'wrap', fontSize: '0.8rem' }}>
                                 {seed.marca && <span>🏷️ {seed.marca}</span>}
                                 {seed.variedad?.especie?.familia_botanica && <span>🌿 {seed.variedad.especie.familia_botanica}</span>}
-                                {seed.variedad?.procedencia && <span>📍 {seed.variedad.procedencia}</span>}
-                                {seed.variedad?.anno_recoleccion && <span>📅 {seed.variedad.anno_recoleccion}</span>}
                                 {mesesSiembra && <span>🌱 {mesesSiembra}</span>}
                             </div>
                         </div>
@@ -356,7 +326,7 @@ export function Inventory() {
                     >
                         <span style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
                             🔍 Filtros
-                            {(filters.search || filters.especie || filters.familia || filters.brand || filters.origen || filters.generacion || filters.is_planted !== null) && (
+                            {(filters.search || filters.especie || filters.familia || filters.brand || filters.origen || filters.is_planted !== null) && (
                                 <span className="badge badge-primary" style={{ fontSize: '0.75rem' }}>
                                     activos
                                 </span>
@@ -464,28 +434,11 @@ export function Inventory() {
                             </select>
                         </div>
 
-                        <div className="filter-group">
-                            <label className="form-label" htmlFor="filter-generacion" style={{ fontSize: '0.85rem', fontWeight: '600' }}>🔄 Generación</label>
-                            <select
-                                className="input"
-                                id="filter-generacion"
-                                value={filters.generacion}
-                                onChange={(e) => setFilters({ ...filters, generacion: e.target.value })}
-                                style={{ fontSize: '0.9rem' }}
-                            >
-                                <option value="">Todas las generaciones</option>
-                                {getUniqueGenerations().map(gen => (
-                                    <option key={gen} value={gen}>{gen}</option>
-                                ))}
-                            </select>
-                        </div>
-                    </div>
-
                         {/* Botón para limpiar filtros */}
-                        {(filters.search || filters.especie || filters.familia || filters.brand || filters.origen || filters.generacion || filters.is_planted !== null) && (
-                            <div style={{ marginTop: 'var(--space-3)', textAlign: 'center' }}>
+                        {(filters.search || filters.especie || filters.familia || filters.brand || filters.origen || filters.is_planted !== null) && (
+                            <div style={{ marginTop: 'var(--space-3)', textAlign: 'center', gridColumn: '1 / -1' }}>
                                 <button 
-                                    onClick={() => setFilters({ search: '', especie: '', familia: '', brand: '', origen: '', generacion: '', is_planted: null })}
+                                    onClick={() => setFilters({ search: '', especie: '', familia: '', brand: '', origen: '', is_planted: null })}
                                     className="btn btn-secondary btn-sm"
                                     style={{ fontSize: '0.85rem' }}
                                 >
@@ -493,6 +446,7 @@ export function Inventory() {
                                 </button>
                             </div>
                         )}
+                        </div>
                     </div>
                 </div>
             )}

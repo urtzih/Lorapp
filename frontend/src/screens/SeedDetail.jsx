@@ -122,6 +122,7 @@ export function SeedDetail() {
             }
             const payload = {
                 nombre_variedad: editData.variedad.nombre_variedad,
+                codigo_interno: editData.variedad.codigo_interno,
                 descripcion: editData.variedad.descripcion,
                 color_fruto: editData.variedad.color_fruto,
                 sabor: editData.variedad.sabor,
@@ -134,13 +135,8 @@ export function SeedDetail() {
                 dias_hasta_cosecha_min: parseNumber(editData.variedad.dias_hasta_cosecha_min),
                 dias_hasta_cosecha_max: parseNumber(editData.variedad.dias_hasta_cosecha_max),
                 resistencias: editData.variedad.resistencias || [],
-                es_hija_f1: !!editData.variedad.es_hija_f1,
-                es_variedad_antigua: !!editData.variedad.es_variedad_antigua,
-                tipo_origen: editData.variedad.tipo_origen,
-                procedencia: editData.variedad.procedencia,
-                anno_recoleccion: parseNumber(editData.variedad.anno_recoleccion),
-                generacion: editData.variedad.generacion,
-                tipo_polinizacion: editData.variedad.tipo_polinizacion
+                es_hibrido_f1: !!editData.variedad.es_hibrido_f1,
+                es_variedad_antigua: !!editData.variedad.es_variedad_antigua
             };
             await seedsAPI.updateVariedad(editData.variedad.id, payload);
             await loadSeed();
@@ -1017,6 +1013,19 @@ export function SeedDetail() {
                                 )}
                             </Field>
 
+                            <Field label="Código Interno">
+                                {editing ? (
+                                    <input
+                                        type="text"
+                                        value={editData?.variedad?.codigo_interno || ''}
+                                        onChange={(e) => updateVariedadField('codigo_interno', e.target.value)}
+                                        style={inputStyle}
+                                    />
+                                ) : (
+                                    <p style={valueStyle}>{seed.variedad.codigo_interno || '—'}</p>
+                                )}
+                            </Field>
+
                             <Field label="Color Fruto">
                                 {editing ? (
                                     <input
@@ -1053,19 +1062,6 @@ export function SeedDetail() {
                                     />
                                 ) : (
                                     <p style={valueStyle}>{seed.variedad.tamanio_planta || '—'}</p>
-                                )}
-                            </Field>
-
-                            <Field label="Procedencia">
-                                {editing ? (
-                                    <input
-                                        type="text"
-                                        value={editData?.variedad?.procedencia || ''}
-                                        onChange={(e) => updateVariedadField('procedencia', e.target.value)}
-                                        style={inputStyle}
-                                    />
-                                ) : (
-                                    <p style={valueStyle}>{seed.variedad.procedencia ? `📍 ${seed.variedad.procedencia}` : '—'}</p>
                                 )}
                             </Field>
 
@@ -1164,32 +1160,6 @@ export function SeedDetail() {
                                 )}
                             </Field>
 
-                            <Field label="Tipo Polinización">
-                                {editing ? (
-                                    <input
-                                        type="text"
-                                        value={editData?.variedad?.tipo_polinizacion || ''}
-                                        onChange={(e) => updateVariedadField('tipo_polinizacion', e.target.value)}
-                                        style={inputStyle}
-                                    />
-                                ) : (
-                                    <p style={{ ...valueStyle, textTransform: 'capitalize' }}>{seed.variedad.tipo_polinizacion || '—'}</p>
-                                )}
-                            </Field>
-
-                            <Field label="Generación">
-                                {editing ? (
-                                    <input
-                                        type="text"
-                                        value={editData?.variedad?.generacion || ''}
-                                        onChange={(e) => updateVariedadField('generacion', e.target.value)}
-                                        style={inputStyle}
-                                    />
-                                ) : (
-                                    <p style={valueStyle}>{seed.variedad.generacion || '—'}</p>
-                                )}
-                            </Field>
-
                             <Field label="Resistencias" fullWidth>
                                 {editing ? (
                                     <input
@@ -1223,8 +1193,8 @@ export function SeedDetail() {
                                             <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
                                                 <input
                                                     type="checkbox"
-                                                    checked={!!editData?.variedad?.es_hija_f1}
-                                                    onChange={(e) => updateVariedadField('es_hija_f1', e.target.checked)}
+                                                    checked={!!editData?.variedad?.es_hibrido_f1}
+                                                    onChange={(e) => updateVariedadField('es_hibrido_f1', e.target.checked)}
                                                 />
                                                 <span style={{ fontSize: '0.9rem', fontWeight: '500' }}>Híbrido F1</span>
                                             </label>
@@ -1239,7 +1209,7 @@ export function SeedDetail() {
                                         </>
                                     ) : (
                                         <>
-                                            {seed.variedad.es_hija_f1 && (
+                                            {seed.variedad.es_hibrido_f1 && (
                                                 <span style={{
                                                     backgroundColor: '#dbeafe',
                                                     color: '#1e40af',
@@ -1274,7 +1244,7 @@ export function SeedDetail() {
                 {/* SECCIÓN 3: PLANTACIÓN (ESPECIE) */}
                 {seed.variedad?.especie && (
                     <CollapsibleSection
-                        title={`🌱 Plantación (${seed.variedad.especie.nombre_comun || 'Especie'})`}
+                        title={`Plantación (${seed.variedad.especie.nombre_comun || 'Especie'})`}
                         isExpanded={expandedSection === 'plantacion'}
                         onToggle={() => toggleSection('plantacion')}
                         color="#8b5cf6"
@@ -1585,6 +1555,100 @@ export function SeedDetail() {
                                     />
                                 ) : (
                                     <p style={valueStyle}>{(seed.variedad.especie.zonas_climaticas_preferidas || []).join(', ') || '—'}</p>
+                                )}
+                            </Field>
+
+                            <Field label="Descripción" fullWidth>
+                                {editing ? (
+                                    <textarea
+                                        value={editData?.variedad?.especie?.descripcion || ''}
+                                        onChange={(e) => updateEspecieField('descripcion', e.target.value)}
+                                        style={{ ...inputStyle, minHeight: '80px', resize: 'vertical' }}
+                                    />
+                                ) : (
+                                    <p style={{ ...valueStyle, whiteSpace: 'pre-wrap' }}>{seed.variedad.especie.descripcion || '—'}</p>
+                                )}
+                            </Field>
+                        </div>
+                    </CollapsibleSection>
+                )}
+
+                {/* SECCIÓN 4: ESPECIE */}
+                {seed.variedad?.especie && (
+                    <CollapsibleSection
+                        title={`🧬 Especie (${seed.variedad.especie.nombre_comun || 'Especie'})`}
+                        isExpanded={expandedSection === 'especie'}
+                        onToggle={() => toggleSection('especie')}
+                        color="#06b6d4"
+                        bgColor="#cffafe"
+                        editing={editing}
+                        saving={saving.especie}
+                        onSave={handleSaveEspecie}
+                    >
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1rem' }}>
+                            <Field label="Nombre Común" fullWidth>
+                                {editing ? (
+                                    <input
+                                        type="text"
+                                        value={editData?.variedad?.especie?.nombre_comun || ''}
+                                        onChange={(e) => updateEspecieField('nombre_comun', e.target.value)}
+                                        style={inputStyle}
+                                        required
+                                    />
+                                ) : (
+                                    <p style={valueStyle}>{seed.variedad.especie.nombre_comun}</p>
+                                )}
+                            </Field>
+
+                            <Field label="Nombre Científico" fullWidth>
+                                {editing ? (
+                                    <input
+                                        type="text"
+                                        value={editData?.variedad?.especie?.nombre_cientifico || ''}
+                                        onChange={(e) => updateEspecieField('nombre_cientifico', e.target.value)}
+                                        style={inputStyle}
+                                    />
+                                ) : (
+                                    <p style={{ ...valueStyle, fontStyle: 'italic' }}>{seed.variedad.especie.nombre_cientifico || '—'}</p>
+                                )}
+                            </Field>
+
+                            <Field label="Familia Botánica">
+                                {editing ? (
+                                    <input
+                                        type="text"
+                                        value={editData?.variedad?.especie?.familia_botanica || ''}
+                                        onChange={(e) => updateEspecieField('familia_botanica', e.target.value)}
+                                        style={inputStyle}
+                                    />
+                                ) : (
+                                    <p style={valueStyle}>{seed.variedad.especie.familia_botanica || '—'}</p>
+                                )}
+                            </Field>
+
+                            <Field label="Género">
+                                {editing ? (
+                                    <input
+                                        type="text"
+                                        value={editData?.variedad?.especie?.genero || ''}
+                                        onChange={(e) => updateEspecieField('genero', e.target.value)}
+                                        style={inputStyle}
+                                    />
+                                ) : (
+                                    <p style={valueStyle}>{seed.variedad.especie.genero || '—'}</p>
+                                )}
+                            </Field>
+
+                            <Field label="Tipo Cultivo">
+                                {editing ? (
+                                    <input
+                                        type="text"
+                                        value={editData?.variedad?.especie?.tipo_cultivo || ''}
+                                        onChange={(e) => updateEspecieField('tipo_cultivo', e.target.value)}
+                                        style={inputStyle}
+                                    />
+                                ) : (
+                                    <p style={valueStyle}>{seed.variedad.especie.tipo_cultivo || '—'}</p>
                                 )}
                             </Field>
 
