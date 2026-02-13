@@ -382,6 +382,76 @@ async def delete_lote_photo(
         )
 
 
+@router.put("/{lote_id}/photos/set-principal", response_model=LoteSemillasResponse)
+async def set_principal_photo(
+    lote_id: int,
+    photo: str = Query(..., description="Relative photo path to set as principal"),
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """
+    Set a photo as the principal (first) photo for a lote.
+    
+    Args:
+        lote_id: ID of the lote
+        photo: Relative file path of the photo to set as principal
+        current_user: Authenticated user
+        db: Database session
+        
+    Returns:
+        Updated lote with reordered photos
+        
+    Raises:
+        404: Lote not found or photo not found
+    """
+    try:
+        logger.info(f"[Photos] User {current_user.id} setting principal photo for lote {lote_id}: {photo}")
+        
+        # Validate lote exists and belongs to user
+        lote = db.query(LoteSemillas).filter(
+            LoteSemillas.id == lote_id,
+            LoteSemillas.usuario_id == current_user.id
+        ).first()
+
+        if not lote:
+            logger.warning(f"[Photos] Lote {lote_id} not found for user {current_user.id}")
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Lote {lote_id} not found"
+            )
+
+        # Check if photo exists in lote
+        if not lote.fotos or photo not in lote.fotos:
+            logger.warning(f"[Photos] Photo not found in lote {lote_id}: {photo}")
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Photo not found: {photo}"
+            )
+
+        # Move photo to first position
+        fotos_list = lote.fotos.copy()
+        fotos_list.remove(photo)
+        fotos_list.insert(0, photo)
+        lote.fotos = fotos_list
+        
+        db.commit()
+        db.refresh(lote)
+        
+        logger.info(f"[Photos] Successfully set principal photo for lote {lote_id}")
+
+        return LoteSemillasResponse.from_orm(lote)
+        
+    except HTTPException:
+        # Re-raise HTTP exceptions as-is
+        raise
+    except Exception as e:
+        logger.error(f"[Photos] Error setting principal photo for lote {lote_id}: {str(e)}", exc_info=True)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Error setting principal photo: {str(e)}"
+        )
+
+
 @router.put("/variedades/{variedad_id}", response_model=VariedadResponse)
 async def update_variedad(
     variedad_id: int,

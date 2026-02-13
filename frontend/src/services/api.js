@@ -77,6 +77,7 @@ export const seedsAPI = {
         headers: { 'Content-Type': 'multipart/form-data' },
     }),
     deletePhoto: (id, photo) => api.delete(`/seeds/${id}/photos`, { params: { photo } }),
+    setPhotoPrincipal: (id, photo) => api.put(`/seeds/${id}/photos/set-principal`, {}, { params: { photo } }),
     delete: (id) => api.delete(`/seeds/${id}`),
     exportCSV: () => api.get('/seeds/export/csv', { responseType: 'blob' }),
 };

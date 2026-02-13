@@ -190,9 +190,7 @@ class Variedad(Base):
     es_variedad_antigua = Column(Boolean, default=False)  # Heirloom/landrace
     
     # Origen y trazabilidad
-    tipo_origen = Column(String(50), nullable=True)  # "compra", "propia", "intercambio", "herencia"
     procedencia = Column(String(255), nullable=True)  # Proveedor o lugar de origen
-    anno_recoleccion = Column(Integer, nullable=True)  # Año en que se recolectó o compró
     generacion = Column(String(50), nullable=True)  # "F1", "F2", "F3", "OP" (open pollinated), etc
     tipo_polinizacion = Column(String(100), nullable=True)  # "abierta", "autopolinizante", "polinización cruzada"
     
@@ -238,6 +236,8 @@ class LoteSemillas(Base):
     
     # Trazabilidad de origen y generación
     origen = Column(String(255), nullable=True, index=True)  # "Latanina", "Huerta Urtzi", etc.
+    tipo_origen = Column(String(50), nullable=True)  # "compra", "propia", "intercambio", "herencia"
+    anno_recoleccion = Column(Integer, nullable=True)  # Año en que se recolectó o compró
     generacion = Column(String(100), nullable=True, index=True)  # "Original", "F2", "F3", etc.
     
     # Documentación
