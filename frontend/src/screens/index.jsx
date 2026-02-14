@@ -6,9 +6,11 @@
 export { Login } from './Login';
 export { Register } from './Register';
 export { Onboarding } from './Onboarding';
+export { MyGarden } from './MyGarden';
+export { MySeedling } from './MySeedling';
 export { Inventory } from './Inventory';
 export { SeedDetail } from './SeedDetail';
-export { SeedScan } from './SeedScan';
+export { Planting } from './Planting';
 export { Calendar } from './Calendar';
 export { Settings } from './Settings';
 export { CSVManager } from './CSVManager';

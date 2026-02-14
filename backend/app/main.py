@@ -16,7 +16,7 @@ from app.infrastructure.database.base import init_db
 from app.application.services.notification_scheduler import notification_scheduler
 
 # Import routers
-from app.api.routes import auth, users, seeds, notifications, calendar
+from app.api.routes import auth, users, seeds, notifications, calendar, planting, my_garden, my_seedling
 
 
 # Configure logging
@@ -95,6 +95,9 @@ app.include_router(users.router, prefix="/api")
 app.include_router(seeds.router, prefix="/api")
 app.include_router(notifications.router, prefix="/api")
 app.include_router(calendar.router, prefix="/api")
+app.include_router(planting.router, prefix="/api")
+app.include_router(my_garden.router, prefix="/api")
+app.include_router(my_seedling.router, prefix="/api")
 
 
 # Startup event

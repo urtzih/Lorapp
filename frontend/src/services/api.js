@@ -101,4 +101,25 @@ export const notificationsAPI = {
     getSubscriptions: () => api.get('/notifications/subscriptions'),
 };
 
+// ===== MY GARDEN API =====
+export const myGardenAPI = {
+    list: (filters = {}) => api.get('/my-garden', { params: filters }),
+    create: (plantingData) => api.post('/my-garden', plantingData),
+    getOne: (id) => api.get(`/my-garden/${id}`),
+    update: (id, data) => api.put(`/my-garden/${id}`, data),
+    delete: (id) => api.delete(`/my-garden/${id}`),
+    getStats: () => api.get('/my-garden/stats/summary'),
+};
+
+// ===== MY SEEDLING API =====
+export const mySeedlingAPI = {
+    list: (filters = {}) => api.get('/my-seedling', { params: filters }),
+    create: (seedlingData) => api.post('/my-seedling', seedlingData),
+    getOne: (id) => api.get(`/my-seedling/${id}`),
+    update: (id, data) => api.put(`/my-seedling/${id}`, data),
+    transplant: (id, transplantData) => api.patch(`/my-seedling/${id}/transplant`, transplantData),
+    delete: (id) => api.delete(`/my-seedling/${id}`),
+    getStats: () => api.get('/my-seedling/stats/summary'),
+};
+
 export default api;

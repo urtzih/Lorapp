@@ -124,12 +124,41 @@ class Especie(Base):
     descripcion = Column(Text, nullable=True)
     tipo_cultivo = Column(String(50), nullable=True)  # "hortaliza", "fruta", "flor", "aromática"
     
+    # Parámetros agrícolas
+    profundidad_siembra_cm = Column(Float, nullable=True)
+    distancia_plantas_cm = Column(Float, nullable=True)
+    distancia_surcos_cm = Column(Float, nullable=True)
+    frecuencia_riego = Column(SQLEnum(FrecuenciaRiego), nullable=True)
+    exposicion_solar = Column(SQLEnum(TipoExposicionSolar), nullable=True)
+    
+    # Ciclo de cultivo (días)
+    dias_germinacion_min = Column(Integer, nullable=True)
+    dias_germinacion_max = Column(Integer, nullable=True)
+    dias_hasta_trasplante = Column(Integer, nullable=True)
+    dias_hasta_cosecha_min = Column(Integer, nullable=True)
+    dias_hasta_cosecha_max = Column(Integer, nullable=True)
+    
+    # Calendario
+    meses_siembra_interior = Column(JSON, default=list)  # [1, 2, 3]
+    meses_siembra_exterior = Column(JSON, default=list)  # [4, 5, 6]
+    
+    # Condiciones
+    temperatura_minima_c = Column(Float, nullable=True)
+    temperatura_maxima_c = Column(Float, nullable=True)
+    zonas_climaticas_preferidas = Column(JSON, default=list)
+    
+    # Square Foot Gardening (campos antiguos - mantener por compatibilidad)
+    square_foot_plants = Column(Integer, nullable=True)  # Número de plantas por cuadrado de 30x30cm
+    square_foot_spacing = Column(Float, nullable=True)  # Espaciado entre plantas en cm
+    square_foot_notes = Column(Text, nullable=True)  # Notas especiales para SFG
+    
     # Timestamps
     created_at = Column(DateTime(timezone=True), server_default=text("CURRENT_TIMESTAMP"))  # type: ignore
     updated_at = Column(DateTime(timezone=True), onupdate=text("CURRENT_TIMESTAMP"))  # type: ignore
     
     # Relationships
     variedades = relationship("Variedad", back_populates="especie", cascade="all, delete-orphan")
+    square_foot_gardening = relationship("SquareFootGardening", back_populates="especie", uselist=False, cascade="all, delete-orphan")
 
 
 class Variedad(Base):
@@ -186,6 +215,11 @@ class Variedad(Base):
     # Documentación con fotos
     fotos = Column(JSON, default=list)  # Fotos de la variedad (planta, fruto, semillas)
     
+    # Square Foot Gardening (sobrescribe valores de especie si están definidos)
+    square_foot_plants = Column(Integer, nullable=True)  # Número de plantas por cuadrado de 30x30cm
+    square_foot_spacing = Column(Float, nullable=True)  # Espaciado entre plantas en cm
+    square_foot_notes = Column(Text, nullable=True)  # Notas especiales para SFG
+    
     # Timestamps
     created_at = Column(DateTime(timezone=True), server_default=text("CURRENT_TIMESTAMP"))  # type: ignore
     updated_at = Column(DateTime(timezone=True), onupdate=text("CURRENT_TIMESTAMP"))  # type: ignore
@@ -193,6 +227,34 @@ class Variedad(Base):
     # Relationships
     especie = relationship("Especie", back_populates="variedades")
     lotes_semillas = relationship("LoteSemillas", back_populates="variedad", cascade="all, delete-orphan")
+
+
+class SquareFootGardening(Base):
+    """
+    Square Foot Gardening model.
+    Almacena los datos de plantación intensiva en cuadrados de 30x30cm.
+    Incluye los 3 métodos: Original, Multisiembra (Multisow) y Macizo.
+    """
+    __tablename__ = "square_foot_gardening"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    especie_id = Column(Integer, ForeignKey("especies.id", ondelete="CASCADE"), nullable=False, unique=True, index=True)
+    
+    # Métodos de plantación (plantas por cuadrado de 30x30cm)
+    plantas_original = Column(Integer, nullable=True, comment="Plantas por cuadrado - Método original SFG")
+    plantas_multisow = Column(Integer, nullable=True, comment="Plantas por cuadrado - Siembra múltiple")
+    plantas_macizo = Column(Integer, nullable=True, comment="Plantas por cuadrado - Siembra en macizo")
+    
+    # Información adicional
+    espaciado_cm = Column(Float, nullable=True, comment="Espaciado entre plantas en cm")
+    notas = Column(Text, nullable=True)
+    
+    # Timestamps
+    created_at = Column(DateTime(timezone=True), server_default=text("CURRENT_TIMESTAMP"))  # type: ignore
+    updated_at = Column(DateTime(timezone=True), onupdate=text("CURRENT_TIMESTAMP"))  # type: ignore
+    
+    # Relationships
+    especie = relationship("Especie", back_populates="square_foot_gardening", uselist=False)
 
 
 class LoteSemillas(Base):

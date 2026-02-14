@@ -989,7 +989,7 @@ export function SeedDetail() {
                 {/* SECCIÓN 2: VARIEDAD */}
                 {seed.variedad && (
                     <CollapsibleSection
-                        title={`🌾 ${seed.variedad.nombre_variedad || 'Variedad'}`}
+                        title={`🌾 Detalles (${seed.variedad.nombre_variedad || 'Variedad'})`}
                         isExpanded={expandedSection === 'variedad'}
                         onToggle={() => toggleSection('variedad')}
                         color="#d97706"
@@ -1244,7 +1244,7 @@ export function SeedDetail() {
                 {/* SECCIÓN 3: PLANTACIÓN (ESPECIE) */}
                 {seed.variedad?.especie && (
                     <CollapsibleSection
-                        title={`Plantación (${seed.variedad.especie.nombre_comun || 'Especie'})`}
+                        title={`Plantación (${seed.variedad.nombre_variedad || 'Variedad'})`}
                         isExpanded={expandedSection === 'plantacion'}
                         onToggle={() => toggleSection('plantacion')}
                         color="#8b5cf6"
@@ -1570,6 +1570,169 @@ export function SeedDetail() {
                                 )}
                             </Field>
                         </div>
+
+                        {/* Subsección: Square Foot Gardening */}
+                        {(seed.variedad.especie.square_foot_plants || editing) && (
+                            <div style={{
+                                marginTop: 'var(--space-5)',
+                                padding: 'var(--space-4)',
+                                background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+                                borderRadius: 'var(--radius-lg)',
+                                color: 'white'
+                            }}>
+                                <h3 style={{ 
+                                    margin: '0 0 var(--space-3) 0',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: 'var(--space-2)',
+                                    fontSize: '1.25rem'
+                                }}>
+                                    📐 Square Foot Gardening
+                                </h3>
+                                
+                                <div style={{ 
+                                    display: 'grid', 
+                                    gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', 
+                                    gap: 'var(--space-3)',
+                                    marginBottom: 'var(--space-3)'
+                                }}>
+                                    <div style={{
+                                        background: 'rgba(255, 255, 255, 0.15)',
+                                        padding: 'var(--space-3)',
+                                        borderRadius: 'var(--radius-md)',
+                                        textAlign: 'center'
+                                    }}>
+                                        {editing ? (
+                                            <>
+                                                <label style={{ fontSize: '0.85rem', opacity: 0.9, display: 'block', marginBottom: 'var(--space-2)' }}>
+                                                    Plantas por cuadrado
+                                                </label>
+                                                <input
+                                                    type="number"
+                                                    value={editData?.variedad?.especie?.square_foot_plants ?? ''}
+                                                    onChange={(e) => updateEspecieField('square_foot_plants', e.target.value)}
+                                                    style={{
+                                                        ...inputStyle,
+                                                        textAlign: 'center',
+                                                        fontSize: '1.5rem',
+                                                        fontWeight: 'bold',
+                                                        background: 'rgba(255, 255, 255, 0.9)',
+                                                        color: '#059669'
+                                                    }}
+                                                    placeholder="0"
+                                                />
+                                            </>
+                                        ) : (
+                                            <>
+                                                <div style={{ fontSize: '2.5rem', fontWeight: 'bold', lineHeight: 1 }}>
+                                                    {seed.variedad.especie.square_foot_plants || '—'}
+                                                </div>
+                                                <div style={{ fontSize: '0.85rem', opacity: 0.9, marginTop: 'var(--space-1)' }}>
+                                                    planta{seed.variedad.especie.square_foot_plants !== 1 ? 's' : ''} / 30x30cm
+                                                </div>
+                                            </>
+                                        )}
+                                    </div>
+
+                                    <div style={{
+                                        background: 'rgba(255, 255, 255, 0.15)',
+                                        padding: 'var(--space-3)',
+                                        borderRadius: 'var(--radius-md)',
+                                        textAlign: 'center'
+                                    }}>
+                                        {editing ? (
+                                            <>
+                                                <label style={{ fontSize: '0.85rem', opacity: 0.9, display: 'block', marginBottom: 'var(--space-2)' }}>
+                                                    Espaciado (cm)
+                                                </label>
+                                                <input
+                                                    type="number"
+                                                    step="0.5"
+                                                    value={editData?.variedad?.especie?.square_foot_spacing ?? ''}
+                                                    onChange={(e) => updateEspecieField('square_foot_spacing', e.target.value)}
+                                                    style={{
+                                                        ...inputStyle,
+                                                        textAlign: 'center',
+                                                        fontSize: '1.5rem',
+                                                        fontWeight: 'bold',
+                                                        background: 'rgba(255, 255, 255, 0.9)',
+                                                        color: '#059669'
+                                                    }}
+                                                    placeholder="0"
+                                                />
+                                            </>
+                                        ) : (
+                                            <>
+                                                <div style={{ fontSize: '2.5rem', fontWeight: 'bold', lineHeight: 1 }}>
+                                                    {seed.variedad.especie.square_foot_spacing || '—'}
+                                                </div>
+                                                <div style={{ fontSize: '0.85rem', opacity: 0.9, marginTop: 'var(--space-1)' }}>
+                                                    cm entre plantas
+                                                </div>
+                                            </>
+                                        )}
+                                    </div>
+                                </div>
+
+                                {(seed.variedad.especie.square_foot_notes || editing) && (
+                                    <div style={{
+                                        background: 'rgba(255, 255, 255, 0.15)',
+                                        padding: 'var(--space-3)',
+                                        borderRadius: 'var(--radius-md)'
+                                    }}>
+                                        {editing ? (
+                                            <>
+                                                <label style={{ 
+                                                    fontSize: '0.9rem', 
+                                                    fontWeight: 600,
+                                                    display: 'block',
+                                                    marginBottom: 'var(--space-2)'
+                                                }}>
+                                                    💡 Notas SFG
+                                                </label>
+                                                <textarea
+                                                    value={editData?.variedad?.especie?.square_foot_notes || ''}
+                                                    onChange={(e) => updateEspecieField('square_foot_notes', e.target.value)}
+                                                    style={{
+                                                        ...inputStyle,
+                                                        minHeight: '60px',
+                                                        resize: 'vertical',
+                                                        background: 'rgba(255, 255, 255, 0.9)',
+                                                        color: '#059669'
+                                                    }}
+                                                    placeholder="Notas especiales para Square Foot Gardening..."
+                                                />
+                                            </>
+                                        ) : (
+                                            <>
+                                                <div style={{ 
+                                                    fontSize: '0.9rem', 
+                                                    fontWeight: 600,
+                                                    marginBottom: 'var(--space-2)'
+                                                }}>
+                                                    💡 Notas:
+                                                </div>
+                                                <div style={{ fontSize: '0.9rem', lineHeight: 1.5, opacity: 0.95 }}>
+                                                    {seed.variedad.especie.square_foot_notes}
+                                                </div>
+                                            </>
+                                        )}
+                                    </div>
+                                )}
+
+                                <div style={{
+                                    marginTop: 'var(--space-3)',
+                                    padding: 'var(--space-2)',
+                                    background: 'rgba(255, 255, 255, 0.1)',
+                                    borderRadius: 'var(--radius-md)',
+                                    fontSize: '0.85rem',
+                                    textAlign: 'center',
+                                    opacity: 0.9
+                                }}>
+                                    ℹ️ Square Foot Gardening: método de cultivo intensivo en cuadrados de 30x30cm
+                                </div>
+                            </div>
+                        )}
                     </CollapsibleSection>
                 )}
 

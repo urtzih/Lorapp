@@ -142,8 +142,11 @@ export function Settings() {
     const permissionStatus = getNotificationPermission();
 
     return (
-        <div className="container section" style={{ paddingBottom: '150px' }}>
-            <h1 className="mb-6">Ajustes</h1>
+        <div className="container" style={{ padding: 'var(--space-4)', maxWidth: '1200px', margin: '0 auto', paddingBottom: '100px' }}>
+            <div style={{ marginBottom: 'var(--space-4)' }}>
+                <h1 className="text-3xl font-bold">⚙️ Ajustes</h1>
+                <p className="text-gray">Configura tu perfil y preferencias de la aplicación</p>
+            </div>
 
             {/* Alert Message */}
             {message && (

@@ -3,9 +3,11 @@ import { useAuth } from './context/AuthContext'
 import Onboarding from './screens/Onboarding'
 import Login from './screens/Login'
 import Register from './screens/Register'
+import MyGarden from './screens/MyGarden'
+import MySeedling from './screens/MySeedling'
 import Inventory from './screens/Inventory'
 import SeedDetail from './screens/SeedDetail'
-import SeedScan from './screens/SeedScan'
+import Planting from './screens/Planting'
 import Calendar from './screens/Calendar'
 import Settings from './screens/Settings'
 import CSVManager from './screens/CSVManager'
@@ -42,10 +44,12 @@ function App() {
                             return (
                                 <Layout>
                                     <Routes>
-                                        <Route path="/" element={<Navigate to="/inventory" replace />} />
+                                        <Route path="/" element={<Navigate to="/my-garden" replace />} />
+                                        <Route path="/my-garden" element={<MyGarden />} />
+                                        <Route path="/my-seedling" element={<MySeedling />} />
                                         <Route path="/inventory" element={<Inventory />} />
                                         <Route path="/seeds/:id" element={<SeedDetail />} />
-                                        <Route path="/scan" element={<SeedScan />} />
+                                        <Route path="/planting" element={<Planting />} />
                                         <Route path="/calendar" element={<Calendar />} />
                                         <Route path="/settings" element={<Settings />} />
                                         <Route path="/csv-manager" element={<CSVManager />} />

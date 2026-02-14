@@ -86,16 +86,18 @@ export function Calendar() {
 
     if (loading) {
         return (
-            <div className="container section flex justify-center items-center" style={{ minHeight: '300px' }}>
-                <div className="spinner"></div>
+            <div className="container" style={{ padding: 'var(--space-4)', maxWidth: '1200px', margin: '0 auto' }}>
+                <div className="flex justify-center items-center" style={{ minHeight: '50vh' }}>
+                    <div className="spinner"></div>
+                </div>
             </div>
         );
     }
 
     return (
-        <div className="container section" style={{ paddingBottom: '150px' }}>
-            <div style={{ marginBottom: 'var(--space-6)' }}>
-                <h1 style={{ marginBottom: '0.5rem' }}>📅 Calendario Agrícola</h1>
+        <div className="container" style={{ padding: 'var(--space-4)', maxWidth: '1200px', margin: '0 auto', paddingBottom: '100px' }}>
+            <div style={{ marginBottom: 'var(--space-4)' }}>
+                <h1 className="text-3xl font-bold" style={{ marginBottom: 'var(--space-2)' }}>📅 Calendario Agrícola</h1>
                 <p className="text-gray">Planifica tus siembras y trasplantes</p>
             </div>
 

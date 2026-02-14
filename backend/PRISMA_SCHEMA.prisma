@@ -141,6 +141,7 @@ model Especie {
   
   // Relations
   variedades                  Variedad[]
+  squareFootGardening         SquareFootGardening?
 
   @@index([nombreComun])
   @@map("especies")
@@ -166,6 +167,11 @@ model Variedad {
   diasHastaCosechaMin         Int?         @map("dias_hasta_cosecha_min")
   diasHastaCosechaMax         Int?         @map("dias_hasta_cosecha_max")
   
+  // Square Foot Gardening (sobrescribe valores de especie si están definidos)
+  squareFootPlants            Int?         @map("square_foot_plants")
+  squareFootSpacing           Float?       @map("square_foot_spacing")
+  squareFootNotes             String?      @map("square_foot_notes") @db.Text
+  
   // Características especiales
   resistencias                Json         @default("[]")
   esHibridoF1                 Boolean      @default(false) @map("es_hibrido_f1")
@@ -182,6 +188,33 @@ model Variedad {
   @@index([nombreVariedad])
   @@index([codigoInterno])
   @@map("variedades")
+}
+
+// ============================================================================
+// SQUARE FOOT GARDENING
+// ============================================================================
+
+model SquareFootGardening {
+  id                    Int          @id @default(autoincrement())
+  especieId             Int          @unique @map("especie_id")
+  
+  // Métodos de plantación (plantas por cuadrado 30x30cm)
+  plantasOriginal       Int?         @map("plantas_original")    // Método original SFG
+  plantasMultisow       Int?         @map("plantas_multisow")    // Siembra múltiple
+  plantasMacizo         Int?         @map("plantas_macizo")      // Siembra en macizo
+  
+  // Información adicional
+  espaciadoCm           Float?       @map("espaciado_cm")
+  notas                 String?      @db.Text
+  
+  createdAt             DateTime     @default(now()) @map("created_at")
+  updatedAt             DateTime     @updatedAt @map("updated_at")
+  
+  // Relations
+  especie               Especie      @relation(fields: [especieId], references: [id], onDelete: Cascade)
+
+  @@index([especieId])
+  @@map("square_foot_gardening")
 }
 
 
