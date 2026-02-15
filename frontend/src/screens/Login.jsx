@@ -7,6 +7,7 @@ import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useGoogleLogin } from '@react-oauth/google';
 import { useAuth } from '../context/AuthContext';
+import '../styles/Auth.css';
 
 export function Login() {
     const [email, setEmail] = useState('');
@@ -60,15 +61,15 @@ export function Login() {
     });
 
     return (
-        <div className="flex items-center justify-center" style={{ minHeight: '100vh', background: 'linear-gradient(135deg, #10b981, #059669)' }}>
-            <div className="card" style={{ maxWidth: '400px', width: '100%', margin: '1rem' }}>
-                <div className="text-center mb-6">
+        <div className="auth-container">
+            <div className="auth-card card">
+                <div className="auth-header text-center mb-6">
                     <h1 className="text-primary mb-2">🌱 Lorapp</h1>
                     <p className="text-gray">Gestiona tu huerta</p>
                 </div>
 
                 {error && (
-                    <div className="mb-4 rounded" style={{ padding: '0.75rem', backgroundColor: '#fee2e2', color: '#991b1b' }}>
+                    <div className="auth-error mb-4 rounded">
                         {error}
                     </div>
                 )}
@@ -103,20 +104,19 @@ export function Login() {
                         />
                     </div>
 
-                    <button type="submit" className="btn btn-primary" style={{ width: '100%' }} disabled={loading}>
+                    <button type="submit" className="auth-submit btn btn-primary" disabled={loading}>
                         {loading ? 'Iniciando sesión...' : 'Iniciar sesión'}
                     </button>
                 </form>
 
-                <div style={{ margin: '1.5rem 0', textAlign: 'center', position: 'relative' }}>
-                    <span style={{ padding: '0 1rem', background: 'white', position: 'relative', zIndex: 1 }}>o</span>
-                    <div style={{ position: 'absolute', top: '50%', left: 0, right: 0, height: '1px', backgroundColor: 'var(--color-gray-300)', zIndex: 0 }}></div>
+                <div className="auth-divider">
+                    <span className="auth-divider__text">o</span>
+                    <div className="auth-divider__line"></div>
                 </div>
 
                 <button
                     onClick={() => handleGoogleLogin()}
-                    className="btn btn-outline"
-                    style={{ width: '100%' }}
+                    className="auth-google-btn btn btn-outline"
                 >
                     <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M19.6 10.227c0-.709-.064-1.39-.182-2.045H10v3.868h5.382a4.6 4.6 0 01-1.996 3.018v2.51h3.232c1.891-1.742 2.982-4.305 2.982-7.35z" fill="#4285F4" />

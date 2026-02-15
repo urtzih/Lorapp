@@ -1,0 +1,98 @@
+/**
+ * LORAPP - Auth Screens Styles
+ * Estilos compartidos para Login y Register
+ */
+
+.auth-container {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-4);
+    background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-success) 100%);
+}
+
+.auth-card {
+    width: 100%;
+    max-width: 400px;
+    padding: var(--space-6);
+}
+
+.auth-header {
+    text-align: center;
+    margin-bottom: var(--space-6);
+}
+
+.auth-header__title {
+    font-size: 2rem;
+    margin-bottom: var(--space-2);
+}
+
+.auth-header__subtitle {
+    color: var(--text-gray);
+    font-size: 0.875rem;
+}
+
+.auth-form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+}
+
+.auth-form__group {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+}
+
+.auth-form__label {
+    font-weight: 600;
+    font-size: 0.875rem;
+}
+
+.auth-form__input {
+    padding: var(--space-2);
+    font-size: 1rem;
+}
+
+.auth-form__submit {
+    width: 100%;
+    padding: var(--space-3);
+    font-size: 1.1rem;
+}
+
+.auth-footer {
+    margin-top: var(--space-4);
+    text-align: center;
+}
+
+.auth-footer__text {
+    color: var(--text-gray);
+    font-size: 0.875rem;
+}
+
+.auth-footer__link {
+    color: var(--color-primary);
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.auth-footer__link:hover {
+    text-decoration: underline;
+}
+
+.auth-error {
+    padding: var(--space-3);
+    background-color: #fee2e2;
+    border: 1px solid #fecaca;
+    border-radius: var(--radius-md);
+    color: #991b1b;
+    font-size: 0.875rem;
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+    .auth-card {
+        padding: var(--space-4);
+    }
+}

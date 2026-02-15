@@ -1,0 +1,116 @@
+/**
+ * LORAPP - MyGarden Screen Styles
+ * Estilos para la pantalla de plantaciones activas
+ */
+
+.mygarden-container {
+    padding: var(--space-4);
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.mygarden-loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 50vh;
+}
+
+/* Header */
+.mygarden-header {
+    margin-bottom: var(--space-4);
+}
+
+.mygarden-header__title {
+    margin-bottom: var(--space-2);
+    font-size: clamp(1.5rem, 5vw, 2rem);
+    font-weight: bold;
+}
+
+/* Stats Cards Grid */
+.mygarden-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: var(--space-3);
+    margin-bottom: var(--space-4);
+}
+
+.mygarden-stat-card {
+    padding: var(--space-3);
+    text-align: center;
+}
+
+.mygarden-stat-card__icon {
+    font-size: 2rem;
+    margin-bottom: var(--space-2);
+}
+
+.mygarden-stat-card__value {
+    font-size: 1.75rem;
+    font-weight: bold;
+    margin-bottom: var(--space-1);
+}
+
+.mygarden-stat-card__label {
+    color: var(--text-gray);
+    font-size: 0.875rem;
+}
+
+/* Filters */
+.mygarden-filters {
+    margin-bottom: var(--space-4);
+    padding: var(--space-3);
+}
+
+.mygarden-filters__grid {
+    display: flex;
+    gap: var(--space-3);
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.mygarden-filters__search {
+    flex: 1;
+    min-width: 250px;
+}
+
+.mygarden-filters__select {
+    min-width: 150px;
+}
+
+.mygarden-filters__actions {
+    display: flex;
+    gap: var(--space-2);
+}
+
+/* Empty State */
+.mygarden-empty {
+    padding: var(--space-6);
+    text-align: center;
+}
+
+.mygarden-empty__icon {
+    font-size: 3rem;
+    margin-bottom: var(--space-2);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .mygarden-container {
+        padding: var(--space-2);
+    }
+    
+    .mygarden-stats {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .mygarden-filters__grid {
+        flex-direction: column;
+        width: 100%;
+    }
+    
+    .mygarden-filters__search,
+    .mygarden-filters__select {
+        width: 100%;
+    }
+}

@@ -124,28 +124,24 @@ class Especie(Base):
     descripcion = Column(Text, nullable=True)
     tipo_cultivo = Column(String(50), nullable=True)  # "hortaliza", "fruta", "flor", "aromática"
     
-    # Parámetros agrícolas
-    profundidad_siembra_cm = Column(Float, nullable=True)
-    distancia_plantas_cm = Column(Float, nullable=True)
-    distancia_surcos_cm = Column(Float, nullable=True)
-    frecuencia_riego = Column(SQLEnum(FrecuenciaRiego), nullable=True)
-    exposicion_solar = Column(SQLEnum(TipoExposicionSolar), nullable=True)
-    
-    # Ciclo de cultivo (días)
-    dias_germinacion_min = Column(Integer, nullable=True)
-    dias_germinacion_max = Column(Integer, nullable=True)
-    dias_hasta_trasplante = Column(Integer, nullable=True)
-    dias_hasta_cosecha_min = Column(Integer, nullable=True)
-    dias_hasta_cosecha_max = Column(Integer, nullable=True)
-    
-    # Calendario
-    meses_siembra_interior = Column(JSON, default=list)  # [1, 2, 3]
-    meses_siembra_exterior = Column(JSON, default=list)  # [4, 5, 6]
-    
-    # Condiciones
-    temperatura_minima_c = Column(Float, nullable=True)
-    temperatura_maxima_c = Column(Float, nullable=True)
-    zonas_climaticas_preferidas = Column(JSON, default=list)
+    # ===== LAS SIGUIENTES COLUMNAS ESTÁN COMENTADAS PORQUE NO EXISTEN EN LA BD ACTUAL =====
+    # TODO: Ejecutar migraciones de Alembic para añadir estas columnas
+    # profundidad_siembra_cm = Column(Float, nullable=True)
+    # distancia_plantas_cm = Column(Float, nullable=True)
+    # distancia_surcos_cm = Column(Float, nullable=True)
+    # frecuencia_riego = Column(SQLEnum(FrecuenciaRiego), nullable=True)
+    # exposicion_solar = Column(SQLEnum(TipoExposicionSolar), nullable=True)
+    # dias_germinacion_min = Column(Integer, nullable=True)
+    # dias_germinacion_max = Column(Integer, nullable=True)
+    # dias_hasta_trasplante = Column(Integer, nullable=True)
+    # dias_hasta_cosecha_min = Column(Integer, nullable=True)
+    # dias_hasta_cosecha_max = Column(Integer, nullable=True)
+    # meses_siembra_interior = Column(JSON, default=list)
+    # meses_siembra_exterior = Column(JSON, default=list)
+    # temperatura_minima_c = Column(Float, nullable=True)
+    # temperatura_maxima_c = Column(Float, nullable=True)
+    # zonas_climaticas_preferidas = Column(JSON, default=list)
+    # ===================================================================================
     
     # Square Foot Gardening (campos antiguos - mantener por compatibilidad)
     square_foot_plants = Column(Integer, nullable=True)  # Número de plantas por cuadrado de 30x30cm

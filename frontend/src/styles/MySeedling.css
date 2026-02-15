@@ -1,0 +1,79 @@
+/**
+ * LORAPP - MySeedling Screen Styles  
+ * Estilos para la pantalla de plántulas/trasplantes
+ */
+
+.myseedling-container {
+    padding: var(--space-4);
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.myseedling-loading {
+    display: flex;
+    justify-center: center;
+    align-items: center;
+    min-height: 50vh;
+}
+
+/* Header */
+.myseedling-header {
+    margin-bottom: var(--space-4);
+}
+
+.myseedling-header__title {
+    margin-bottom: var(--space-2);
+    font-size: clamp(1.5rem, 5vw, 2rem);
+    font-weight: bold;
+}
+
+/* Stats Grid */
+.myseedling-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: var(--space-3);
+    margin-bottom: var(--space-4);
+}
+
+.myseedling-stat-card {
+    padding: var(--space-3);
+    text-align: center;
+}
+
+.myseedling-stat-card__icon {
+    font-size: 2rem;
+    margin-bottom: var(--space-2);
+}
+
+.myseedling-stat-card__value {
+    font-size: 1.75rem;
+    font-weight: bold;
+    margin-bottom: var(--space-1);
+}
+
+.myseedling-stat-card__label {
+    color: var(--text-gray);
+    font-size: 0.875rem;
+}
+
+/* Empty State */
+.myseedling-empty {
+    padding: var(--space-6);
+    text-align: center;
+}
+
+.myseedling-empty__icon {
+    font-size: 3rem;
+    margin-bottom: var(--space-2);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .myseedling-container {
+        padding: var(--space-2);
+    }
+    
+    .myseedling-stats {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}

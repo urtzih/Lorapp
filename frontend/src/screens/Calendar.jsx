@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { calendarAPI } from '../services/api';
+import '../styles/Calendar.css';
 
 export function Calendar() {
     const [activeTab, setActiveTab] = useState('monthly');
@@ -46,35 +47,22 @@ export function Calendar() {
             reminders: 'Recordatorio'
         };
 
-        const bgColors = {
-            planting: '#ecfdf5',
-            transplanting: '#fef3c7',
-            harvesting: '#fee2e2',
-            reminders: '#e0f2fe'
-        };
-
-        const borderColors = {
-            planting: '#10b981',
-            transplanting: '#f59e0b',
-            harvesting: '#ef4444',
-            reminders: '#3b82f6'
+        const cardClasses = {
+            planting: 'calendar-task-card--planting',
+            transplanting: 'calendar-task-card--transplanting',
+            harvesting: 'calendar-task-card--harvesting',
+            reminders: 'calendar-task-card--reminders'
         };
 
         return (
-            <div 
-                className="card task-card"
-                style={{ 
-                    backgroundColor: bgColors[type],
-                    borderLeft: `4px solid ${borderColors[type]}`
-                }}
-            >
-                <div className="task-card-content">
-                    <div className="task-icon">{icons[type]}</div>
-                    <div className="task-details">
-                        <h4 className="task-title">{task.seed_name}</h4>
-                        <p className="text-gray text-sm">{task.description || task.type}</p>
+            <div className={`calendar-task-card card ${cardClasses[type]}`}>
+                <div className="calendar-task-card__content">
+                    <div className="calendar-task-card__icon">{icons[type]}</div>
+                    <div className="calendar-task-card__details">
+                        <h4 className="calendar-task-card__title">{task.seed_name}</h4>
+                        <p className="calendar-task-card__description text-gray text-sm">{task.description || task.type}</p>
                         {task.variety && (
-                            <span className="badge badge-primary" style={{ marginTop: 'var(--space-2)' }}>
+                            <span className="calendar-task-card__variety badge badge-primary">
                                 {task.variety}
                             </span>
                         )}
@@ -86,8 +74,8 @@ export function Calendar() {
 
     if (loading) {
         return (
-            <div className="container" style={{ padding: 'var(--space-4)', maxWidth: '1200px', margin: '0 auto' }}>
-                <div className="flex justify-center items-center" style={{ minHeight: '50vh' }}>
+            <div className="calendar-container">
+                <div className="calendar-loading">
                     <div className="spinner"></div>
                 </div>
             </div>
@@ -95,23 +83,14 @@ export function Calendar() {
     }
 
     return (
-        <div className="container" style={{ padding: 'var(--space-4)', maxWidth: '1200px', margin: '0 auto', paddingBottom: '100px' }}>
-            <div style={{ marginBottom: 'var(--space-4)' }}>
-                <h1 className="text-3xl font-bold" style={{ marginBottom: 'var(--space-2)' }}>📅 Calendario Agrícola</h1>
-                <p className="text-gray">Planifica tus siembras y trasplantes</p>
+        <div className="calendar-container">
+            <div className="calendar-header">
+                <h1 className="calendar-header__title">📅 Calendario Agrícola</h1>
+                <p className="calendar-header__description text-gray">Planifica tus siembras y trasplantes</p>
             </div>
 
             {/* Month Navigation */}
-            <div style={{ 
-                backgroundColor: '#f9fafb',
-                borderRadius: 'var(--radius-lg)',
-                padding: 'var(--space-4)',
-                marginBottom: 'var(--space-6)',
-                border: '1px solid #e5e7eb',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between'
-            }}>
+            <div className="calendar-nav">
                 <button 
                     onClick={() => {
                         if (currentMonth === 1) {
@@ -121,13 +100,12 @@ export function Calendar() {
                             setCurrentMonth(currentMonth - 1);
                         }
                     }}
-                    className="btn btn-secondary"
-                    style={{ minWidth: '40px', padding: '8px 16px' }}
+                    className="calendar-nav__btn btn btn-secondary"
                 >
                     ←
                 </button>
                 
-                <h3 style={{ margin: 0, fontSize: '1.25rem', fontWeight: '600' }}>
+                <h3 className="calendar-nav__title">
                     {monthNames[currentMonth - 1]} {currentYear}
                 </h3>
                 
@@ -140,8 +118,7 @@ export function Calendar() {
                             setCurrentMonth(currentMonth + 1);
                         }
                     }}
-                    className="btn btn-secondary"
-                    style={{ minWidth: '40px', padding: '8px 16px' }}
+                    className="calendar-nav__btn btn btn-secondary"
                 >
                     →
                 </button>
@@ -235,16 +212,15 @@ export function Calendar() {
                             {recommendations.map((rec, index) => (
                                 <div 
                                     key={index} 
-                                    className="card recommendation-card"
-                                    style={{ backgroundColor: '#ecfdf5' }}
+                                    className="calendar-recommendation-card card"
                                 >
-                                    <div className="recommendation-content">
+                                    <div className="calendar-recommendation-card__content">
                                         <div>
-                                            <h4 className="recommendation-title">{rec.seed_name}</h4>
+                                            <h4 className="calendar-recommendation-card__title">{rec.seed_name}</h4>
                                             {rec.variety && (
-                                                <p className="text-gray text-sm mb-2">{rec.variety}</p>
+                                                <p className="calendar-recommendation-card__variety text-gray text-sm mb-2">{rec.variety}</p>
                                             )}
-                                            <div className="recommendation-badges">
+                                            <div className="calendar-recommendation-card__badges">
                                                 {rec.can_plant_indoor && (
                                                     <span className="badge badge-info">Interior</span>
                                                 )}
@@ -254,9 +230,9 @@ export function Calendar() {
                                             </div>
                                         </div>
                                         {rec.germination_days && (
-                                            <div className="germination-info">
-                                                <div className="text-gray text-xs">Germinación</div>
-                                                <div className="germination-days">{rec.germination_days}d</div>
+                                            <div className="calendar-recommendation-card__germination">
+                                                <div className="calendar-recommendation-card__germination-label text-gray text-xs">Germinación</div>
+                                                <div className="calendar-recommendation-card__germination-days">{rec.germination_days}d</div>
                                             </div>
                                         )}
                                     </div>
@@ -281,23 +257,19 @@ export function Calendar() {
                             {upcomingTransplants.map((item, index) => (
                                 <div 
                                     key={index} 
-                                    className="card upcoming-card"
-                                    style={{ 
-                                        backgroundColor: '#fef3c7',
-                                        borderLeft: '4px solid var(--color-accent)'
-                                    }}
+                                    className="calendar-upcoming-card card"
                                 >
-                                    <div className="upcoming-content">
+                                    <div className="calendar-upcoming-card__content">
                                         <div>
-                                            <h4 className="upcoming-title">{item.seed_name}</h4>
+                                            <h4 className="calendar-upcoming-card__title">{item.seed_name}</h4>
                                             {item.variety && (
-                                                <p className="text-gray text-sm">{item.variety}</p>
+                                                <p className="calendar-upcoming-card__variety text-gray text-sm">{item.variety}</p>
                                             )}
                                         </div>
-                                        <div className="upcoming-days">
-                                            <div className="text-gray text-xs">En</div>
-                                            <div className="days-count">{item.days_until}</div>
-                                            <div className="text-gray text-xs">día{item.days_until !== 1 ? 's' : ''}</div>
+                                        <div className="calendar-upcoming-card__days">
+                                            <div className="calendar-upcoming-card__days-label text-gray text-xs">En</div>
+                                            <div className="calendar-upcoming-card__days-count">{item.days_until}</div>
+                                            <div className="calendar-upcoming-card__days-unit text-gray text-xs">día{item.days_until !== 1 ? 's' : ''}</div>
                                         </div>
                                     </div>
                                 </div>

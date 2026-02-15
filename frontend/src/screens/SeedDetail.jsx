@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { seedsAPI } from '../services/api';
+import '../styles/SeedDetail.css';
 
 export function SeedDetail() {
     const { id } = useParams();
@@ -272,7 +273,7 @@ export function SeedDetail() {
 
     if (loading) {
         return (
-            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '60vh' }}>
+            <div className="seeddetail-loading">
                 <div className="spinner"></div>
             </div>
         );
@@ -280,9 +281,9 @@ export function SeedDetail() {
 
     if (!seed) {
         return (
-            <div style={{ padding: '2rem', textAlign: 'center' }}>
+            <div className="seeddetail-empty">
                 <h2>Semilla no encontrada</h2>
-                <button onClick={() => navigate('/inventory')} className="btn btn-primary" style={{ marginTop: '1rem' }}>
+                <button onClick={() => navigate('/inventory')} className="btn btn-primary">
                     Volver al inventario
                 </button>
             </div>
@@ -292,74 +293,28 @@ export function SeedDetail() {
     const estadoBadge = getEstadoBadge(seed.estado);
 
     return (
-        <div style={{ 
-            minHeight: '100vh', 
-            backgroundColor: '#f9fafb',
-            paddingBottom: '100px'
-        }}>
+        <div className="seeddetail-container">
             {/* Header fijo */}
-            <div style={{
-                position: 'sticky',
-                top: 0,
-                zIndex: 100,
-                backgroundColor: 'white',
-                borderBottom: '1px solid #e5e7eb',
-                padding: '1rem',
-                boxShadow: '0 1px 3px rgba(0,0,0,0.1)'
-            }}>
-                <div style={{ 
-                    display: 'flex', 
-                    justifyContent: 'space-between', 
-                    alignItems: 'center',
-                    maxWidth: '768px',
-                    margin: '0 auto'
-                }}>
+            <div className="seeddetail-header">
+                <div className="seeddetail-header__content">
                     <button 
                         onClick={() => navigate('/inventory')} 
-                        style={{
-                            backgroundColor: 'transparent',
-                            border: 'none',
-                            fontSize: '1.5rem',
-                            cursor: 'pointer',
-                            padding: '0.5rem',
-                            display: 'flex',
-                            alignItems: 'center',
-                            color: '#374151'
-                        }}
+                        className="seeddetail-header__back-btn"
                     >
                         ←
                     </button>
-                    <div style={{ display: 'flex', gap: '0.5rem', minWidth: '140px', justifyContent: 'flex-end' }}>
+                    <div className="seeddetail-header__actions">
                         {!editing ? (
                             <>
                                 <button 
                                     onClick={() => setEditing(true)} 
-                                    style={{
-                                        backgroundColor: '#3b82f6',
-                                        color: 'white',
-                                        border: 'none',
-                                        borderRadius: '8px',
-                                        padding: '0.5rem 0.75rem',
-                                        fontSize: '0.9rem',
-                                        cursor: 'pointer',
-                                        fontWeight: '500',
-                                        minWidth: '70px'
-                                    }}
+                                    className="seeddetail-header__edit-btn"
                                 >
                                     ✏️
                                 </button>
                                 <button 
                                     onClick={handleDelete} 
-                                    style={{
-                                        backgroundColor: '#ef4444',
-                                        color: 'white',
-                                        border: 'none',
-                                        borderRadius: '8px',
-                                        padding: '0.5rem 0.75rem',
-                                        fontSize: '0.9rem',
-                                        cursor: 'pointer',
-                                        minWidth: '40px'
-                                    }}
+                                    className="seeddetail-header__delete-btn"
                                 >
                                     🗑️
                                 </button>
@@ -367,17 +322,7 @@ export function SeedDetail() {
                         ) : (
                             <button 
                                 onClick={() => setEditing(false)} 
-                                style={{
-                                    backgroundColor: '#6b7280',
-                                    color: 'white',
-                                    border: 'none',
-                                    borderRadius: '8px',
-                                    padding: '0.5rem 0.75rem',
-                                    fontSize: '0.9rem',
-                                    cursor: 'pointer',
-                                    fontWeight: '500',
-                                    minWidth: '110px'
-                                }}
+                                className="seeddetail-header__exit-btn"
                             >
                                 ✖ Salir
                             </button>

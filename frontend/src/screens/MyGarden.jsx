@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { myGardenAPI } from '../services/api';
+import '../styles/MyGarden.css';
 
 /**
  * Mi Huerta - Registro de plantaciones en el jardín/huerta
@@ -61,21 +62,14 @@ export function MyGarden() {
 
     const getStatusBadge = (estado) => {
         const badges = {
-            'TRASPLANTADA': { bg: '#DBEAFE', color: '#1E40AF', label: '🌱 Trasplantada' },
-            'CRECIMIENTO': { bg: '#D1FAE5', color: '#065F46', label: '🌿 Creciendo' },
-            'COSECHA_CERCANA': { bg: '#FEF3C7', color: '#92400E', label: '🌾 Lista para cosechar' },
-            'COSECHADA': { bg: '#E0E7FF', color: '#3730A3', label: '✅ Cosechada' },
+            'TRASPLANTADA': { className: 'mygarden-badge--transplanted', label: '🌱 Trasplantada' },
+            'CRECIMIENTO': { className: 'mygarden-badge--growing', label: '🌿 Creciendo' },
+            'COSECHA_CERCANA': { className: 'mygarden-badge--ready', label: '🌾 Lista para cosechar' },
+            'COSECHADA': { className: 'mygarden-badge--harvested', label: '✅ Cosechada' },
         };
-        const badge = badges[estado] || { bg: '#F3F4F6', color: '#1F2937', label: estado };
+        const badge = badges[estado] || { className: 'mygarden-badge--default', label: estado };
         return (
-            <span style={{
-                background: badge.bg,
-                color: badge.color,
-                padding: '0.25rem 0.75rem',
-                borderRadius: 'var(--radius)',
-                fontSize: '0.875rem',
-                fontWeight: '500'
-            }}>
+            <span className={`mygarden-badge ${badge.className}`}>
                 {badge.label}
             </span>
         );
@@ -83,8 +77,8 @@ export function MyGarden() {
 
     if (loading) {
         return (
-            <div className="container" style={{ padding: 'var(--space-4)', maxWidth: '1200px', margin: '0 auto' }}>
-                <div className="flex items-center justify-center" style={{ minHeight: '50vh' }}>
+            <div className="mygarden-container">
+                <div className="mygarden-loading">
                     <div className="spinner"></div>
                 </div>
             </div>
@@ -92,46 +86,46 @@ export function MyGarden() {
     }
 
     return (
-        <div className="container" style={{ padding: 'var(--space-4)', maxWidth: '1200px', margin: '0 auto' }}>
+        <div className="mygarden-container">
             {/* Header */}
-            <div style={{ marginBottom: 'var(--space-4)' }}>
-                <h1 className="text-3xl font-bold" style={{ marginBottom: 'var(--space-2)' }}>
+            <div className="mygarden-header">
+                <h1 className="mygarden-header__title">
                     🌱 Mi Huerta
                 </h1>
-                <p className="text-gray">
+                <p className="mygarden-header__description text-gray">
                     Registra y monitorea tus plantaciones: fechas de siembra, trasplante, cosecha y ubicación.
                 </p>
             </div>
 
             {/* Quick Stats */}
-            <div className="grid grid-cols-1 md:grid-cols-4" style={{ gap: 'var(--space-3)', marginBottom: 'var(--space-4)' }}>
-                <div className="card" style={{ padding: 'var(--space-3)', textAlign: 'center' }}>
-                    <div style={{ fontSize: '2rem' }}>🌿</div>
-                    <div className="text-2xl font-bold">{stats.growing}</div>
-                    <div className="text-sm text-gray">En crecimiento</div>
+            <div className="mygarden-stats">
+                <div className="mygarden-stat-card">
+                    <div className="mygarden-stat-card__icon">🌿</div>
+                    <div className="mygarden-stat-card__value text-2xl font-bold">{stats.growing}</div>
+                    <div className="mygarden-stat-card__label text-sm text-gray">En crecimiento</div>
                 </div>
-                <div className="card" style={{ padding: 'var(--space-3)', textAlign: 'center' }}>
-                    <div style={{ fontSize: '2rem' }}>🌾</div>
-                    <div className="text-2xl font-bold">{stats.ready_to_harvest}</div>
-                    <div className="text-sm text-gray">Listas para cosechar</div>
+                <div className="mygarden-stat-card">
+                    <div className="mygarden-stat-card__icon">🌾</div>
+                    <div className="mygarden-stat-card__value text-2xl font-bold">{stats.ready_to_harvest}</div>
+                    <div className="mygarden-stat-card__label text-sm text-gray">Listas para cosechar</div>
                 </div>
-                <div className="card" style={{ padding: 'var(--space-3)', textAlign: 'center' }}>
-                    <div style={{ fontSize: '2rem' }}>✅</div>
-                    <div className="text-2xl font-bold">{stats.harvested}</div>
-                    <div className="text-sm text-gray">Cosechadas</div>
+                <div className="mygarden-stat-card">
+                    <div className="mygarden-stat-card__icon">✅</div>
+                    <div className="mygarden-stat-card__value text-2xl font-bold">{stats.harvested}</div>
+                    <div className="mygarden-stat-card__label text-sm text-gray">Cosechadas</div>
                 </div>
-                <div className="card" style={{ padding: 'var(--space-3)', textAlign: 'center' }}>
-                    <div style={{ fontSize: '2rem' }}>📊</div>
-                    <div className="text-2xl font-bold">{stats.total}</div>
-                    <div className="text-sm text-gray">Total</div>
+                <div className="mygarden-stat-card">
+                    <div className="mygarden-stat-card__icon">📊</div>
+                    <div className="mygarden-stat-card__value text-2xl font-bold">{stats.total}</div>
+                    <div className="mygarden-stat-card__label text-sm text-gray">Total</div>
                 </div>
             </div>
 
             {/* Filters & Actions */}
-            <div className="card" style={{ marginBottom: 'var(--space-4)', padding: 'var(--space-3)' }}>
-                <div style={{ display: 'flex', gap: 'var(--space-3)', flexWrap: 'wrap', alignItems: 'center' }}>
+            <div className="mygarden-filters card">
+                <div className="mygarden-filters__content">
                     {/* Search */}
-                    <div style={{ flex: '1', minWidth: '250px' }}>
+                    <div className="mygarden-filters__search">
                         <input
                             type="text"
                             placeholder="Buscar plantaciones..."
@@ -143,10 +137,9 @@ export function MyGarden() {
 
                     {/* Status Filter */}
                     <select
-                        className="input"
+                        className="mygarden-filters__select input"
                         value={filters.status}
                         onChange={(e) => setFilters({ ...filters, status: e.target.value })}
-                        style={{ minWidth: '150px' }}
                     >
                         <option value="all">Todos</option>
                         <option value="planted">Plantado</option>
@@ -155,7 +148,7 @@ export function MyGarden() {
                     </select>
 
                     {/* View Mode */}
-                    <div style={{ display: 'flex', gap: 'var(--space-2)' }}>
+                    <div className="mygarden-filters__view-toggle">
                         <button
                             className={`btn ${viewMode === 'list' ? 'btn-primary' : 'btn-secondary'}`}
                             onClick={() => setViewMode('list')}
@@ -171,7 +164,7 @@ export function MyGarden() {
                     </div>
 
                     {/* Add Button */}
-                    <button className="btn btn-primary">
+                    <button className="mygarden-filters__add-btn btn btn-primary">
                         + Nueva Plantación
                     </button>
                 </div>
@@ -179,68 +172,67 @@ export function MyGarden() {
 
             {/* Content */}
             {plantings.length === 0 ? (
-                <div className="card" style={{ padding: 'var(--space-6)', textAlign: 'center' }}>
-                    <div style={{ fontSize: '4rem', marginBottom: 'var(--space-3)' }}>🌿</div>
-                    <h2 className="text-xl font-semibold" style={{ marginBottom: 'var(--space-2)' }}>
+                <div className="mygarden-empty card">
+                    <div className="mygarden-empty__icon">🌿</div>
+                    <h2 className="mygarden-empty__title text-xl font-semibold">
                         Aún no has registrado ninguna plantación
                     </h2>
-                    <p className="text-gray" style={{ marginBottom: 'var(--space-4)' }}>
+                    <p className="mygarden-empty__description text-gray">
                         Comienza a registrar lo que plantas en tu huerta para llevar un control completo
                         de fechas, ubicaciones y cosechas.
                     </p>
-                    <button className="btn btn-primary">
+                    <button className="mygarden-empty__action btn btn-primary">
                         + Registrar Primera Plantación
                     </button>
                 </div>
             ) : (
-                <div className={viewMode === 'grid' ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3' : 'flex flex-col'} 
-                     style={{ gap: 'var(--space-3)' }}>
+                <div className={`mygarden-plantings ${viewMode === 'grid' ? 'mygarden-plantings--grid' : 'mygarden-plantings--list'}`}>
                     {plantings.map(planting => (
-                        <div key={planting.id} className="card" style={{ padding: 'var(--space-3)' }}>
+                        <div key={planting.id} className="mygarden-planting-card card">
                             {/* Header con estado */}
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: 'var(--space-2)' }}>
-                                <h3 className="font-semibold" style={{ flex: 1 }}>{planting.nombre_plantacion}</h3>
+                            <div className="mygarden-planting-card__header">
+                                <h3 className="mygarden-planting-card__title font-semibold">{planting.nombre_plantacion}</h3>
                                 {getStatusBadge(planting.estado)}
                             </div>
 
                             {/* Información de especie/variedad */}
-                            <div style={{ marginBottom: 'var(--space-3)' }}>
-                                <div className="text-sm" style={{ color: 'var(--primary)' }}>
+                            <div className="mygarden-planting-card__info">
+                                <div className="mygarden-planting-card__species text-sm">
                                     {planting.especie_nombre}
                                 </div>
                                 {planting.variedad_nombre && (
-                                    <div className="text-sm text-gray">
+                                    <div className="mygarden-planting-card__variety text-sm text-gray">
                                         Variedad: {planting.variedad_nombre}
                                     </div>
                                 )}
                             </div>
 
                             {/* Detalles */}
-                            <div style={{ fontSize: '0.875rem', marginBottom: 'var(--space-3)' }}>
-                                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 'var(--space-1)' }}>
+                            <div className="mygarden-planting-card__details">
+                                <div className="mygarden-planting-card__detail-row">
                                     <span className="text-gray">Sembrado:</span>
                                     <span className="font-medium">{formatDate(planting.fecha_siembra)}</span>
                                 </div>
                                 {planting.fecha_trasplante && (
-                                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 'var(--space-1)' }}>
+                                    <div className="mygarden-planting-card__detail-row">
                                         <span className="text-gray">Trasplantado:</span>
                                         <span className="font-medium">{formatDate(planting.fecha_trasplante)}</span>
                                     </div>
                                 )}
                                 {planting.fecha_cosecha_estimada && (
-                                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 'var(--space-1)' }}>
+                                    <div className="mygarden-planting-card__detail-row">
                                         <span className="text-gray">Cosecha estimada:</span>
                                         <span className="font-medium">{formatDate(planting.fecha_cosecha_estimada)}</span>
                                     </div>
                                 )}
                                 {planting.cantidad_semillas_plantadas && (
-                                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 'var(--space-1)' }}>
+                                    <div className="mygarden-planting-card__detail-row">
                                         <span className="text-gray">Cantidad:</span>
                                         <span className="font-medium">{planting.cantidad_semillas_plantadas} plantas</span>
                                     </div>
                                 )}
                                 {planting.ubicacion_descripcion && (
-                                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                                    <div className="mygarden-planting-card__detail-row">
                                         <span className="text-gray">Ubicación:</span>
                                         <span className="font-medium">{planting.ubicacion_descripcion}</span>
                                     </div>
@@ -249,17 +241,16 @@ export function MyGarden() {
 
                             {/* Notas */}
                             {planting.notas && (
-                                <div style={{ fontSize: '0.875rem', marginBottom: 'var(--space-3)', color: 'var(--text-secondary)', fontStyle: 'italic' }}>
+                                <div className="mygarden-planting-card__notes">
                                     {planting.notas}
                                 </div>
                             )}
 
                             {/* Actions */}
-                            <div style={{ display: 'flex', gap: 'var(--space-2)', marginTop: 'auto' }}>
+                            <div className="mygarden-planting-card__actions">
                                 <Link 
                                     to={`/my-garden/${planting.id}`}
-                                    className="btn btn-secondary"
-                                    style={{ flex: 1, textAlign: 'center', fontSize: '0.875rem' }}
+                                    className="mygarden-planting-card__action-btn btn btn-secondary"
                                 >
                                     Ver detalles
                                 </Link>
@@ -270,11 +261,11 @@ export function MyGarden() {
             )}
 
             {/* Info Card */}
-            <div className="card" style={{ marginTop: 'var(--space-4)', padding: 'var(--space-4)', background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', color: 'white' }}>
-                <h3 className="font-semibold" style={{ marginBottom: 'var(--space-2)' }}>
+            <div className="mygarden-info-card card">
+                <h3 className="mygarden-info-card__title font-semibold">
                     💡 ¿Qué puedes registrar?
                 </h3>
-                <ul style={{ listStyle: 'none', padding: 0, display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 'var(--space-2)' }}>
+                <ul className="mygarden-info-card__list">
                     <li>📅 Fecha de siembra</li>
                     <li>🌱 Fecha de trasplante</li>
                     <li>🎯 Ubicación en la huerta</li>

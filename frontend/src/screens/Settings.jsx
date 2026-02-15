@@ -8,6 +8,7 @@ import {
     isPushSubscribed,
     getNotificationPermission
 } from '../utils/pushNotifications';
+import '../styles/Settings.css';
 
 export function Settings() {
     const { user, updateUser, logout } = useAuth();
@@ -142,10 +143,10 @@ export function Settings() {
     const permissionStatus = getNotificationPermission();
 
     return (
-        <div className="container" style={{ padding: 'var(--space-4)', maxWidth: '1200px', margin: '0 auto', paddingBottom: '100px' }}>
-            <div style={{ marginBottom: 'var(--space-4)' }}>
-                <h1 className="text-3xl font-bold">⚙️ Ajustes</h1>
-                <p className="text-gray">Configura tu perfil y preferencias de la aplicación</p>
+        <div className="settings-container">
+            <div className="settings-header">
+                <h1 className="settings-header__title">⚙️ Ajustes</h1>
+                <p className="settings-header__description text-gray">Configura tu perfil y preferencias de la aplicación</p>
             </div>
 
             {/* Alert Message */}
@@ -156,38 +157,17 @@ export function Settings() {
             )}
 
             {/* Profile Section */}
-            <div className="settings-card mb-6">
+            <div className="settings-section mb-6">
                 <button
                     onClick={() => setExpandedSection(expandedSection === 'profile' ? '' : 'profile')}
-                    className="settings-header"
-                    style={{
-                        width: '100%',
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        alignItems: 'center',
-                        padding: 'var(--space-4)',
-                        backgroundColor: 'transparent',
-                        border: 'none',
-                        cursor: 'pointer',
-                        borderBottom: expandedSection === 'profile' ? '1px solid var(--color-gray-200)' : 'none'
-                    }}
+                    className="settings-section__header"
                 >
-                    <h2 style={{ margin: 0 }}>👤 Perfil</h2>
-                    <span style={{ 
-                        fontSize: '1.2rem',
-                        transform: expandedSection === 'profile' ? 'rotate(180deg)' : 'rotate(0deg)',
-                        transition: 'transform 0.3s ease'
-                    }}>
+                    <h2 className="settings-section__title">👤 Perfil</h2>
+                    <span className={`settings-section__icon ${expandedSection === 'profile' ? 'settings-section__icon--expanded' : ''}`}>
                         ▼
                     </span>
                 </button>
-                <div style={{
-                    maxHeight: expandedSection === 'profile' ? '2000px' : '0',
-                    opacity: expandedSection === 'profile' ? '1' : '0',
-                    overflow: 'hidden',
-                    transition: 'max-height 0.3s ease, opacity 0.3s ease, padding 0.3s ease',
-                    padding: expandedSection === 'profile' ? 'var(--space-4)' : '0 var(--space-4)'
-                }}>
+                <div className={`settings-section__content ${expandedSection === 'profile' ? 'settings-section__content--expanded' : ''}`}>
 
                 <div className="form-group">
                     <label className="form-label" htmlFor="profile-name">Nombre</label>
@@ -249,43 +229,22 @@ export function Settings() {
             </div>
 
             {/* Notifications Section */}
-            <div className="settings-card mb-6">
+            <div className="settings-section mb-6">
                 <button
                     onClick={() => setExpandedSection(expandedSection === 'notifications' ? '' : 'notifications')}
-                    className="settings-header"
-                    style={{
-                        width: '100%',
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        alignItems: 'center',
-                        padding: 'var(--space-4)',
-                        backgroundColor: 'transparent',
-                        border: 'none',
-                        cursor: 'pointer',
-                        borderBottom: expandedSection === 'notifications' ? '1px solid var(--color-gray-200)' : 'none'
-                    }}
+                    className="settings-section__header"
                 >
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
-                        <h2 style={{ margin: 0 }}>🔔 Notificaciones Push</h2>
+                    <div className="settings-section__header-title">
+                        <h2 className="settings-section__title">🔔 Notificaciones Push</h2>
                         {pushSubscribed && (
-                            <span className="badge badge-success" style={{ fontSize: '0.7rem' }}>activas</span>
+                            <span className="badge badge-success settings-badge--small">activas</span>
                         )}
                     </div>
-                    <span style={{ 
-                        fontSize: '1.2rem',
-                        transform: expandedSection === 'notifications' ? 'rotate(180deg)' : 'rotate(0deg)',
-                        transition: 'transform 0.3s ease'
-                    }}>
+                    <span className={`settings-section__icon ${expandedSection === 'notifications' ? 'settings-section__icon--expanded' : ''}`}>
                         ▼
                     </span>
                 </button>
-                <div style={{
-                    maxHeight: expandedSection === 'notifications' ? '2000px' : '0',
-                    opacity: expandedSection === 'notifications' ? '1' : '0',
-                    overflow: 'hidden',
-                    transition: 'max-height 0.3s ease, opacity 0.3s ease, padding 0.3s ease',
-                    padding: expandedSection === 'notifications' ? 'var(--space-4)' : '0 var(--space-4)'
-                }}>
+                <div className={`settings-section__content ${expandedSection === 'notifications' ? 'settings-section__content--expanded' : ''}`}>
 
                 <div className="notification-status mb-4">
                     <div className="status-indicator">
@@ -335,38 +294,17 @@ export function Settings() {
             </div>
 
             {/* Data Section */}
-            <div className="settings-card mb-6">
+            <div className="settings-section mb-6">
                 <button
                     onClick={() => setExpandedSection(expandedSection === 'data' ? '' : 'data')}
-                    className="settings-header"
-                    style={{
-                        width: '100%',
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        alignItems: 'center',
-                        padding: 'var(--space-4)',
-                        backgroundColor: 'transparent',
-                        border: 'none',
-                        cursor: 'pointer',
-                        borderBottom: expandedSection === 'data' ? '1px solid var(--color-gray-200)' : 'none'
-                    }}
+                    className="settings-section__header"
                 >
-                    <h2 style={{ margin: 0 }}>📊 Datos</h2>
-                    <span style={{ 
-                        fontSize: '1.2rem',
-                        transform: expandedSection === 'data' ? 'rotate(180deg)' : 'rotate(0deg)',
-                        transition: 'transform 0.3s ease'
-                    }}>
+                    <h2 className="settings-section__title">📊 Datos</h2>
+                    <span className={`settings-section__icon ${expandedSection === 'data' ? 'settings-section__icon--expanded' : ''}`}>
                         ▼
                     </span>
                 </button>
-                <div style={{
-                    maxHeight: expandedSection === 'data' ? '2000px' : '0',
-                    opacity: expandedSection === 'data' ? '1' : '0',
-                    overflow: 'hidden',
-                    transition: 'max-height 0.3s ease, opacity 0.3s ease, padding 0.3s ease',
-                    padding: expandedSection === 'data' ? 'var(--space-4)' : '0 var(--space-4)'
-                }}>
+                <div className={`settings-section__content ${expandedSection === 'data' ? 'settings-section__content--expanded' : ''}`}>
 
                 <p className="text-gray text-sm mb-4">
                     Descarga todas tus semillas en formato CSV para análisis externo
@@ -379,38 +317,17 @@ export function Settings() {
             </div>
 
             {/* Account Section */}
-            <div className="settings-card">
+            <div className="settings-section">
                 <button
                     onClick={() => setExpandedSection(expandedSection === 'account' ? '' : 'account')}
-                    className="settings-header"
-                    style={{
-                        width: '100%',
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        alignItems: 'center',
-                        padding: 'var(--space-4)',
-                        backgroundColor: 'transparent',
-                        border: 'none',
-                        cursor: 'pointer',
-                        borderBottom: expandedSection === 'account' ? '1px solid var(--color-gray-200)' : 'none'
-                    }}
+                    className="settings-section__header"
                 >
-                    <h2 style={{ margin: 0 }}>⚙️ Cuenta</h2>
-                    <span style={{ 
-                        fontSize: '1.2rem',
-                        transform: expandedSection === 'account' ? 'rotate(180deg)' : 'rotate(0deg)',
-                        transition: 'transform 0.3s ease'
-                    }}>
+                    <h2 className="settings-section__title">⚙️ Cuenta</h2>
+                    <span className={`settings-section__icon ${expandedSection === 'account' ? 'settings-section__icon--expanded' : ''}`}>
                         ▼
                     </span>
                 </button>
-                <div style={{
-                    maxHeight: expandedSection === 'account' ? '2000px' : '0',
-                    opacity: expandedSection === 'account' ? '1' : '0',
-                    overflow: 'hidden',
-                    transition: 'max-height 0.3s ease, opacity 0.3s ease, padding 0.3s ease',
-                    padding: expandedSection === 'account' ? 'var(--space-4)' : '0 var(--space-4)'
-                }}>
+                <div className={`settings-section__content ${expandedSection === 'account' ? 'settings-section__content--expanded' : ''}`}>
 
                 <p className="text-gray text-sm mb-6">
                     Gestiona tu sesión y cuenta

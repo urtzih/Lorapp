@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { mySeedlingAPI } from '../services/api';
+import '../styles/MySeedling.css';
 
 /**
  * Mi Semillero - Registro de siembras desde el inventario
@@ -60,20 +61,13 @@ export function MySeedling() {
 
     const getStatusBadge = (estado) => {
         const badges = {
-            'SEMBRADA': { bg: '#FEF3C7', color: '#92400E', label: '🌱 Germinando' },
-            'GERMINADA': { bg: '#D1FAE5', color: '#065F46', label: '🌿 Germinada' },
-            'PLANIFICADA': { bg: '#E0E7FF', color: '#3730A3', label: '📋 Planificada' },
+            'SEMBRADA': { className: 'myseedling-badge--germinating', label: '🌱 Germinando' },
+            'GERMINADA': { className: 'myseedling-badge--germinated', label: '🌿 Germinada' },
+            'PLANIFICADA': { className: 'myseedling-badge--planned', label: '📋 Planificada' },
         };
-        const badge = badges[estado] || { bg: '#F3F4F6', color: '#1F2937', label: estado };
+        const badge = badges[estado] || { className: 'myseedling-badge--default', label: estado };
         return (
-            <span style={{
-                background: badge.bg,
-                color: badge.color,
-                padding: '0.25rem 0.75rem',
-                borderRadius: 'var(--radius)',
-                fontSize: '0.875rem',
-                fontWeight: '500'
-            }}>
+            <span className={`myseedling-badge ${badge.className}`}>
                 {badge.label}
             </span>
         );
@@ -81,8 +75,8 @@ export function MySeedling() {
 
     if (loading) {
         return (
-            <div className="container" style={{ padding: 'var(--space-4)', maxWidth: '1200px', margin: '0 auto' }}>
-                <div className="flex items-center justify-center" style={{ minHeight: '50vh' }}>
+            <div className="myseedling-container">
+                <div className="myseedling-loading">
                     <div className="spinner"></div>
                 </div>
             </div>
@@ -90,46 +84,46 @@ export function MySeedling() {
     }
 
     return (
-        <div className="container" style={{ padding: 'var(--space-4)', maxWidth: '1200px', margin: '0 auto' }}>
+        <div className="myseedling-container">
             {/* Header */}
-            <div style={{ marginBottom: 'var(--space-4)' }}>
-                <h1 className="text-3xl font-bold" style={{ marginBottom: 'var(--space-2)' }}>
+            <div className="myseedling-header">
+                <h1 className="myseedling-header__title">
                     🌾 Mi Semillero
                 </h1>
-                <p className="text-gray">
+                <p className="myseedling-header__description text-gray">
                     Registra las semillas que vas sembrando de tu inventario y haz seguimiento hasta el trasplante.
                 </p>
             </div>
 
             {/* Quick Stats */}
-            <div className="grid grid-cols-1 md:grid-cols-4" style={{ gap: 'var(--space-3)', marginBottom: 'var(--space-4)' }}>
-                <div className="card" style={{ padding: 'var(--space-3)', textAlign: 'center' }}>
-                    <div style={{ fontSize: '2rem' }}>🌱</div>
-                    <div className="text-2xl font-bold">{stats.germinating}</div>
-                    <div className="text-sm text-gray">Germinando</div>
+            <div className="myseedling-stats">
+                <div className="myseedling-stat-card">
+                    <div className="myseedling-stat-card__icon">🌱</div>
+                    <div className="myseedling-stat-card__value text-2xl font-bold">{stats.germinating}</div>
+                    <div className="myseedling-stat-card__label text-sm text-gray">Germinando</div>
                 </div>
-                <div className="card" style={{ padding: 'var(--space-3)', textAlign: 'center' }}>
-                    <div style={{ fontSize: '2rem' }}>🌿</div>
-                    <div className="text-2xl font-bold">{stats.ready}</div>
-                    <div className="text-sm text-gray">Listas</div>
+                <div className="myseedling-stat-card">
+                    <div className="myseedling-stat-card__icon">🌿</div>
+                    <div className="myseedling-stat-card__value text-2xl font-bold">{stats.ready}</div>
+                    <div className="myseedling-stat-card__label text-sm text-gray">Listas</div>
                 </div>
-                <div className="card" style={{ padding: 'var(--space-3)', textAlign: 'center' }}>
-                    <div style={{ fontSize: '2rem' }}>🪴</div>
-                    <div className="text-2xl font-bold">{stats.transplanted}</div>
-                    <div className="text-sm text-gray">Trasplantadas</div>
+                <div className="myseedling-stat-card">
+                    <div className="myseedling-stat-card__icon">🪴</div>
+                    <div className="myseedling-stat-card__value text-2xl font-bold">{stats.transplanted}</div>
+                    <div className="myseedling-stat-card__label text-sm text-gray">Trasplantadas</div>
                 </div>
-                <div className="card" style={{ padding: 'var(--space-3)', textAlign: 'center' }}>
-                    <div style={{ fontSize: '2rem' }}>📦</div>
-                    <div className="text-2xl font-bold">{stats.total}</div>
-                    <div className="text-sm text-gray">Total Siembras</div>
+                <div className="myseedling-stat-card">
+                    <div className="myseedling-stat-card__icon">📦</div>
+                    <div className="myseedling-stat-card__value text-2xl font-bold">{stats.total}</div>
+                    <div className="myseedling-stat-card__label text-sm text-gray">Total Siembras</div>
                 </div>
             </div>
 
             {/* Filters & Actions */}
-            <div className="card" style={{ marginBottom: 'var(--space-4)', padding: 'var(--space-3)' }}>
-                <div style={{ display: 'flex', gap: 'var(--space-3)', flexWrap: 'wrap', alignItems: 'center' }}>
+            <div className="myseedling-filters card">
+                <div className="myseedling-filters__content">
                     {/* Search */}
-                    <div style={{ flex: '1', minWidth: '250px' }}>
+                    <div className="myseedling-filters__search">
                         <input
                             type="text"
                             placeholder="Buscar en semillero..."
@@ -141,10 +135,9 @@ export function MySeedling() {
 
                     {/* Status Filter */}
                     <select
-                        className="input"
+                        className="myseedling-filters__select input"
                         value={filters.status}
                         onChange={(e) => setFilters({ ...filters, status: e.target.value })}
-                        style={{ minWidth: '150px' }}
                     >
                         <option value="all">Todos</option>
                         <option value="germinating">Germinando</option>
@@ -153,7 +146,7 @@ export function MySeedling() {
                     </select>
 
                     {/* Add Button */}
-                    <Link to="/inventory" className="btn btn-primary">
+                    <Link to="/inventory" className="myseedling-filters__add-btn btn btn-primary">
                         + Sembrar desde Inventario
                     </Link>
                 </div>
@@ -161,67 +154,67 @@ export function MySeedling() {
 
             {/* Content */}
             {seedlings.length === 0 ? (
-                <div className="card" style={{ padding: 'var(--space-6)', textAlign: 'center' }}>
-                    <div style={{ fontSize: '4rem', marginBottom: 'var(--space-3)' }}>🌱</div>
-                    <h2 className="text-xl font-semibold" style={{ marginBottom: 'var(--space-2)' }}>
+                <div className="myseedling-empty card">
+                    <div className="myseedling-empty__icon">🌱</div>
+                    <h2 className="myseedling-empty__title text-xl font-semibold">
                         Tu semillero está vacío
                     </h2>
-                    <p className="text-gray" style={{ marginBottom: 'var(--space-4)' }}>
+                    <p className="myseedling-empty__description text-gray">
                         Ve a tu inventario y selecciona semillas para empezar a sembrar.
                         Podrás hacer seguimiento desde la germinación hasta el trasplante.
                     </p>
-                    <Link to="/inventory" className="btn btn-primary">
+                    <Link to="/inventory" className="myseedling-empty__action btn btn-primary">
                         Ir al Inventario
                     </Link>
                 </div>
             ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3" style={{ gap: 'var(--space-3)' }}>
+                <div className="myseedling-grid">
                     {seedlings.map(seedling => (
-                        <div key={seedling.id} className="card" style={{ padding: 'var(--space-3)' }}>
+                        <div key={seedling.id} className="myseedling-card card">
                             {/* Header con estado */}
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: 'var(--space-2)' }}>
-                                <h3 className="font-semibold" style={{ flex: 1 }}>{seedling.nombre_plantacion}</h3>
+                            <div className="myseedling-card__header">
+                                <h3 className="myseedling-card__title font-semibold">{seedling.nombre_plantacion}</h3>
                                 {getStatusBadge(seedling.estado)}
                             </div>
 
                             {/* Información de especie/variedad */}
-                            <div style={{ marginBottom: 'var(--space-3)' }}>
-                                <div className="text-sm" style={{ color: 'var(--primary)' }}>
+                            <div className="myseedling-card__info">
+                                <div className="myseedling-card__species text-sm">
                                     {seedling.especie_nombre}
                                 </div>
                                 {seedling.variedad_nombre && (
-                                    <div className="text-sm text-gray">
+                                    <div className="myseedling-card__variety text-sm text-gray">
                                         Variedad: {seedling.variedad_nombre}
                                     </div>
                                 )}
                             </div>
 
                             {/* Detalles */}
-                            <div style={{ fontSize: '0.875rem', marginBottom: 'var(--space-3)' }}>
-                                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 'var(--space-1)' }}>
+                            <div className="myseedling-card__details">
+                                <div className="myseedling-card__detail-row">
                                     <span className="text-gray">Sembrado:</span>
                                     <span className="font-medium">{formatDate(seedling.fecha_siembra)}</span>
                                 </div>
                                 {seedling.fecha_germinacion && (
-                                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 'var(--space-1)' }}>
+                                    <div className="myseedling-card__detail-row">
                                         <span className="text-gray">Germinó:</span>
                                         <span className="font-medium">{formatDate(seedling.fecha_germinacion)}</span>
                                     </div>
                                 )}
                                 {seedling.cantidad_semillas_plantadas && (
-                                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 'var(--space-1)' }}>
+                                    <div className="myseedling-card__detail-row">
                                         <span className="text-gray">Cantidad:</span>
                                         <span className="font-medium">{seedling.cantidad_semillas_plantadas} semillas</span>
                                     </div>
                                 )}
                                 {seedling.dias_desde_siembra !== null && (
-                                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 'var(--space-1)' }}>
+                                    <div className="myseedling-card__detail-row">
                                         <span className="text-gray">Días transcurridos:</span>
                                         <span className="font-medium">{seedling.dias_desde_siembra} días</span>
                                     </div>
                                 )}
                                 {seedling.ubicacion_descripcion && (
-                                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                                    <div className="myseedling-card__detail-row">
                                         <span className="text-gray">Ubicación:</span>
                                         <span className="font-medium">{seedling.ubicacion_descripcion}</span>
                                     </div>
@@ -230,17 +223,16 @@ export function MySeedling() {
 
                             {/* Notas */}
                             {seedling.notas && (
-                                <div style={{ fontSize: '0.875rem', marginBottom: 'var(--space-3)', color: 'var(--text-secondary)', fontStyle: 'italic' }}>
+                                <div className="myseedling-card__notes">
                                     {seedling.notas}
                                 </div>
                             )}
 
                             {/* Actions */}
-                            <div style={{ display: 'flex', gap: 'var(--space-2)', marginTop: 'auto' }}>
+                            <div className="myseedling-card__actions">
                                 <Link 
                                     to={`/my-seedling/${seedling.id}`}
-                                    className="btn btn-secondary"
-                                    style={{ flex: 1, textAlign: 'center', fontSize: '0.875rem' }}
+                                    className="myseedling-card__action-btn btn btn-secondary"
                                 >
                                     Ver detalles
                                 </Link>
@@ -251,11 +243,11 @@ export function MySeedling() {
             )}
 
             {/* Tips Card */}
-            <div className="card" style={{ marginTop: 'var(--space-4)', padding: 'var(--space-4)', background: 'linear-gradient(135deg, #11998e 0%, #38ef7d 100%)', color: 'white' }}>
-                <h3 className="font-semibold" style={{ marginBottom: 'var(--space-2)' }}>
+            <div className="myseedling-tips-card card">
+                <h3 className="myseedling-tips-card__title font-semibold">
                     💡 Consejos para tu semillero
                 </h3>
-                <ul style={{ listStyle: 'none', padding: 0, display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: 'var(--space-2)' }}>
+                <ul className="myseedling-tips-card__list">
                     <li>🌡️ Mantén temperatura constante (18-25°C)</li>
                     <li>💧 Riega con pulverizador al inicio</li>
                     <li>☀️ Luz indirecta hasta germinar</li>

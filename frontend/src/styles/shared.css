@@ -1,0 +1,366 @@
+/**
+ * LORAPP - Shared Component Styles
+ * Componentes reutilizables y estilos modulares profesionales
+ */
+
+/* ========== ESTRUCTURA BASE ========== */
+.shared-container {
+    padding: var(--space-3);
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.shared-section {
+    margin-bottom: var(--space-4);
+}
+
+/* ========== CARD COMPONENTE ========== */
+.shared-card {
+    background: var(--card-background);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    padding: var(--space-3);
+    box-shadow: var(--shadow-sm);
+    transition: all var(--transition-base);
+}
+
+.shared-card:hover {
+    box-shadow: var(--shadow-md);
+    border-color: var(--color-primary);
+}
+
+.shared-card--gradient {
+    background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-success) 100%);
+    color: white;
+    border: none;
+}
+
+.shared-card--no-padding {
+    padding: 0;
+}
+
+/* ========== HEADER COMPARTIDO ========== */
+.shared-header {
+    margin-bottom: var(--space-3);
+}
+
+.shared-header__title {
+    font-size: clamp(1.5rem, 5vw, 2rem);
+    margin: 0 0 var(--space-2) 0;
+    color: var(--text-primary);
+    font-weight: 700;
+}
+
+.shared-header__subtitle {
+    font-size: clamp(0.875rem, 3vw, 1rem);
+    color: var(--text-gray);
+    margin: 0;
+}
+
+/* ========== TABLA COMPARTIDA ========== */
+.shared-table {
+    background: var(--card-background);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    border: 1px solid var(--border-color);
+}
+
+.shared-table__header {
+    display: grid;
+    padding: var(--space-2);
+    background: var(--color-primary);
+    color: white;
+    font-weight: 600;
+    font-size: clamp(0.75rem, 2vw, 0.875rem);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    gap: var(--space-2);
+    align-items: center;
+}
+
+.shared-table__header-cell {
+    cursor: pointer;
+    padding: var(--space-1);
+    border-radius: var(--radius-md);
+    transition: background var(--transition-fast);
+    user-select: none;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    white-space: nowrap;
+}
+
+.shared-table__header-cell:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.shared-table__body {
+    max-height: 60vh;
+    overflow-y: auto;
+}
+
+.shared-table__row {
+    display: grid;
+    padding: var(--space-2);
+    border-bottom: 1px solid var(--border-color);
+    gap: var(--space-2);
+    align-items: center;
+    font-size: clamp(0.75rem, 2.5vw, 0.875rem);
+    cursor: pointer;
+    transition: background var(--transition-fast);
+}
+
+.shared-table__row:hover {
+    background: var(--border-color);
+}
+
+.shared-table__row:nth-child(even) {
+    background: var(--background);
+}
+
+.shared-table__cell {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.shared-table__cell--text-center {
+    text-align: center;
+}
+
+/* ========== MODAL COMPARTIDO ========== */
+.shared-modal__overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2000;
+    padding: var(--space-3);
+}
+
+.shared-modal__content {
+    background: var(--card-background);
+    padding: var(--space-4);
+    border-radius: var(--radius-lg);
+    max-width: 500px;
+    width: 100%;
+    box-shadow: var(--shadow-xl);
+}
+
+.shared-modal__header {
+    margin: 0 0 var(--space-3) 0;
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.shared-modal__body {
+    margin-bottom: var(--space-3);
+}
+
+.shared-modal__footer {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-2);
+    margin-top: var(--space-3);
+}
+
+/* ========== BOTÓN COMPARTIDO ========== */
+.shared-btn {
+    padding: var(--space-2) var(--space-4);
+    border: none;
+    border-radius: var(--radius-lg);
+    cursor: pointer;
+    font-size: 0.95rem;
+    font-weight: 600;
+    transition: all var(--transition-base);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-2);
+    white-space: nowrap;
+}
+
+.shared-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.shared-btn--primary {
+    background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-success) 100%);
+    color: white;
+}
+
+.shared-btn--primary:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+}
+
+.shared-btn--secondary {
+    background: transparent;
+    color: var(--text-primary);
+    border: 2px solid var(--border-color);
+}
+
+.shared-btn--secondary:hover:not(:disabled) {
+    background: var(--border-color);
+}
+
+.shared-btn--small {
+    padding: var(--space-1) var(--space-2);
+    font-size: 0.85rem;
+}
+
+/* ========== BÚSQUEDA ========== */
+.shared-search {
+    display: flex;
+    gap: var(--space-2);
+    margin-bottom: var(--space-2);
+}
+
+.shared-search__input {
+    flex: 1;
+    padding: var(--space-2);
+    font-size: clamp(0.875rem, 3vw, 1rem);
+    border: 2px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    background: var(--card-background);
+    color: var(--text-primary);
+    transition: border-color var(--transition-fast);
+}
+
+.shared-search__input:focus {
+    outline: none;
+    border-color: var(--color-primary);
+}
+
+/* ========== CHECKBOX ========== */
+.shared-checkbox {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+    accent-color: var(--color-primary);
+}
+
+.shared-checkbox:disabled {
+    cursor: default;
+    opacity: 0.6;
+}
+
+/* ========== ESTADÍSTICAS ========== */
+.shared-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: var(--space-3);
+    margin-bottom: var(--space-4);
+}
+
+.shared-stat-card {
+    background: var(--card-background);
+    padding: var(--space-3);
+    border-radius: var(--radius-lg);
+    text-align: center;
+    border: 1px solid var(--border-color);
+}
+
+.shared-stat-card__icon {
+    font-size: 2rem;
+    margin-bottom: var(--space-2);
+}
+
+.shared-stat-card__value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--color-primary);
+    margin: 0;
+}
+
+.shared-stat-card__label {
+    font-size: 0.875rem;
+    color: var(--text-gray);
+    margin: var(--space-1) 0 0 0;
+}
+
+/* ========== DETALLE EXPANDIBLE ========== */
+.shared-detail {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: var(--space-3);
+    padding: var(--space-3);
+    background: var(--background);
+    border-radius: var(--radius-lg);
+    margin-top: var(--space-2);
+}
+
+.shared-detail__item {
+    grid-column: 1 / -1;
+}
+
+.shared-detail__label {
+    display: block;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text-gray);
+    margin-bottom: var(--space-1);
+    text-transform: uppercase;
+    letter-spacing: 0.025em;
+}
+
+.shared-detail__value {
+    font-size: 0.95rem;
+    color: var(--text-primary);
+    margin: 0;
+    line-height: 1.6;
+}
+
+/* ========== FAB (Floating Action Button) ========== */
+.shared-fab {
+    position: fixed;
+    bottom: 80px;
+    right: var(--space-4);
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-success) 100%);
+    color: white;
+    border: none;
+    font-size: 2rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: var(--shadow-lg);
+    transition: all var(--transition-base);
+    z-index: 999;
+}
+
+.shared-fab:hover {
+    transform: scale(1.15);
+    box-shadow: var(--shadow-xl);
+}
+
+/* ========== RESPONSIVE ========== */
+@media (max-width: 768px) {
+    .shared-container {
+        padding: var(--space-2);
+    }
+    
+    .shared-table__header,
+    .shared-table__row {
+        gap: var(--space-1);
+    }
+    
+    .shared-modal__footer {
+        grid-template-columns: 1fr;
+    }
+    
+    .shared-detail {
+        grid-template-columns: 1fr;
+    }
+}

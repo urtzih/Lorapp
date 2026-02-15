@@ -1,0 +1,122 @@
+/**
+ * LORAPP - SeedDetail Screen Styles
+ * Estilos para la pantalla de detalles de semilla
+ */
+
+.seeddetail-container {
+    padding: var(--space-4);
+    max-width: 900px;
+    margin: 0 auto;
+    padding-bottom: 100px;
+}
+
+.seeddetail-loading {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 50vh;
+}
+
+/* Header */
+.seeddetail-header {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    margin-bottom: var(--space-4);
+}
+
+.seeddetail-header__back {
+    min-width: unset;
+    padding: var(--space-2);
+}
+
+.seeddetail-header__title {
+    margin: 0;
+    font-size: clamp(1.25rem, 5vw, 1.75rem);
+}
+
+/* Image Gallery */
+.seeddetail-gallery {
+    margin-bottom: var(--space-4);
+}
+
+.seeddetail-gallery__main {
+    width: 100%;
+    aspect-ratio: 4/3;
+    object-fit: cover;
+    border-radius: var(--radius-lg);
+    margin-bottom: var(--space-2);
+}
+
+.seeddetail-gallery__thumbnails {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+    gap: var(--space-2);
+}
+
+.seeddetail-gallery__thumb {
+    aspect-ratio: 1;
+    object-fit: cover;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: all var(--transition-base);
+}
+
+.seeddetail-gallery__thumb:hover {
+    transform: scale(1.05);
+}
+
+/* Info Sections */
+.seeddetail-section {
+    margin-bottom: var(--space-4);
+}
+
+.seeddetail-section__title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: var(--space-3);
+    padding-bottom: var(--space-2);
+    border-bottom: 2px solid var(--border-color);
+}
+
+.seeddetail-info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: var(--space-3);
+}
+
+.seeddetail-info-item {
+    padding: var(--space-2);
+}
+
+.seeddetail-info-item__label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text-gray);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: var(--space-1);
+}
+
+.seeddetail-info-item__value {
+    font-size: 1rem;
+    color: var(--text-primary);
+}
+
+/* Actions */
+.seeddetail-actions {
+    display: flex;
+    gap: var(--space-2);
+    flex-wrap: wrap;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .seeddetail-container {
+        padding: var(--space-2);
+    }
+    
+    .seeddetail-info-grid {
+        grid-template-columns: 1fr;
+    }
+}

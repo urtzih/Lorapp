@@ -9,7 +9,7 @@ export function Layout({ children }) {
         { path: '/my-garden', label: 'Mi Huerta', icon: 'garden' },
         { path: '/my-seedling', label: 'Mi Semillero', icon: 'seedling' },
         { path: '/inventory', label: 'Inventario', icon: 'inventory' },
-        { path: '/planting', label: 'Guía SFG', icon: 'planting' },
+        { path: '/sfg', label: 'Guía SFG', icon: 'planting' },
         { path: '/calendar', label: 'Calendario', icon: 'calendar' },
         { path: '/settings', label: 'Ajustes', icon: 'settings' }
     ];

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { seedsAPI } from '../services/api';
 import { useAuth } from '../context/AuthContext';
+import '../styles/Inventory.css';
 
 export function Inventory() {
     const [seeds, setSeeds] = useState([]);
@@ -149,7 +150,7 @@ export function Inventory() {
         const mesesSiembra = getMesesSiembra();
         
         return (
-            <Link to={`/seeds/${seed.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+            <Link to={`/seeds/${seed.id}`} className="inventory-seed-card">
                 <div className="card seed-card">
                     {/* Image Container */}
                     <div className="seed-image-container">
@@ -193,7 +194,7 @@ export function Inventory() {
                             )}
                         </div>
 
-                        <div style={{ marginTop: 'var(--space-3)', fontSize: '0.85rem', color: 'var(--color-gray-600)' }}>
+                        <div className="inventory-seed-details">
                             {mesesSiembra && (
                                 <div>🌱 Siembra: {mesesSiembra}</div>
                             )}
@@ -232,19 +233,19 @@ export function Inventory() {
         const mesesSiembra = getMesesSiembra();
         
         return (
-            <Link to={`/seeds/${seed.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
-                <div className="card" style={{ padding: 'var(--space-3)', marginBottom: 'var(--space-2)' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <div style={{ flex: 1 }}>
-                            <h4 style={{ margin: 0, marginBottom: 'var(--space-1)', fontSize: '1rem' }}>
+            <Link to={`/seeds/${seed.id}`} className="inventory-seed-list-item">
+                <div className="card inventory-seed-list-item__card">
+                    <div className="inventory-seed-list-item__content">
+                        <div className="inventory-seed-list-item__info">
+                            <h4 className="inventory-seed-list-item__title">
                                 {seed.nombre_comercial}
                             </h4>
                             {seed.variedad && (
-                                <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--color-gray-600)' }}>
+                                <p className="inventory-seed-list-item__variety">
                                     {seed.variedad.nombre_variedad}
                                 </p>
                             )}
-                            <div style={{ display: 'flex', gap: 'var(--space-2)', marginTop: 'var(--space-2)', flexWrap: 'wrap', fontSize: '0.8rem' }}>
+                            <div className="inventory-seed-list-item__tags">
                                 {seed.marca && <span>🏷️ {seed.marca}</span>}
                                 {seed.variedad?.especie?.familia_botanica && <span>🌿 {seed.variedad.especie.familia_botanica}</span>}
                                 {mesesSiembra && <span>🌱 {mesesSiembra}</span>}
@@ -260,31 +261,29 @@ export function Inventory() {
     };
 
     return (
-        <div className="container section" style={{ padding: 'var(--space-4)', paddingBottom: '150px' }}>
+        <div className="container section inventory-container">
             {/* Header Section */}
-            <h1 style={{ margin: 0, marginBottom: 'var(--space-2)' }}>Mi Inventario</h1>
-            <div className="flex justify-between items-center" style={{ marginBottom: 'var(--space-6)' }}>
+            <h1 className="inventory-header__title">Mi Inventario</h1>
+            <div className="inventory-header__controls">
                 <div>
-                    <p className="text-gray text-sm" style={{ margin: 0 }}>
+                    <p className="inventory-header__stats">
                         {seeds.length} semilla{seeds.length !== 1 ? 's' : ''} registrada{seeds.length !== 1 ? 's' : ''}
                     </p>
                 </div>
-                <div style={{ display: 'flex', gap: 'var(--space-2)', alignItems: 'center' }}>
+                <div className="inventory-header__actions">
                     {/* View Mode Toggle */}
                     {seeds.length > 0 && (
-                        <div style={{ display: 'flex', gap: 'var(--space-1)', backgroundColor: 'var(--color-gray-200)', borderRadius: 'var(--radius-md)', padding: '4px' }}>
+                        <div className="inventory-view-toggle">
                             <button 
                                 onClick={() => setViewMode('grid')}
-                                className={viewMode === 'grid' ? 'btn btn-primary btn-sm' : 'btn btn-secondary btn-sm'}
-                                style={{ padding: '6px 12px', minHeight: 'unset' }}
+                                className={`inventory-view-toggle__btn btn ${viewMode === 'grid' ? 'btn-primary' : 'btn-secondary'} btn-sm`}
                                 title="Vista cuadrícula"
                             >
                                 ⊞
                             </button>
                             <button 
                                 onClick={() => setViewMode('list')}
-                                className={viewMode === 'list' ? 'btn btn-primary btn-sm' : 'btn btn-secondary btn-sm'}
-                                style={{ padding: '6px 12px', minHeight: 'unset' }}
+                                className={`inventory-view-toggle__btn btn ${viewMode === 'list' ? 'btn-primary' : 'btn-secondary'} btn-sm`}
                                 title="Vista lista"
                             >
                                 ≡
@@ -296,89 +295,47 @@ export function Inventory() {
 
             {/* Filters Section */}
             {seeds.length > 0 && (
-                <div className="filters-panel" style={{ 
-                    backgroundColor: '#f9fafb',
-                    borderRadius: 'var(--radius-lg)',
-                    marginBottom: 'var(--space-6)',
-                    border: '1px solid #e5e7eb',
-                    overflow: 'hidden'
-                }}>
+                <div className="inventory-filters">
                     {/* Filters Header */}
                     <button
                         onClick={() => setFiltersExpanded(!filtersExpanded)}
-                        className="filters-header"
-                        style={{
-                            width: '100%',
-                            display: 'flex',
-                            justifyContent: 'space-between',
-                            alignItems: 'center',
-                            padding: 'var(--space-4)',
-                            backgroundColor: 'transparent',
-                            border: 'none',
-                            cursor: 'pointer',
-                            fontSize: '1rem',
-                            fontWeight: '600',
-                            color: 'var(--color-gray-800)',
-                            transition: 'background-color 0.2s'
-                        }}
-                        onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f3f4f6'}
-                        onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+                        className="inventory-filters__toggle"
                     >
-                        <span style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
+                        <span className="inventory-filters__toggle-text">
                             🔍 Filtros
                             {(filters.search || filters.especie || filters.familia || filters.brand || filters.origen || filters.is_planted !== null) && (
-                                <span className="badge badge-primary" style={{ fontSize: '0.75rem' }}>
+                                <span className="inventory-filters__toggle-count badge badge-primary">
                                     activos
                                 </span>
                             )}
                         </span>
-                        <span style={{ 
-                            fontSize: '1.2rem',
-                            transform: filtersExpanded ? 'rotate(180deg)' : 'rotate(0deg)',
-                            transition: 'transform 0.3s ease'
-                        }}>
+                        <span className={`inventory-filters__toggle-icon ${filtersExpanded ? 'inventory-filters__toggle-icon--expanded' : ''}`}>
                             ▼
                         </span>
                     </button>
 
                     {/* Filters Content */}
-                    <div 
-                        className="filters-content"
-                        style={{
-                            maxHeight: filtersExpanded ? '1000px' : '0',
-                            opacity: filtersExpanded ? '1' : '0',
-                            transition: 'max-height 0.3s ease, opacity 0.3s ease, padding 0.3s ease',
-                            padding: filtersExpanded ? 'var(--space-4)' : '0 var(--space-4)',
-                            paddingTop: filtersExpanded ? '0' : '0',
-                            overflow: 'hidden'
-                        }}
-                    >
-                        <div style={{ 
-                            display: 'grid', 
-                            gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', 
-                            gap: 'var(--space-3)'
-                        }}>
-                        <div className="filter-group">
-                            <label className="form-label" htmlFor="filter-search" style={{ fontSize: '0.85rem', fontWeight: '600' }}>🔍 Buscar</label>
+                    {filtersExpanded && (
+                        <div className="inventory-filters__content">
+                        <div className="inventory-filters__group">
+                            <label className="inventory-filters__label form-label" htmlFor="filter-search">🔍 Buscar</label>
                             <input
                                 type="text"
-                                className="input"
+                                className="input inventory-filters__input"
                                 id="filter-search"
                                 placeholder="Nombre o marca..."
                                 value={filters.search}
                                 onChange={(e) => setFilters({ ...filters, search: e.target.value })}
-                                style={{ fontSize: '0.9rem' }}
                             />
                         </div>
 
-                        <div className="filter-group">
-                            <label className="form-label" htmlFor="filter-especie" style={{ fontSize: '0.85rem', fontWeight: '600' }}>🌱 Especie</label>
+                        <div className="inventory-filters__group">
+                            <label className="inventory-filters__label form-label" htmlFor="filter-especie">🌱 Especie</label>
                             <select
-                                className="input"
+                                className="input inventory-filters__input"
                                 id="filter-especie"
                                 value={filters.especie}
                                 onChange={(e) => setFilters({ ...filters, especie: e.target.value })}
-                                style={{ fontSize: '0.9rem' }}
                             >
                                 <option value="">Todas las especies</option>
                                 {getUniqueSpecies().map(species => (
@@ -387,14 +344,13 @@ export function Inventory() {
                             </select>
                         </div>
 
-                        <div className="filter-group">
-                            <label className="form-label" htmlFor="filter-familia" style={{ fontSize: '0.85rem', fontWeight: '600' }}>🌿 Familia Botánica</label>
+                        <div className="inventory-filters__group">
+                            <label className="inventory-filters__label form-label" htmlFor="filter-familia">🌿 Familia Botánica</label>
                             <select
-                                className="input"
+                                className="input inventory-filters__input"
                                 id="filter-familia"
                                 value={filters.familia}
                                 onChange={(e) => setFilters({ ...filters, familia: e.target.value })}
-                                style={{ fontSize: '0.9rem' }}
                             >
                                 <option value="">Todas las familias</option>
                                 {getUniqueFamilies().map(family => (
@@ -403,14 +359,13 @@ export function Inventory() {
                             </select>
                         </div>
                         
-                        <div className="filter-group">
-                            <label className="form-label" htmlFor="filter-estado" style={{ fontSize: '0.85rem', fontWeight: '600' }}>🌾 Estado</label>
+                        <div className="inventory-filters__group">
+                            <label className="inventory-filters__label form-label" htmlFor="filter-estado">🌾 Estado</label>
                             <select
-                                className="input"
+                                className="input inventory-filters__input"
                                 id="filter-estado"
                                 value={filters.is_planted || ''}
                                 onChange={(e) => setFilters({ ...filters, is_planted: e.target.value ? e.target.value === 'true' : null })}
-                                style={{ fontSize: '0.9rem' }}
                             >
                                 <option value="">Todas las semillas</option>
                                 <option value="false">Sin plantar</option>
@@ -418,14 +373,13 @@ export function Inventory() {
                             </select>
                         </div>
 
-                        <div className="filter-group">
-                            <label className="form-label" htmlFor="filter-origen" style={{ fontSize: '0.85rem', fontWeight: '600' }}>🏠 Origen del Lote</label>
+                        <div className="inventory-filters__group">
+                            <label className="inventory-filters__label form-label" htmlFor="filter-origen">🏠 Origen del Lote</label>
                             <select
-                                className="input"
+                                className="input inventory-filters__input"
                                 id="filter-origen"
                                 value={filters.origen}
                                 onChange={(e) => setFilters({ ...filters, origen: e.target.value })}
-                                style={{ fontSize: '0.9rem' }}
                             >
                                 <option value="">Todos los orígenes</option>
                                 {getUniqueOrig().map(origen => (
@@ -436,68 +390,58 @@ export function Inventory() {
 
                         {/* Botón para limpiar filtros */}
                         {(filters.search || filters.especie || filters.familia || filters.brand || filters.origen || filters.is_planted !== null) && (
-                            <div style={{ marginTop: 'var(--space-3)', textAlign: 'center', gridColumn: '1 / -1' }}>
+                            <div className="inventory-filters__clear">
                                 <button 
                                     onClick={() => setFilters({ search: '', especie: '', familia: '', brand: '', origen: '', is_planted: null })}
-                                    className="btn btn-secondary btn-sm"
-                                    style={{ fontSize: '0.85rem' }}
+                                    className="inventory-filters__clear-btn btn btn-secondary btn-sm"
                                 >
                                     ✖ Limpiar filtros
                                 </button>
                             </div>
                         )}
                         </div>
-                    </div>
+                    )}
                 </div>
             )}
 
             {/* Loading State */}
             {loading ? (
-                <div className="flex justify-center items-center" style={{ height: '300px' }}>
+                <div className="inventory-loading">
                     <div className="spinner"></div>
                 </div>
             ) : seeds.length === 0 ? (
                 /* Empty State - Sin semillas en total */
-                <div className="empty-state">
-                    <div className="empty-state-icon">🌱</div>
-                    <h2>No tienes semillas aún</h2>
-                    <p className="text-gray">Comienza escaneando tu primer sobre de semillas</p>
+                <div className="inventory-empty empty-state">
+                    <div className="inventory-empty__icon empty-state-icon">🌱</div>
+                    <h2 className="inventory-empty__title">No tienes semillas aún</h2>
+                    <p className="inventory-empty__description text-gray">Comienza escaneando tu primer sobre de semillas</p>
                     <button 
                         onClick={() => navigate('/scan')} 
-                        className="btn btn-primary btn-lg"
-                        style={{ marginTop: 'var(--space-6)' }}
+                        className="inventory-empty__action btn btn-primary btn-lg"
                     >
                         📸 Escanear primera semilla
                     </button>
                 </div>
             ) : Object.keys(groupSeedsBySpecies()).length === 0 ? (
                 /* Empty State - Con filtros activos pero sin resultados */
-                <div className="empty-state">
-                    <div className="empty-state-icon">🔍</div>
-                    <h2>No se encontraron semillas</h2>
-                    <p className="text-gray">Intenta ajustar los filtros de búsqueda</p>
+                <div className="inventory-empty empty-state">
+                    <div className="inventory-empty__icon empty-state-icon">🔍</div>
+                    <h2 className="inventory-empty__title">No se encontraron semillas</h2>
+                    <p className="inventory-empty__description text-gray">Intenta ajustar los filtros de búsqueda</p>
                     <button 
                         onClick={() => setFilters({ search: '', especie: '', familia: '', brand: '', is_planted: null })}
-                        className="btn btn-secondary"
-                        style={{ marginTop: 'var(--space-4)' }}
+                        className="inventory-empty__action btn btn-secondary"
                     >
                         ✖ Limpiar filtros
                     </button>
                 </div>
             ) : viewMode === 'grid' ? (
                 /* Seeds Grid - Grouped by Species */
-                <div style={{ marginBottom: 'var(--space-8)' }}>
+                <div className="inventory-species-group">
                     {Object.entries(groupSeedsBySpecies()).map(([speciesName, speciesSeeds]) => (
-                        <div key={speciesName} style={{ marginBottom: 'var(--space-8)' }}>
-                            <h3 style={{ 
-                                fontSize: '1.5rem', 
-                                fontWeight: '600', 
-                                marginBottom: 'var(--space-4)',
-                                color: 'var(--color-primary)',
-                                borderBottom: '2px solid var(--color-primary)',
-                                paddingBottom: 'var(--space-2)'
-                            }}>
-                                {speciesName} <span style={{ fontSize: '0.9rem', color: 'var(--color-text-secondary)' }}>({speciesSeeds.length} {speciesSeeds.length === 1 ? 'variedad' : 'variedades'})</span>
+                        <div key={speciesName} className="inventory-species-group__section">
+                            <h3 className="inventory-species-header">
+                                {speciesName} <span className="inventory-species-header__count">({speciesSeeds.length} {speciesSeeds.length === 1 ? 'variedad' : 'variedades'})</span>
                             </h3>
                             <div className="grid grid-cols-3 mb-8 inventory-grid">
                                 {speciesSeeds.map(seed => (
@@ -509,18 +453,11 @@ export function Inventory() {
                 </div>
             ) : (
                 /* Seeds List - Grouped by Species */
-                <div style={{ marginBottom: 'var(--space-8)' }}>
+                <div className="inventory-species-group">
                     {Object.entries(groupSeedsBySpecies()).map(([speciesName, speciesSeeds]) => (
-                        <div key={speciesName} style={{ marginBottom: 'var(--space-6)' }}>
-                            <h3 style={{ 
-                                fontSize: '1.5rem', 
-                                fontWeight: '600', 
-                                marginBottom: 'var(--space-4)',
-                                color: 'var(--color-primary)',
-                                borderBottom: '2px solid var(--color-primary)',
-                                paddingBottom: 'var(--space-2)'
-                            }}>
-                                {speciesName} <span style={{ fontSize: '0.9rem', color: 'var(--color-text-secondary)' }}>({speciesSeeds.length} {speciesSeeds.length === 1 ? 'variedad' : 'variedades'})</span>
+                        <div key={speciesName} className="inventory-species-group__section">
+                            <h3 className="inventory-species-header">
+                                {speciesName} <span className="inventory-species-header__count">({speciesSeeds.length} {speciesSeeds.length === 1 ? 'variedad' : 'variedades'})</span>
                             </h3>
                             {speciesSeeds.map(seed => (
                                 <SeedListItem key={seed.id} seed={seed} />

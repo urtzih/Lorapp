@@ -1,0 +1,525 @@
+/**
+ * LORAPP - SFG Screen Styles
+ * Estilos específicos para la pantalla Square Foot Gardening
+ * Complementa shared.css con funcionalidades SFG
+ */
+
+.sfg-container {
+    padding: var(--space-3);
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.sfg-header {
+    margin-bottom: var(--space-3);
+}
+
+.sfg-header__title {
+    font-size: clamp(1.5rem, 5vw, 2rem);
+    margin: 0 0 var(--space-2) 0;
+    color: var(--text-primary);
+    font-weight: 700;
+}
+
+.sfg-header__subtitle {
+    font-size: clamp(0.875rem, 3vw, 1rem);
+    color: var(--text-gray);
+    margin: 0 0 var(--space-2) 0;
+}
+
+.sfg-header__stats {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-2);
+    background: var(--background);
+    border-radius: var(--radius-md);
+    border: 2px solid var(--color-primary);
+    margin-top: var(--space-2);
+}
+
+.sfg-header__stats-label {
+    font-size: 0.875rem;
+    color: var(--text-gray);
+    font-weight: 500;
+}
+
+.sfg-header__stats-value {
+    font-size: 1.25rem;
+    color: var(--color-primary);
+    font-weight: 700;
+}
+
+/* Info Box */
+.sfg-info-box {
+    margin-bottom: var(--space-3);
+    padding: var(--space-3);
+    background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-success) 100%);
+    color: white;
+    border-radius: var(--radius-lg);
+}
+
+.sfg-info-box__title {
+    margin: 0 0 var(--space-2) 0;
+    font-size: clamp(1rem, 4vw, 1.25rem);
+}
+
+.sfg-info-box__text {
+    margin: 0;
+    line-height: 1.5;
+    opacity: 0.95;
+    font-size: clamp(0.875rem, 3vw, 1rem);
+}
+
+/* Search Container */
+.sfg-search-container {
+    margin-bottom: var(--space-3);
+}
+
+.sfg-search-container__input {
+    flex: 1;
+    padding: var(--space-2);
+    font-size: clamp(0.875rem, 3vw, 1rem);
+    border: 2px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    background: var(--card-background);
+    color: var(--text-primary);
+}
+
+.sfg-search-container__input:focus {
+    outline: none;
+    border-color: var(--color-primary);
+}
+
+.sfg-search-container__results {
+    font-size: 0.875rem;
+    color: var(--text-gray);
+    padding-left: var(--space-2);
+}
+
+/* Empty State */
+.sfg-empty-state {
+    text-align: center;
+    padding: var(--space-6);
+    background: var(--card-background);
+}
+
+.sfg-empty-state__icon {
+    font-size: 3rem;
+    margin-bottom: var(--space-3);
+}
+
+.sfg-empty-state__title {
+    font-size: clamp(1rem, 4vw, 1.25rem);
+}
+
+.sfg-empty-state__message {
+    margin-top: var(--space-2);
+    font-size: 0.875rem;
+}
+
+/* Table Específica */
+.sfg-table {
+    background: var(--card-background);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    border: 1px solid var(--border-color);
+}
+
+.sfg-table__header {
+    display: grid;
+    grid-template-columns: 0.5fr 2fr 1fr 1fr 1fr;
+    gap: var(--space-2);
+    padding: var(--space-2);
+    background: var(--color-primary);
+    color: white;
+    font-weight: 600;
+    font-size: clamp(0.75rem, 2vw, 0.875rem);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    align-items: center;
+}
+
+.sfg-table__header-cell {
+    cursor: pointer;
+    padding: var(--space-1);
+    border-radius: var(--radius-md);
+    transition: background var(--transition-fast);
+    user-select: none;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.sfg-table__header-cell:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.sfg-table__body {
+    max-height: 60vh;
+    overflow-y: auto;
+}
+
+.sfg-table__row {
+    display: grid;
+    grid-template-columns: 0.5fr 2fr 1fr 1fr 1fr;
+    gap: var(--space-2);
+    padding: var(--space-2);
+    border-bottom: 1px solid var(--border-color);
+    align-items: center;
+    font-size: clamp(0.75rem, 2.5vw, 0.875rem);
+    cursor: pointer;
+    transition: background var(--transition-fast);
+}
+
+.sfg-table__row:hover {
+    background: var(--border-color);
+}
+
+.sfg-table__row:nth-child(even) {
+    background: var(--background);
+}
+
+/* Expanded Details */
+.sfg-details {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: var(--space-3);
+    padding: var(--space-3);
+    background: var(--background);
+    border-radius: var(--radius-lg);
+    margin-top: var(--space-2);
+}
+
+.sfg-details__item {
+    grid-column: 1 / -1;
+}
+
+.sfg-details__label {
+    display: block;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text-gray);
+    margin-bottom: var(--space-1);
+    text-transform: uppercase;
+    letter-spacing: 0.025em;
+}
+
+.sfg-details__value {
+    font-size: 0.95rem;
+    color: var(--text-primary);
+    margin: 0;
+    line-height: 1.6;
+}
+
+/* SFG Data Grid */
+.sfg-details__sfg-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--space-2);
+}
+
+.sfg-details__sfg-item {
+    text-align: center;
+    padding: var(--space-2);
+    background: var(--card-background);
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border-color);
+}
+
+.sfg-details__sfg-value {
+    font-weight: 600;
+    color: var(--color-primary);
+    font-size: 1.25rem;
+    margin: 0;
+}
+
+.sfg-details__sfg-label {
+    font-size: 0.75rem;
+    color: var(--text-gray);
+    margin-top: var(--space-1);
+}
+
+/* Modal específico para agregar */
+.sfg-modal__overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2000;
+    padding: var(--space-3);
+}
+
+.sfg-modal__content {
+    background: var(--card-background);
+    padding: var(--space-4);
+    border-radius: var(--radius-lg);
+    max-width: 500px;
+    width: 100%;
+    box-shadow: var(--shadow-xl);
+}
+
+.sfg-modal__header {
+    margin: 0 0 var(--space-3) 0;
+    font-size: 1.25rem;
+    font-weight: 600;
+}
+
+.sfg-modal__title {
+    margin: 0 0 var(--space-3) 0;
+    font-size: 1.25rem;
+    font-weight: 600;
+}
+
+.sfg-modal__form-group {
+    margin-bottom: var(--space-3);
+}
+
+.sfg-modal__label {
+    display: block;
+    margin-bottom: var(--space-1);
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.sfg-modal__input {
+    width: 100%;
+    padding: var(--space-2);
+    border: 2px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    font-size: 1rem;
+    box-sizing: border-box;
+    background: var(--card-background);
+    color: var(--text-primary);
+}
+
+.sfg-modal__input:focus {
+    outline: none;
+    border-color: var(--color-primary);
+}
+
+.sfg-modal__footer {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-2);
+    margin-top: var(--space-3);
+}
+
+.sfg-modal__btn {
+    padding: var(--space-2);
+    border: 2px solid var(--border-color);
+    background: transparent;
+    border-radius: var(--radius-lg);
+    cursor: pointer;
+    font-size: 0.95rem;
+    font-weight: 600;
+    transition: background 0.2s;
+}
+
+.sfg-modal__btn:hover {
+    background: var(--border-color);
+}
+
+.sfg-modal__btn--primary {
+    border: none;
+    background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-success) 100%);
+    color: white;
+}
+
+.sfg-modal__btn--primary:hover:not(:disabled) {
+    transform: translateY(-2px);
+}
+
+.sfg-modal__btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* Legend */
+.sfg-legend {
+    margin-top: var(--space-3);
+    padding: var(--space-3);
+    background: var(--card-background);
+    border-radius: var(--radius-lg);
+    font-size: 0.85rem;
+    color: var(--text-gray);
+}
+
+.sfg-legend__section {
+    margin-bottom: var(--space-2);
+}
+
+.sfg-legend__section--border {
+    border-top: 1px solid var(--border-color);
+    padding-top: var(--space-2);
+}
+
+.sfg-legend__title {
+    font-weight: 600;
+    margin-bottom: var(--space-2);
+}
+
+.sfg-legend__list {
+    display: grid;
+    gap: var(--space-1);
+}
+
+.sfg-legend__description {
+    font-size: 0.8rem;
+    line-height: 1.6;
+}
+
+.sfg-legend__tip {
+    margin-top: var(--space-2);
+    font-style: italic;
+    font-size: 0.8rem;
+}
+
+/* FAB Button */
+.sfg-fab {
+    position: fixed;
+    bottom: 80px;
+    right: var(--space-4);
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-success) 100%);
+    color: white;
+    border: none;
+    font-size: 2rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+    transition: all var(--transition-base);
+    z-index: 999;
+}
+
+.sfg-fab:hover {
+    transform: scale(1.15);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+}
+
+/* Legend / Leyenda */
+.sfg-legend {
+    margin-top: var(--space-3);
+    padding: var(--space-3);
+    background: var(--card-background);
+    border-radius: var(--radius-lg);
+    font-size: 0.85rem;
+    color: var(--text-gray);
+}
+
+.sfg-legend__section {
+    margin-bottom: var(--space-2);
+}
+
+.sfg-legend__section--border {
+    border-top: 1px solid var(--border-color);
+    padding-top: var(--space-2);
+    margin-top: var(--space-2);
+}
+
+.sfg-legend__title {
+    font-weight: 600;
+    margin-bottom: var(--space-2);
+}
+
+.sfg-legend__list {
+    display: grid;
+    gap: var(--space-1);
+    margin-bottom: var(--space-2);
+}
+
+.sfg-legend__description {
+    font-size: 0.8rem;
+    line-height: 1.6;
+}
+
+.sfg-legend__tip {
+    margin-top: var(--space-2);
+    font-style: italic;
+    font-size: 0.8rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .sfg-table__header,
+    .sfg-table__row {
+        grid-template-columns: 1fr;
+        gap: var(--space-1);
+    }
+    
+    .sfg-details {
+        grid-template-columns: 1fr;
+    }
+    
+    .sfg-modal__footer {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Icon and plant info styles */
+.sfg-plant-icon {
+    font-size: 1.5rem;
+}
+
+.sfg-plant-info {
+    min-width: 0;
+    flex: 1;
+}
+
+/* Table cell styles */
+.sfg-table__cell--checkbox {
+    text-align: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: var(--space-1);
+}
+
+.sfg-table__cell--plant {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    cursor: pointer;
+    padding: var(--space-1);
+}
+
+.sfg-table__cell--value {
+    text-align: center;
+    font-weight: 600;
+    color: var(--text-primary);
+    padding: var(--space-1);
+}
+
+.sfg-table__cell--value.sfg-table__cell--empty {
+    color: var(--text-gray);
+}
+
+/* Loading state */
+.sfg-loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-8);
+}
+
+/* Plant name and type */
+.sfg-plant-name {
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.sfg-plant-type {
+    font-size: 0.75rem;
+    color: var(--text-gray);
+    text-transform: capitalize;
+}

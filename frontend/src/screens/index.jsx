@@ -10,7 +10,7 @@ export { MyGarden } from './MyGarden';
 export { MySeedling } from './MySeedling';
 export { Inventory } from './Inventory';
 export { SeedDetail } from './SeedDetail';
-export { Planting } from './Planting';
+export { Planting } from './Sfg';
 export { Calendar } from './Calendar';
 export { Settings } from './Settings';
 export { CSVManager } from './CSVManager';

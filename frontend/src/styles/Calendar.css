@@ -1,0 +1,130 @@
+/**
+ * LORAPP - Calendar Screen Styles
+ * Estilos para el calendario agrícola
+ */
+
+.calendar-container {
+    padding: var(--space-4);
+    max-width: 1200px;
+    margin: 0 auto;
+    padding-bottom: 100px;
+}
+
+.calendar-loading {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 50vh;
+}
+
+/* Header */
+.calendar-header {
+    margin-bottom: var(--space-4);
+}
+
+.calendar-header__title {
+    margin-bottom: var(--space-2);
+    font-size: clamp(1.5rem, 5vw, 2rem);
+    font-weight: bold;
+}
+
+/* Navigation */
+.calendar-nav {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: var(--space-4);
+    margin-bottom: var(--space-4);
+}
+
+.calendar-nav__btn {
+    min-width: 40px;
+    padding: 8px 16px;
+}
+
+.calendar-nav__current {
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 600;
+}
+
+/* Grid */
+.calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: var(--space-2);
+}
+
+.calendar-day-header {
+    text-align: center;
+    font-weight: 600;
+    padding: var(--space-2);
+    background: var(--card-background);
+    border-radius: var(--radius-md);
+}
+
+.calendar-day {
+    aspect-ratio: 1;
+    padding: var(--space-2);
+    background: var(--card-background);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: all var(--transition-base);
+}
+
+.calendar-day:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+.calendar-day__number {
+    font-weight: 600;
+    margin-bottom: var(--space-1);
+}
+
+.calendar-day__events {
+    font-size: 0.75rem;
+}
+
+.calendar-day--empty {
+   opacity: 0.3;
+    cursor: default;
+}
+
+.calendar-day--today {
+    background: linear-gradient(135deg, var(--color-primary), var(--color-success));
+    color: white;
+}
+
+.calendar-day--has-events {
+    background-color: #ecfdf5;
+    border: 2px solid var(--color-success);
+}
+
+/* Modal */
+.calendar-modal__content {
+    max-height: 70vh;
+    overflow-y: auto;
+}
+
+.calendar-modal__date {
+    margin-bottom: var(--space-4);
+    padding-bottom: var(--space-2);
+    border-bottom: 2px solid var(--border-color);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .calendar-container {
+        padding: var(--space-2);
+    }
+    
+    .calendar-grid {
+        gap: var(--space-1);
+    }
+    
+    .calendar-day {
+        font-size: 0.75rem;
+        padding: var(--space-1);
+    }
+}

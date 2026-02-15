@@ -1,0 +1,120 @@
+/**
+ * LORAPP - Settings Screen Styles
+ * Estilos para la pantalla de configuración
+ */
+
+.settings-container {
+    padding: var(--space-4);
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.settings-header {
+    margin-bottom: var(--space-6);
+}
+
+.settings-header__title {
+    font-size: clamp(1.5rem, 5vw, 2rem);
+    margin-bottom: var(--space-2);
+}
+
+/* Section */
+.settings-section {
+    margin-bottom: var(--space-6);
+}
+
+.settings-section__title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: var(--space-3);
+    padding-bottom: var(--space-2);
+    border-bottom: 2px solid var(--border-color);
+}
+
+.settings-section__content {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+}
+
+/* Setting Item */
+.settings-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--space-3);
+    background: var(--card-background);
+    border-radius: var(--radius-md);
+}
+
+.settings-item__info {
+    flex: 1;
+}
+
+.settings-item__label {
+    font-weight: 600;
+    margin-bottom: var(--space-1);
+}
+
+.settings-item__description {
+    font-size: 0.875rem;
+    color: var(--text-gray);
+}
+
+.settings-item__control {
+    margin-left: var(--space-3);
+}
+
+/* Profile */
+.settings-profile {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+    padding: var(--space-4);
+    background: var(--card-background);
+    border-radius: var(--radius-lg);
+}
+
+.settings-profile__avatar {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: var(--color-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    color: white;
+}
+
+.settings-profile__info {
+    flex: 1;
+}
+
+.settings-profile__name {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: var(--space-1);
+}
+
+.settings-profile__email {
+    color: var(--text-gray);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .settings-container {
+        padding: var(--space-2);
+    }
+    
+    .settings-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--space-2);
+    }
+    
+    .settings-item__control {
+        margin-left: 0;
+        width: 100%;
+    }
+}

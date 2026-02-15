@@ -1,0 +1,284 @@
+/**
+ * LORAPP - Inventory Screen Styles
+ * Estilos específicos para la pantalla de inventario de semillas
+ * Complementa shared.css con funcionalidades de catálogo
+ */
+
+/* Container Principal */
+.inventory-container {
+    padding: var(--space-4);
+    padding-bottom: 150px;
+}
+
+/* Header Section */
+.inventory-header {
+    margin-bottom: var(--space-2);
+}
+
+.inventory-header__title {
+    margin: 0;
+    margin-bottom: var(--space-2);
+    font-size: clamp(1.5rem, 5vw, 2rem);
+    font-weight: 700;
+}
+
+.inventory-header__controls {
+    margin-bottom: var(--space-6);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.inventory-header__stats {
+    margin: 0;
+    color: var(--text-gray);
+    font-size: 0.875rem;
+}
+
+.inventory-header__actions {
+    display: flex;
+    gap: var(--space-2);
+    align-items: center;
+}
+
+/* View Mode Toggle */
+.inventory-view-toggle {
+    display: flex;
+    gap: var(--space-1);
+    background-color: var(--color-gray-200);
+    border-radius: var(--radius-md);
+    padding: 4px;
+}
+
+.inventory-view-toggle__btn {
+    padding: 6px 12px;
+    min-height: unset;
+}
+
+/* Filters Panel */
+.inventory-filters {
+    background-color: #f9fafb;
+    border-radius: var(--radius-lg);
+    padding: var(--space-3);
+    margin-bottom: var(--space-4);
+    border: 1px solid var(--border-color);
+}
+
+.inventory-filters__toggle {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: none;
+    border: none;
+    padding: var(--space-2);
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 1rem;
+    color: var(--text-primary);
+    transition: color var(--transition-base);
+}
+
+.inventory-filters__toggle:hover {
+    color: var(--color-primary);
+}
+
+.inventory-filters__toggle-text {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+}
+
+.inventory-filters__toggle-count {
+    font-size: 0.75rem;
+}
+
+.inventory-filters__toggle-icon {
+    font-size: 1.2rem;
+    transition: transform var(--transition-base);
+}
+
+.inventory-filters__toggle-icon--expanded {
+    transform: rotate(180deg);
+}
+
+.inventory-filters__content {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: var(--space-3);
+    margin-top: var(--space-3);
+}
+
+.inventory-filters__group {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+}
+
+.inventory-filters__label {
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.inventory-filters__input {
+    font-size: 0.9rem;
+}
+
+.inventory-filters__clear {
+    margin-top: var(--space-3);
+    text-align: center;
+    grid-column: 1 / -1;
+}
+
+.inventory-filters__clear-btn {
+    font-size: 0.85rem;
+}
+
+/* Loading State */
+.inventory-loading {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 300px;
+}
+
+/* Empty State */
+.inventory-empty {
+    padding: var(--space-8);
+    text-align: center;
+}
+
+.inventory-empty__icon {
+    font-size: 4rem;
+    margin-bottom: var(--space-3);
+}
+
+.inventory-empty__title {
+    font-size: 1.5rem;
+    margin-bottom: var(--space-2);
+}
+
+.inventory-empty__description {
+    color: var(--text-gray);
+    margin-bottom: var(--space-4);
+}
+
+.inventory-empty__action {
+    margin-top: var(--space-6);
+}
+
+/* Species Group */
+.inventory-species-group {
+    margin-bottom: var(--space-8);
+}
+
+.inventory-species-header {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: var(--space-4);
+    color: var(--color-primary);
+    border-bottom: 2px solid var(--color-primary);
+    padding-bottom: var(--space-2);
+}
+
+.inventory-species-count {
+    font-size: 0.9rem;
+    color: var(--text-gray);
+}
+
+/* Seed Card (Grid View) */
+.inventory-seed-card {
+    text-decoration: none;
+    color: inherit;
+    display: block;
+}
+
+.inventory-seed-card:hover .seed-card {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-xl);
+}
+
+/* Seed List Item (List View) */
+.inventory-seed-list-item {
+    text-decoration: none;
+    color: inherit;
+    display: block;
+}
+
+.inventory-seed-list-item__card {
+    padding: var(--space-3);
+    margin-bottom: var(--space-2);
+}
+
+.inventory-seed-list-item__content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.inventory-seed-list-item__info {
+    flex: 1;
+}
+
+.inventory-seed-list-item__title {
+    margin: 0;
+    margin-bottom: var(--space-1);
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+.inventory-seed-list-item__variety {
+    margin: 0;
+    font-size: 0.85rem;
+    color: var(--text-gray);
+}
+
+.inventory-seed-list-item__tags {
+    display: flex;
+    gap: var(--space-2);
+    margin-top: var(--space-2);
+    flex-wrap: wrap;
+    font-size: 0.8rem;
+}
+
+/* Seed Details Extra */
+.inventory-seed-details {
+    margin-top: var(--space-3);
+    font-size: 0.85rem;
+    color: var(--text-gray);
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .inventory-container {
+        padding: var(--space-2);
+        padding-bottom: 100px;
+    }
+
+    .inventory-header__controls {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--space-2);
+    }
+
+    .inventory-filters__content {
+        grid-template-columns: 1fr;
+    }
+    
+    .inventory-species-header {
+        font-size: 1.25rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .inventory-view-toggle {
+        width: 100%;
+        justify-content: space-around;
+    }
+    
+    .inventory-seed-list-item__content {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--space-2);
+    }
+}

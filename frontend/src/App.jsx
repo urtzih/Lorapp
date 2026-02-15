@@ -7,7 +7,7 @@ import MyGarden from './screens/MyGarden'
 import MySeedling from './screens/MySeedling'
 import Inventory from './screens/Inventory'
 import SeedDetail from './screens/SeedDetail'
-import Planting from './screens/Planting'
+import Planting from './screens/Sfg'
 import Calendar from './screens/Calendar'
 import Settings from './screens/Settings'
 import CSVManager from './screens/CSVManager'
@@ -49,7 +49,7 @@ function App() {
                                         <Route path="/my-seedling" element={<MySeedling />} />
                                         <Route path="/inventory" element={<Inventory />} />
                                         <Route path="/seeds/:id" element={<SeedDetail />} />
-                                        <Route path="/planting" element={<Planting />} />
+                                        <Route path="/sfg" element={<Planting />} />
                                         <Route path="/calendar" element={<Calendar />} />
                                         <Route path="/settings" element={<Settings />} />
                                         <Route path="/csv-manager" element={<CSVManager />} />
