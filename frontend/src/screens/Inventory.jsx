@@ -261,7 +261,7 @@ export function Inventory() {
     };
 
     return (
-        <div className="container section inventory-container">
+        <div className="inventory-container">
             {/* Header Section */}
             <h1 className="inventory-header__title">Mi Inventario</h1>
             <div className="inventory-header__controls">

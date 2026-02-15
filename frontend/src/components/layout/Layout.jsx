@@ -1,18 +1,44 @@
-import { Link, useLocation } from 'react-router-dom';
+import { useState, useEffect, useRef } from 'react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import '../../styles/Layout.css';
 
 export function Layout({ children }) {
     const { user, logout } = useAuth();
     const location = useLocation();
+    const navigate = useNavigate();
+    const [showUserMenu, setShowUserMenu] = useState(false);
+    const userMenuRef = useRef(null);
 
     const navItems = [
         { path: '/my-garden', label: 'Mi Huerta', icon: 'garden' },
         { path: '/my-seedling', label: 'Mi Semillero', icon: 'seedling' },
         { path: '/inventory', label: 'Inventario', icon: 'inventory' },
         { path: '/sfg', label: 'Guía SFG', icon: 'planting' },
-        { path: '/calendar', label: 'Calendario', icon: 'calendar' },
-        { path: '/settings', label: 'Ajustes', icon: 'settings' }
+        { path: '/calendar', label: 'Calendario', icon: 'calendar' }
     ];
+
+    // Cerrar menú al hacer click fuera
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (userMenuRef.current && !userMenuRef.current.contains(event.target)) {
+                setShowUserMenu(false);
+            }
+        };
+
+        if (showUserMenu) {
+            document.addEventListener('mousedown', handleClickOutside);
+        }
+
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, [showUserMenu]);
+
+    // Cerrar menú al cambiar de ruta
+    useEffect(() => {
+        setShowUserMenu(false);
+    }, [location.pathname]);
 
     const isActive = (path) => location.pathname === path;
 
@@ -27,6 +53,7 @@ export function Layout({ children }) {
             calendar: <svg viewBox="0 0 24 24" fill="currentColor" className="nav-icon-svg"><path d="M7 2h2v2H7V2M15 2h2v2h-2V2M5 4h14c1.1 0 2 .9 2 2v14c0 1.1-.9 2-2 2H5c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2M5 8v12h14V8H5M7 10h2v2H7v-2M11 10h2v2h-2v-2M15 10h2v2h-2v-2Z"/></svg>,
             settings: <svg viewBox="0 0 24 24" fill="currentColor" className="nav-icon-svg"><path d="M19.4 13h-0.8c-0.4 0-0.8 0.3-1 0.7l-0.2 0.5c-0.2 0.5 0 1 0.4 1.3l0.6 0.6c0.3 0.3 0.3 0.8 0 1.1l-1.4 1.4c-0.3 0.3-0.8 0.3-1.1 0l-0.6-0.6c-0.3-0.3-0.8-0.5-1.3-0.4l-0.5 0.2c-0.4 0.2-0.7 0.6-0.7 1v0.8c0 0.4-0.3 0.8-0.8 0.8h-2c-0.4 0-0.8-0.3-0.8-0.8v-0.8c0-0.4-0.3-0.8-0.7-1l-0.5-0.2c-0.5-0.2-1 0-1.3 0.4l-0.6 0.6c-0.3 0.3-0.8 0.3-1.1 0l-1.4-1.4c-0.3-0.3-0.3-0.8 0-1.1l0.6-0.6c0.3-0.3 0.5-0.8 0.4-1.3l-0.2-0.5c-0.2-0.4-0.6-0.7-1-0.7h-0.8c-0.4 0-0.8-0.3-0.8-0.8v-2c0-0.4 0.3-0.8 0.8-0.8h0.8c0.4 0 0.8-0.3 1-0.7l0.2-0.5c0.2-0.5 0-1-0.4-1.3l-0.6-0.6c-0.3-0.3-0.3-0.8 0-1.1l1.4-1.4c0.3-0.3 0.8-0.3 1.1 0l0.6 0.6c0.3 0.3 0.8 0.5 1.3 0.4l0.5-0.2c0.4-0.2 0.7-0.6 0.7-1v-0.8c0-0.4 0.3-0.8 0.8-0.8h2c0.4 0 0.8 0.3 0.8 0.8v0.8c0 0.4 0.3 0.8 0.7 1l0.5 0.2c0.5 0.2 1 0 1.3-0.4l0.6-0.6c0.3-0.3 0.8-0.3 1.1 0l1.4 1.4c0.3 0.3 0.3 0.8 0 1.1l-0.6 0.6c-0.3 0.3-0.5 0.8-0.4 1.3l0.2 0.5c0.2 0.4 0.6 0.7 1 0.7h0.8c0.4 0 0.8 0.3 0.8 0.8v2c0 0.4-0.4 0.8-0.8 0.8M12 7c-2.8 0-5 2.2-5 5s2.2 5 5 5 5-2.2 5-5-2.2-5-5-5Z"/></svg>,
             logout: <svg viewBox="0 0 24 24" fill="currentColor" className="nav-icon-svg"><path d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z"/></svg>,
+            user: <svg viewBox="0 0 24 24" fill="currentColor" className="nav-icon-svg"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>,
         };
         return icons[iconName] || null;
     };
@@ -54,11 +81,38 @@ export function Layout({ children }) {
                             </Link>
                         ))}
                     </div>
-                    <div className="navbar-user">
-                        <span className="text-gray text-sm">{user?.name}</span>
-                        <button onClick={logout} className="btn btn-secondary btn-sm">
-                            Salir
+                    <div className="navbar-user" ref={userMenuRef}>
+                        <button 
+                            className="user-menu-button"
+                            onClick={() => setShowUserMenu(!showUserMenu)}
+                        >
+                            {getIcon('user')}
+                            <span className="user-name">{user?.email || user?.name}</span>
                         </button>
+                        {showUserMenu && (
+                            <div className="user-menu-dropdown">
+                                <button 
+                                    className="user-menu-item"
+                                    onClick={() => {
+                                        setShowUserMenu(false);
+                                        navigate('/settings');
+                                    }}
+                                >
+                                    {getIcon('settings')}
+                                    <span>Ajustes</span>
+                                </button>
+                                <button 
+                                    className="user-menu-item"
+                                    onClick={() => {
+                                        setShowUserMenu(false);
+                                        logout();
+                                    }}
+                                >
+                                    {getIcon('logout')}
+                                    <span>Cerrar sesión</span>
+                                </button>
+                            </div>
+                        )}
                     </div>
                 </div>
             </nav>
