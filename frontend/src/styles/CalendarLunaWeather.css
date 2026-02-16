@@ -1,0 +1,548 @@
+/* Weather + Lunar Calendar Styles */
+
+:root {
+    --lunar-bg: #2c3e50;
+    --lunar-text: #ecf0f1;
+    --lunar-accent: #e74c3c;
+    --weather-sunny: #f39c12;
+    --weather-cloudy: #95a5a6;
+    --weather-rainy: #3498db;
+    --moon-new: #34495e;
+    --moon-full: #f1c40f;
+}
+
+/* Moon Phase Icons */
+.moon-phase {
+    font-size: 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: pulse-moon 2s ease-in-out infinite;
+}
+
+@keyframes pulse-moon {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+}
+
+/* Weather Icons */
+.weather-icon {
+    font-size: 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Day Cell - Lunar Calendar */
+.lunar-day-cell {
+    border: 1px solid border-color;
+    border-radius: 8px;
+    padding: 12px;
+    background: white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-height: 120px;
+    position: relative;
+}
+
+.lunar-day-cell:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    background: linear-gradient(135deg, rgba(99, 110, 250, 0.05), rgba(255, 192, 203, 0.05));
+}
+
+.lunar-day-cell.selected {
+    border: 2px solid #6366f1;
+    background: linear-gradient(135deg, rgba(99, 110, 250, 0.1), rgba(255, 192, 203, 0.1));
+    box-shadow: 0 4px 12px rgba(99, 110, 250, 0.2);
+}
+
+.lunar-day-cell.rainy {
+    background: linear-gradient(135deg, rgba(52, 152, 219, 0.05), white);
+    border-left: 4px solid #3498db;
+}
+
+.lunar-day-number {
+    font-weight: bold;
+    font-size: 1.2rem;
+    color: #2c3e50;
+}
+
+.lunar-temp-range {
+    display: flex;
+    gap: 4px;
+    font-size: 0.9rem;
+    color: #7f8c8d;
+}
+
+.lunar-temp-range .min-temp {
+    opacity: 0.6;
+}
+
+.rain-indicator,
+.plantable-indicator {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    font-size: 1rem;
+    animation: float 2s ease-in-out infinite;
+}
+
+.plantable-indicator {
+    right: 24px;
+}
+
+@keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-4px); }
+}
+
+/* Day Details - Expanded View */
+.lunar-day-details {
+    background: white;
+    border: 1px solid #e0e0e0;
+    border-radius: 12px;
+    padding: 20px;
+    margin: 20px 0;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.lunar-day-details h3 {
+    margin: 0 0 20px 0;
+    font-size: 1.5rem;
+    color: #2c3e50;
+}
+
+.details-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+}
+
+.detail-section {
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 15px;
+    background: #f9f9f9;
+}
+
+.detail-section.lunar {
+    border-left: 4px solid #8b5cf6;
+}
+
+.detail-section.weather {
+    border-left: 4px solid #06b6d4;
+}
+
+.detail-section.agriculture {
+    border-left: 4px solid #22c55e;
+}
+
+.detail-section h4 {
+    margin: 0 0 12px 0;
+    font-size: 1rem;
+    color: #2c3e50;
+}
+
+.detail-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid #e0e0e0;
+    font-size: 0.95rem;
+}
+
+.detail-item:last-child {
+    border-bottom: none;
+}
+
+.detail-item .label {
+    font-weight: 500;
+    color: #7f8c8d;
+}
+
+.detail-item .value {
+    font-weight: 600;
+    color: #2c3e50;
+}
+
+/* Month Summary */
+.month-summary {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 15px;
+    margin: 20px 0;
+}
+
+.summary-item {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 8px;
+    padding: 15px;
+    text-align: center;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.summary-item .label {
+    display: block;
+    font-size: 0.9rem;
+    opacity: 0.9;
+    margin-bottom: 8px;
+}
+
+.summary-item .value {
+    display: block;
+    font-size: 1.8rem;
+    font-weight: bold;
+}
+
+/* Week Forecast Cards */
+.forecast-card {
+    background: white;
+    border: 1px solid #e0e0e0;
+    border-radius: 12px;
+    padding: 16px;
+    text-align: center;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.forecast-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+}
+
+.forecast-date {
+    margin-bottom: 12px;
+}
+
+.forecast-date .day-name {
+    font-weight: bold;
+    font-size: 1rem;
+    color: #2c3e50;
+}
+
+.forecast-date .date {
+    font-size: 0.8rem;
+    color: #7f8c8d;
+}
+
+.forecast-content {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.forecast-section {
+    text-align: center;
+}
+
+.forecast-section h4 {
+    margin: 0 0 6px 0;
+    font-size: 0.9rem;
+    color: #7f8c8d;
+    text-transform: uppercase;
+}
+
+.forecast-icon {
+    font-size: 2rem;
+    margin: 6px 0;
+}
+
+.forecast-value {
+    font-weight: 600;
+    color: #2c3e50;
+    font-size: 1rem;
+}
+
+.forecast-detail {
+    font-size: 0.85rem;
+    color: #7f8c8d;
+    margin-top: 4px;
+}
+
+/* Planting Advisory */
+.priority-section {
+    margin: 20px 0;
+    border-radius: 12px;
+    padding: 20px;
+    border-left: 4px solid;
+}
+
+.priority-section.high {
+    background: rgba(34, 197, 94, 0.05);
+    border-left-color: #22c55e;
+}
+
+.priority-section.medium {
+    background: rgba(245, 158, 11, 0.05);
+    border-left-color: #f59e0b;
+}
+
+.priority-section.low {
+    background: rgba(239, 68, 68, 0.05);
+    border-left-color: #ef4444;
+}
+
+.priority-section h4 {
+    margin: 0 0 15px 0;
+    color: #2c3e50;
+}
+
+.recommendations {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 12px;
+}
+
+.recommendation-card {
+    background: white;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 12px;
+    font-size: 0.9rem;
+}
+
+.rec-date {
+    font-weight: 600;
+    color: #2c3e50;
+    margin-bottom: 6px;
+}
+
+.rec-score {
+    color: #7f8c8d;
+    font-size: 0.85rem;
+    margin-bottom: 8px;
+}
+
+.rec-conditions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 8px;
+    font-size: 0.8rem;
+}
+
+.rec-conditions span {
+    background: #f0f0f0;
+    padding: 4px 8px;
+    border-radius: 4px;
+    color: #7f8c8d;
+}
+
+.rec-condition {
+    font-size: 0.85rem;
+    color: #2c3e50;
+    font-weight: 500;
+}
+
+/* Best Days Section */
+.best-days {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 12px;
+    padding: 20px;
+    margin: 20px 0;
+}
+
+.best-days h4 {
+    margin: 0 0 12px 0;
+    color: white;
+}
+
+.days-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.best-day {
+    background: rgba(255, 255, 255, 0.2);
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-weight: 500;
+    border: 1px solid rgba(255, 255, 255, 0.4);
+}
+
+/* Calendar Grid */
+.calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 8px;
+    margin: 20px 0;
+}
+
+.day-header {
+    text-align: center;
+    font-weight: bold;
+    color: #7f8c8d;
+    padding: 10px 0;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+}
+
+.empty-cell {
+    background: transparent;
+}
+
+/* Loading State */
+.loading {
+    text-align: center;
+    padding: 40px 20px;
+    color: #7f8c8d;
+    font-size: 1.1rem;
+}
+
+/* Error State */
+.error-message {
+    background: linear-gradient(135deg, rgba(239, 68, 68, 0.1), rgba(220, 38, 38, 0.1));
+    border: 1px solid #dc2626;
+    border-radius: 8px;
+    padding: 15px;
+    color: #991b1b;
+    margin: 20px 0;
+    border-left: 4px solid #dc2626;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .details-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .recommendations {
+        grid-template-columns: 1fr;
+    }
+
+    .lunar-day-cell {
+        min-height: 100px;
+        font-size: 0.9rem;
+    }
+
+    .forecast-card {
+        padding: 12px;
+    }
+
+    .calendar-grid {
+        gap: 4px;
+    }
+
+    .lunar-day-cell {
+        padding: 8px;
+    }
+
+    .lunar-temp-range {
+        font-size: 0.8rem;
+    }
+
+    .moon-phase,
+    .weather-icon {
+        font-size: 1.2rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .month-summary {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+    }
+
+    .summary-item {
+        padding: 10px;
+    }
+
+    .summary-item .value {
+        font-size: 1.4rem;
+    }
+
+    .lunar-day-cell {
+        min-height: 80px;
+        padding: 6px;
+        gap: 4px;
+    }
+
+    .lunar-day-number {
+        font-size: 1rem;
+    }
+
+    .forecast-card {
+        padding: 10px;
+    }
+
+    .forecast-icon {
+        font-size: 1.5rem;
+    }
+
+    .forecast-value {
+        font-size: 0.9rem;
+    }
+
+    .details-grid {
+        gap: 12px;
+    }
+
+    .detail-section {
+        padding: 10px;
+    }
+
+    .detail-section h4 {
+        font-size: 0.9rem;
+    }
+
+    .detail-item {
+        font-size: 0.85rem;
+    }
+}
+
+/* Animation for Loading */
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.spinner {
+    border: 4px solid rgba(0, 0, 0, 0.1);
+    border-top: 4px solid #667eea;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    animation: spin 1s linear infinite;
+    margin: 0 auto;
+}
+
+/* Print Styles */
+@media print {
+    .calendar-tabs,
+    .month-navigation,
+    .error-message {
+        display: none;
+    }
+
+    .calendar-grid {
+        page-break-inside: avoid;
+    }
+
+    .detail-section {
+        page-break-inside: avoid;
+    }
+}

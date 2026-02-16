@@ -1,7 +1,7 @@
 """
 Agricultural calendar service.
 Calculates optimal planting dates, transplant times, and harvest dates
-based on crop rules, climate zones, and user location.
+based on crop rules, climate zones, user location, and lunar phases.
 """
 
 from typing import List, Dict, Any, Optional
@@ -10,14 +10,46 @@ from calendar import monthrange
 from sqlalchemy.orm import Session, joinedload
 
 from app.infrastructure.database.models import (
-    LoteSemillas, Variedad, Especie, Plantacion, CropRule, User
+    LoteSemillas, Variedad, Especie, Plantacion, CropRule, User, EstadoLoteSemillas
 )
+from app.application.services.lunar_calendar import lunar_calendar
+from app.application.services.geolocation_service import GeolocationService
 
 
 class CalendarService:
     """
     Service for generating agricultural calendar based on lotes and climate data.
     """
+    
+    @staticmethod
+    def adjust_planting_months(
+        base_months: List[int],
+        user_latitude: Optional[float],
+        user_climate_zone: Optional[str]
+    ) -> List[int]:
+        """
+        Adjust planting months based on user's location (latitude/climate zone).
+        
+        Args:
+            base_months: Original months (assuming Northern hemisphere temperate)
+            user_latitude: User's latitude
+            user_climate_zone: User's climate zone
+            
+        Returns:
+            Adjusted months for user's location
+        """
+        if not base_months:
+            return []
+        
+        # If we have user location, adjust the months
+        if user_latitude is not None and user_latitude < 0:
+            # Southern hemisphere - shift months by 6
+            adjusted = [(m + 6 - 1) % 12 + 1 for m in base_months]
+            return sorted(adjusted)
+        
+        # Could add more sophisticated climate adjustments here
+        # For now, return base months (works for Northern hemisphere temperate)
+        return base_months
     
     def get_monthly_tasks(
         self,
@@ -48,7 +80,7 @@ class CalendarService:
         # Get user's lotes with variedad and especie data
         lotes = db.query(LoteSemillas).filter(
             LoteSemillas.usuario_id == user.id,
-            LoteSemillas.estado == "activo"
+            LoteSemillas.estado == EstadoLoteSemillas.ACTIVO
         ).options(
             joinedload(LoteSemillas.variedad).joinedload(Variedad.especie)
         ).all()
@@ -57,24 +89,36 @@ class CalendarService:
             especie = lote.variedad.especie
             variedad = lote.variedad
             
+            # Adjust planting months based on user's location
+            meses_interior_ajustados = self.adjust_planting_months(
+                variedad.meses_siembra_interior or [],
+                user.latitude,
+                user.climate_zone
+            )
+            meses_exterior_ajustados = self.adjust_planting_months(
+                variedad.meses_siembra_exterior or [],
+                user.latitude,
+                user.climate_zone
+            )
+            
             # Check if this month is good for indoor planting
-            if especie.meses_siembra_interior and month in especie.meses_siembra_interior:
+            if month in meses_interior_ajustados:
                 tasks["planting"].append({
                     "lote_id": lote.id,
-                    "nombre": lote.nombre_comercial,
+                    "seed_name": lote.nombre_comercial,
                     "especie": especie.nombre_comun,
-                    "variedad": variedad.nombre_variedad,
+                    "variety": variedad.nombre_variedad,
                     "type": "indoor",
                     "description": f"Siembra interior de {especie.nombre_comun} - {variedad.nombre_variedad}"
                 })
             
             # Check if this month is good for outdoor planting
-            if especie.meses_siembra_exterior and month in especie.meses_siembra_exterior:
+            if month in meses_exterior_ajustados:
                 tasks["planting"].append({
                     "lote_id": lote.id,
-                    "nombre": lote.nombre_comercial,
+                    "seed_name": lote.nombre_comercial,
                     "especie": especie.nombre_comun,
-                    "variedad": variedad.nombre_variedad,
+                    "variety": variedad.nombre_variedad,
                     "type": "outdoor",
                     "description": f"Siembra exterior de {especie.nombre_comun} - {variedad.nombre_variedad}"
                 })
@@ -88,16 +132,19 @@ class CalendarService:
         ).all()
         
         for plantacion in plantaciones:
-            especie = plantacion.lote_semillas.variedad.especie
+            lote = plantacion.lote_semillas
+            variedad = lote.variedad
+            especie = variedad.especie
             
             # Check for transplanting tasks
-            if plantacion.estado == "germinada" and especie.dias_hasta_trasplante:
-                transplant_date = plantacion.fecha_siembra + timedelta(days=especie.dias_hasta_trasplante)
+            if plantacion.estado == "germinada" and variedad.dias_hasta_trasplante:
+                transplant_date = plantacion.fecha_siembra + timedelta(days=variedad.dias_hasta_trasplante)
                 if transplant_date.month == month and transplant_date.year == year:
                     tasks["transplanting"].append({
                         "plantacion_id": plantacion.id,
-                        "nombre": plantacion.nombre_plantacion,
-                        "date": transplant_date,
+                        "seed_name": plantacion.nombre_plantacion,
+                        "variety": variedad.nombre_variedad,
+                        "date": transplant_date.isoformat() if transplant_date else None,
                         "description": f"Trasplante de {plantacion.nombre_plantacion}"
                     })
             
@@ -105,10 +152,12 @@ class CalendarService:
             if plantacion.fecha_cosecha_estimada:
                 harvest_date = plantacion.fecha_cosecha_estimada
                 if harvest_date.month == month and harvest_date.year == year:
+                    lote_variedad = plantacion.lote_semillas.variedad if plantacion.lote_semillas else None
                     tasks["harvesting"].append({
                         "plantacion_id": plantacion.id,
-                        "nombre": plantacion.nombre_plantacion,
-                        "date": harvest_date,
+                        "seed_name": plantacion.nombre_plantacion,
+                        "variety": lote_variedad.nombre_variedad if lote_variedad else None,
+                        "date": harvest_date.isoformat() if harvest_date else None,
                         "description": f"Cosecha de {plantacion.nombre_plantacion}"
                     })
         
@@ -119,13 +168,61 @@ class CalendarService:
                 if warning_date.month == month and warning_date.year == year:
                     tasks["reminders"].append({
                         "lote_id": lote.id,
-                        "nombre": lote.nombre_comercial,
+                        "seed_name": lote.nombre_comercial,
+                        "variety": lote.variedad.nombre_variedad if lote.variedad else None,
                         "type": "expiration_warning",
                         "description": f"{lote.nombre_comercial} caduca el {lote.fecha_vencimiento.strftime('%d/%m/%Y')}",
-                        "expiration_date": lote.fecha_vencimiento
+                        "expiration_date": lote.fecha_vencimiento.isoformat() if lote.fecha_vencimiento else None
                     })
         
         return tasks
+    
+    def get_lunar_info_for_month(
+        self,
+        month: int,
+        year: int
+    ) -> Dict[str, Any]:
+        """
+        Get lunar information for a specific month.
+        
+        Args:
+            month: Month number (1-12)
+            year: Year
+            
+        Returns:
+            Dictionary with current moon phase and upcoming significant phases
+        """
+        # Get current date for this month (1st of the month)
+        month_start = datetime(year, month, 1)
+        days_in_month = monthrange(year, month)[1]
+        
+        # Get current moon phase
+        current_phase = lunar_calendar.get_moon_phase(datetime.now())
+        
+        # Get significant moon phases for this month
+        significant_phases = []
+        for day in range(1, days_in_month + 1):
+            date = datetime(year, month, day)
+            phase_info = lunar_calendar.get_moon_phase(date)
+            
+            # Include significant phases
+            if phase_info["phase"] in ["new_moon", "full_moon", "first_quarter", "last_quarter"]:
+                # Check if we haven't already added this phase
+                if not significant_phases or significant_phases[-1]["phase"] != phase_info["phase"]:
+                    significant_phases.append({
+                        "date": date.date().isoformat(),
+                        "day": day,
+                        "phase": phase_info["phase"],
+                        "phase_display": phase_info["phase_display"],
+                        "optimal_for": phase_info["optimal_for"],
+                        "advice": phase_info["agricultural_advice"]
+                    })
+        
+        return {
+            "current_phase": current_phase,
+            "significant_phases": significant_phases
+        }
+    
     
     def get_current_month_recommendations(
         self,
@@ -148,7 +245,7 @@ class CalendarService:
         
         lotes = db.query(LoteSemillas).filter(
             LoteSemillas.usuario_id == user.id,
-            LoteSemillas.estado == "activo"
+            LoteSemillas.estado == EstadoLoteSemillas.ACTIVO
         ).options(
             joinedload(LoteSemillas.variedad).joinedload(Variedad.especie)
         ).all()
@@ -156,20 +253,45 @@ class CalendarService:
         recommendations = []
         
         for lote in lotes:
-            especie = lote.variedad.especie
-            can_plant_indoor = especie.meses_siembra_interior and current_month in especie.meses_siembra_interior
-            can_plant_outdoor = especie.meses_siembra_exterior and current_month in especie.meses_siembra_exterior
+            variedad = lote.variedad
+            especie = variedad.especie
+            
+            # Adjust planting months based on user's location
+            meses_interior_ajustados = self.adjust_planting_months(
+                variedad.meses_siembra_interior or [],
+                user.latitude,
+                user.climate_zone
+            )
+            meses_exterior_ajustados = self.adjust_planting_months(
+                variedad.meses_siembra_exterior or [],
+                user.latitude,
+                user.climate_zone
+            )
+            
+            can_plant_indoor = current_month in meses_interior_ajustados
+            can_plant_outdoor = current_month in meses_exterior_ajustados
             
             if can_plant_indoor or can_plant_outdoor:
+                # Calculate average germination days for display
+                germination_days = None
+                if variedad.dias_germinacion_min and variedad.dias_germinacion_max:
+                    germination_days = (variedad.dias_germinacion_min + variedad.dias_germinacion_max) // 2
+                elif variedad.dias_germinacion_min:
+                    germination_days = variedad.dias_germinacion_min
+                elif variedad.dias_germinacion_max:
+                    germination_days = variedad.dias_germinacion_max
+                    
                 recommendations.append({
                     "lote_id": lote.id,
-                    "nombre": lote.nombre_comercial,
+                    "seed_name": lote.nombre_comercial,
                     "especie": especie.nombre_comun,
-                    "variedad": lote.variedad.nombre_variedad,
+                    "variety": variedad.nombre_variedad,
                     "can_plant_indoor": can_plant_indoor,
                     "can_plant_outdoor": can_plant_outdoor,
-                    "germination_days_min": especie.dias_germinacion_min,
-                    "germination_days_max": especie.dias_germinacion_max
+                    "germination_days": germination_days,
+                    "germination_days_min": variedad.dias_germinacion_min,
+                    "germination_days_max": variedad.dias_germinacion_max,
+                    "cantidad_disponible": lote.cantidad_restante or lote.cantidad_estimada or 0
                 })
         
         return recommendations
@@ -203,16 +325,19 @@ class CalendarService:
         
         upcoming = []
         for plantacion in plantaciones:
-            especie = plantacion.lote_semillas.variedad.especie
-            if especie.dias_hasta_trasplante:
-                transplant_date = plantacion.fecha_siembra + timedelta(days=especie.dias_hasta_trasplante)
+            lote = plantacion.lote_semillas
+            variedad = lote.variedad
+            especie = variedad.especie
+            if variedad.dias_hasta_trasplante:
+                transplant_date = plantacion.fecha_siembra + timedelta(days=variedad.dias_hasta_trasplante)
                 if now <= transplant_date <= end_date:
                     days_until = (transplant_date - now).days
                     upcoming.append({
                         "plantacion_id": plantacion.id,
-                        "nombre": plantacion.nombre_plantacion,
+                        "seed_name": plantacion.nombre_plantacion,
                         "especie": especie.nombre_comun,
-                        "transplant_date": transplant_date,
+                        "variety": variedad.nombre_variedad,
+                        "transplant_date": transplant_date.isoformat() if transplant_date else None,
                         "days_until": days_until
                     })
         
@@ -242,7 +367,7 @@ class CalendarService:
             LoteSemillas.usuario_id == user.id,
             LoteSemillas.fecha_vencimiento != None,
             LoteSemillas.fecha_vencimiento <= end_date,
-            LoteSemillas.estado == "activo"
+            LoteSemillas.estado == EstadoLoteSemillas.ACTIVO
         ).options(
             joinedload(LoteSemillas.variedad)
         ).all()

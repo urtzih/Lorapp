@@ -16,6 +16,7 @@ from app.api.dependencies import get_current_user, get_db
 from app.infrastructure.database.models import User
 from app.core.security import verify_password, get_password_hash, create_access_token
 from app.core.config import settings
+from app.application.services.geolocation_service import geocode_and_determine_climate
 
 
 router = APIRouter(prefix="/auth", tags=["Authentication"])
@@ -27,11 +28,15 @@ async def register(
     db: Session = Depends(get_db)
 ):
     """
-    Register a new user with email and password.
+    Register a new user with email, password, and location.
     
     - **email**: Valid email address (must be unique)
     - **password**: Minimum 6 characters
     - **name**: User's full name
+    - **location**: City/Town name or full address (required, used for agricultural calendar)
+    - **latitude**: Optional (auto-calculated from location if omitted)
+    - **longitude**: Optional (auto-calculated from location if omitted)
+    - **climate_zone**: Optional (auto-determined from latitude if omitted)
     - **language**: Preferred language (es/eu), defaults to 'es'
     
     Returns JWT access token and user data.
@@ -44,12 +49,31 @@ async def register(
             detail="Email already registered"
         )
     
-    # Create new user
+    # Geocode location and determine climate zone
+    location_data = await geocode_and_determine_climate(
+        location=user_data.location,
+        latitude=user_data.latitude,
+        longitude=user_data.longitude,
+        climate_zone=user_data.climate_zone
+    )
+    
+    # Warn if geocoding failed but allow registration to continue
+    if location_data["latitude"] is None:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Could not find location '{user_data.location}'. Please try with a different address (e.g., 'Vitoria-Gasteiz, Spain')"
+        )
+    
+    # Create new user with location data
     new_user = User(
         email=user_data.email,
         hashed_password=get_password_hash(user_data.password),
         name=user_data.name,
-        language=user_data.language
+        language=user_data.language,
+        location=location_data.get("display_name", user_data.location),
+        latitude=location_data["latitude"],
+        longitude=location_data["longitude"],
+        climate_zone=location_data["climate_zone"]
     )
     
     db.add(new_user)

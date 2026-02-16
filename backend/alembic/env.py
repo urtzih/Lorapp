@@ -13,7 +13,7 @@ from alembic import context
 
 # Load environment variables FIRST (before importing app modules)
 from dotenv import load_dotenv
-env_path = Path(__file__).resolve().parent.parent.parent / '.env'
+env_path = Path(__file__).resolve().parent.parent / '.env'
 load_dotenv(dotenv_path=env_path)
 
 # Add the parent directory to sys.path to import app modules
@@ -25,8 +25,9 @@ from app.infrastructure.database.base import Base  # type: ignore
 # Even though they appear unused, removing them breaks migration generation
 from app.infrastructure.database.models import (  # type: ignore  # noqa: F401
     User, Especie, Variedad, LoteSemillas, PruebaGerminacion,
-    Temporada, Plantacion, Cosecha, CosechaSemillas,
-    PushSubscription, CropRule, NotificationHistory
+    Temporada, Lugar, Archivo, Lista, ListaItem, FichaConocimiento,
+    Plantacion, Cosecha, CosechaSemillas,
+    PushSubscription, CropRule, NotificationHistory, LunarDataCache, WeatherDataCache
 )
 
 # this is the Alembic Config object, which provides

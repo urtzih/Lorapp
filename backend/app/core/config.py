@@ -26,9 +26,12 @@ class Settings(BaseSettings):
     SECRET_KEY: str
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 10080  # 7 days
-    
     # Google Cloud Vision API
     GOOGLE_APPLICATION_CREDENTIALS: str
+    
+    # Weather API (for lunar phases & astronomy data)
+    # NOTE: Using Open-Meteo (free, unlimited) instead of WeatherAPI
+    WEATHER_API_KEY: str = None  # DEPRECATED - kept for backwards compatibility
     
     # Google OAuth
     GOOGLE_CLIENT_ID: str
@@ -55,6 +58,7 @@ class Settings(BaseSettings):
     class Config:
         env_file = ".env"
         case_sensitive = True
+        extra = "ignore"  # Ignore extra fields not defined in Settings
 
 
 # Global settings instance

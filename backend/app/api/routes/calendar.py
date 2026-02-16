@@ -16,7 +16,26 @@ from app.application.services.calendar_service import calendar_service
 router = APIRouter(prefix="/calendar", tags=["Calendar"])
 
 
-@router.get("/monthly", response_model=Dict[str, Any])
+@router.get("/test")
+async def test_endpoint():
+    """Simple test endpoint"""
+    return {"status": "OK", "message": "Calendar router works"}
+
+
+@router.get("/monthly-no-deps")
+async def get_monthly_calendar_no_deps(
+    month: int = Query(..., ge=1, le=12, description="Month number (1-12)"),
+    year: int = Query(..., ge=2020, le=2100, description="Year")
+):
+    """SIMPLIFIED VERSION WITH NO DEPENDENCIES"""
+    return {
+        "month": month,
+        "year": year,
+        "test": "This works without dependencies"
+    }
+
+
+@router.get("/monthly")
 async def get_monthly_calendar(
     month: int = Query(..., ge=1, le=12, description="Month number (1-12)"),
     year: int = Query(..., ge=2020, le=2100, description="Year"),
@@ -29,7 +48,8 @@ async def get_monthly_calendar(
     - **month**: Month number (1-12)
     - **year**: Year
     
-    Returns all planting, transplanting, and harvesting tasks for the month.
+    Returns all planting, transplanting, and harvesting tasks for the month,
+    plus lunar phase information and planting recommendations.
     """
     tasks = calendar_service.get_monthly_tasks(
         user=current_user,
@@ -37,6 +57,9 @@ async def get_monthly_calendar(
         year=year,
         db=db
     )
+    
+    # Get lunar information
+    lunar_info = calendar_service.get_lunar_info_for_month(month, year)
     
     return {
         "month": month,
@@ -47,7 +70,8 @@ async def get_monthly_calendar(
             "total_transplanting": len(tasks["transplanting"]),
             "total_harvesting": len(tasks["harvesting"]),
             "total_reminders": len(tasks["reminders"])
-        }
+        },
+        "lunar": lunar_info
     }
 
 
@@ -83,7 +107,7 @@ async def get_current_month_calendar(
     }
 
 
-@router.get("/recommendations", response_model=List[Dict[str, Any]])
+@router.get("/recommendations", response_model=Dict[str, Any])
 async def get_planting_recommendations(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
@@ -91,14 +115,23 @@ async def get_planting_recommendations(
     """
     Get planting recommendations for the current month.
     
-    Returns list of seeds that can be planted this month based on user's inventory.
+    Returns list of seeds that can be planted this month based on user's inventory,
+    plus lunar phase recommendations.
     """
     recommendations = calendar_service.get_current_month_recommendations(
         user=current_user,
         db=db
     )
     
-    return recommendations
+    # Get current lunar phase info
+    now = datetime.now()
+    lunar_info = calendar_service.get_lunar_info_for_month(now.month, now.year)
+    
+    return {
+        "recommendations": recommendations,
+        "lunar_phase": lunar_info,
+        "total_recommendations": len(recommendations)
+    }
 
 
 @router.get("/upcoming-transplants", response_model=List[Dict[str, Any]])

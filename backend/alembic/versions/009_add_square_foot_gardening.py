@@ -1,7 +1,7 @@
 """Add square foot gardening data
 
-Revision ID: 009_add_square_foot_gardening
-Revises: 008_remove_nivel_viabilidad
+Revision ID: 009
+Revises: 008
 Create Date: 2026-02-14
 
 """
@@ -10,8 +10,8 @@ import sqlalchemy as sa
 from sqlalchemy.dialects import mysql
 
 # revision identifiers, used by Alembic.
-revision = '009_add_square_foot_gardening'
-down_revision = '008_remove_nivel_viabilidad'
+revision = '009'
+down_revision = '008'
 branch_labels = None
 depends_on = None
 

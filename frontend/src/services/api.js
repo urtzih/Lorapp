@@ -93,6 +93,26 @@ export const calendarAPI = {
         api.get('/calendar/expiring-seeds', { params: { days } }),
 };
 
+// ===== LUNAR API (NEW) =====
+export const lunarAPI = {
+    getToday: () => api.get('/lunar/today'),
+    getMonth: (year, month) => api.get(`/lunar/month/${year}/${month}`),
+    prefetchMonth: (year, month) => api.post(`/lunar/prefetch/${year}/${month}`),
+};
+
+// ===== INTEGRATED CALENDAR API (NEW) =====
+export const integratedCalendarAPI = {
+    getMonth: (year, month) => api.get(`/calendar-integrated/month/${year}/${month}`),
+    getWeekForecast: (startDate = null, days = 7) => 
+        api.get('/calendar-integrated/week-forecast', { 
+            params: { 
+                start_date: startDate, 
+                days 
+            } 
+        }),
+    getPlantingAdvisory: () => api.get('/calendar-integrated/planting-advisory'),
+};
+
 // ===== NOTIFICATIONS API =====
 export const notificationsAPI = {
     subscribe: (subscriptionData) => api.post('/notifications/subscribe', subscriptionData),

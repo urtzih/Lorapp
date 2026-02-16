@@ -5,10 +5,11 @@ Defines tables for users, species, varieties, seed lots, plantings, harvests, an
 # pylint: disable=unused-import
 # pyright: ignore
 
-from sqlalchemy import Column, Integer, String, Float, Boolean, DateTime, Text, JSON, ForeignKey, Enum as SQLEnum, text
+from sqlalchemy import Column, Integer, String, Float, Boolean, DateTime, Date, Text, JSON, ForeignKey, Enum as SQLEnum, text, UniqueConstraint, Index, CheckConstraint
 from sqlalchemy.orm import relationship
 from app.infrastructure.database.base import Base
 import enum
+from typing import Dict, Any
 
 
 # ============================================================================
@@ -99,6 +100,11 @@ class User(Base):
     cosechas_semillas = relationship("CosechaSemillas", back_populates="usuario", cascade="all, delete-orphan")
     pruebas_germinacion = relationship("PruebaGerminacion", back_populates="usuario", cascade="all, delete-orphan")
     push_subscriptions = relationship("PushSubscription", back_populates="usuario", cascade="all, delete-orphan")
+    temporadas = relationship("Temporada", back_populates="usuario", cascade="all, delete-orphan")
+    lugares = relationship("Lugar", back_populates="usuario", cascade="all, delete-orphan")
+    archivos = relationship("Archivo", back_populates="usuario", cascade="all, delete-orphan")
+    listas = relationship("Lista", back_populates="usuario", cascade="all, delete-orphan")
+    fichas_conocimiento = relationship("FichaConocimiento", back_populates="creado_por_usuario", cascade="all, delete-orphan")
 
 
 # ============================================================================
@@ -358,32 +364,110 @@ class PruebaGerminacion(Base):
 # ============================================================================
 # BANCO DE SEMILLAS - GESTIÓN DE CULTIVOS
 # ============================================================================
+from sqlalchemy.dialects.postgresql import JSONB, BIGINT
+
+# ========================================
+# NUEVOS MODELOS COLABORATIVOS Y ESCALABLES
+# ========================================
 
 class Temporada(Base):
-    """
-    Temporada de cultivo model.
-    Define períodos de cultivo (ej: "Primavera 2026", "Verano 2026").
-    """
     __tablename__ = "temporadas"
-    
     id = Column(Integer, primary_key=True, index=True)
-    
-    # Identificación
-    nombre = Column(String(100), nullable=False)
-    anno = Column(Integer, nullable=False)
-    
-    # Período
-    mes_inicio = Column(Integer, nullable=False)  # 1-12
-    mes_fin = Column(Integer, nullable=False)  # 1-12
-    
-    # Información
-    descripcion = Column(Text, nullable=True)
-    clima_esperado = Column(String(100), nullable=True)
-    
-    # Timestamps
-    created_at = Column(DateTime(timezone=True), server_default=text("CURRENT_TIMESTAMP"))  # type: ignore
-    updated_at = Column(DateTime(timezone=True), onupdate=text("CURRENT_TIMESTAMP"))  # type: ignore
+    usuario_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
+    nombre = Column(String(255), nullable=False)
+    fecha_inicio = Column(DateTime, nullable=True)
+    fecha_fin = Column(DateTime, nullable=True)
+    created_at = Column(DateTime(timezone=True), server_default=text("CURRENT_TIMESTAMP"))
 
+    usuario = relationship("User", back_populates="temporadas")
+    plantaciones = relationship("Plantacion", back_populates="temporada", cascade="all, delete-orphan")
+    __table_args__ = (
+        UniqueConstraint('usuario_id', 'nombre', name='uq_temporada_usuario_nombre'),
+    )
+
+class Lugar(Base):
+    __tablename__ = "lugares"
+    id = Column(Integer, primary_key=True, index=True)
+    usuario_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
+    nombre = Column(String(255), nullable=False)
+    tipo = Column(String(100), nullable=True)
+    metadata_json = Column("metadata", JSONB, nullable=True)
+    created_at = Column(DateTime(timezone=True), server_default=text("CURRENT_TIMESTAMP"))
+
+    usuario = relationship("User", back_populates="lugares")
+    plantaciones = relationship("Plantacion", back_populates="lugar", cascade="all, delete-orphan")
+    __table_args__ = (
+        UniqueConstraint('usuario_id', 'nombre', name='uq_lugar_usuario_nombre'),
+    )
+
+class Archivo(Base):
+    __tablename__ = "archivos"
+    id = Column(Integer, primary_key=True, index=True)
+    usuario_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
+    entidad_tipo = Column(String(50), nullable=False)
+    entidad_id = Column(Integer, nullable=False)
+    tipo_archivo = Column(String(50), nullable=False)
+    url = Column(Text, nullable=False)
+    nombre_original = Column(Text, nullable=True)
+    mime_type = Column(String(100), nullable=True)
+    tamano_bytes = Column(BIGINT, nullable=True)
+    metadata_json = Column("metadata", JSONB, nullable=True)
+    created_at = Column(DateTime(timezone=True), server_default=text("CURRENT_TIMESTAMP"))
+
+    usuario = relationship("User", back_populates="archivos")
+    __table_args__ = (
+        Index('idx_archivos_entidad', 'entidad_tipo', 'entidad_id'),
+    )
+
+class Lista(Base):
+    __tablename__ = "listas"
+    id = Column(Integer, primary_key=True, index=True)
+    usuario_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
+    nombre = Column(String(255), nullable=False)
+    descripcion = Column(Text, nullable=True)
+    visibilidad = Column(String(50), nullable=False)
+    slug_publico = Column(String(255), unique=True, nullable=True)
+    created_at = Column(DateTime(timezone=True), server_default=text("CURRENT_TIMESTAMP"))
+
+    usuario = relationship("User", back_populates="listas")
+    items = relationship("ListaItem", back_populates="lista", cascade="all, delete-orphan")
+    __table_args__ = (
+        Index('idx_listas_usuario_visibilidad', 'usuario_id', 'visibilidad'),
+    )
+
+class ListaItem(Base):
+    __tablename__ = "listas_items"
+    id = Column(Integer, primary_key=True, index=True)
+    lista_id = Column(Integer, ForeignKey("listas.id", ondelete="CASCADE"), nullable=False, index=True)
+    lote_id = Column(Integer, ForeignKey("lotes_semillas.id", ondelete="CASCADE"), nullable=True, index=True)
+    variedad_id = Column(Integer, ForeignKey("variedades.id"), nullable=True, index=True)
+    cantidad_ofrecida = Column(Integer, nullable=True)
+    notas = Column(Text, nullable=True)
+
+    lista = relationship("Lista", back_populates="items")
+    lote = relationship("LoteSemillas")
+    variedad = relationship("Variedad")
+    __table_args__ = (
+        CheckConstraint('(lote_id IS NOT NULL OR variedad_id IS NOT NULL)', name='chk_lista_item_lote_o_variedad'),
+    )
+
+class FichaConocimiento(Base):
+    __tablename__ = "fichas_conocimiento"
+    id = Column(Integer, primary_key=True, index=True)
+    entidad_tipo = Column(String(50), nullable=False)
+    entidad_id = Column(Integer, nullable=False)
+    tipo_ficha = Column(String(50), nullable=False)
+    contenido_md = Column(Text, nullable=True)
+    version = Column(Integer, default=1)
+    estado = Column(String(50), nullable=False)
+    creado_por_usuario_id = Column(Integer, ForeignKey("users.id"), nullable=True)
+    created_at = Column(DateTime(timezone=True), server_default=text("CURRENT_TIMESTAMP"))
+    updated_at = Column(DateTime(timezone=True), server_default=text("CURRENT_TIMESTAMP"))
+
+    creado_por_usuario = relationship("User", back_populates="fichas_conocimiento")
+    __table_args__ = (
+        Index('idx_fichas_conocimiento', 'entidad_tipo', 'entidad_id', 'tipo_ficha', 'estado'),
+    )
 
 class Plantacion(Base):
     """
@@ -395,6 +479,10 @@ class Plantacion(Base):
     id = Column(Integer, primary_key=True, index=True)
     usuario_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
     lote_semillas_id = Column(Integer, ForeignKey("lotes_semillas.id", ondelete="CASCADE"), nullable=False, index=True)
+    
+    # Contexto colaborativo
+    temporada_id = Column(Integer, ForeignKey("temporadas.id", ondelete="SET NULL"), nullable=True, index=True)
+    lugar_id = Column(Integer, ForeignKey("lugares.id", ondelete="SET NULL"), nullable=True, index=True)
     
     # Información de plantación
     nombre_plantacion = Column(String(255), nullable=False)  # Ej: "Tomates huerto sur"
@@ -424,6 +512,8 @@ class Plantacion(Base):
     # Relationships
     usuario = relationship("User", back_populates="plantaciones")
     lote_semillas = relationship("LoteSemillas", back_populates="plantaciones")
+    temporada = relationship("Temporada", back_populates="plantaciones")
+    lugar = relationship("Lugar", back_populates="plantaciones")
     cosechas = relationship("Cosecha", back_populates="plantacion", cascade="all, delete-orphan")
     cosechas_semillas = relationship("CosechaSemillas", back_populates="plantacion", cascade="all, delete-orphan")
 
@@ -596,3 +686,112 @@ class NotificationHistory(Base):
     # Timestamps
     created_at = Column(DateTime(timezone=True), server_default=text("CURRENT_TIMESTAMP"))  # type: ignore
 
+
+class LunarDataCache(Base):
+    """
+    Cache for lunar phase data from external API.
+    Stores moon phases, moonrise/moonset times, and astronomical data by location.
+    """
+    __tablename__ = "lunar_data_cache"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    date = Column(DateTime, nullable=False, unique=True, index=True)
+    
+    # Location info
+    location = Column(String(255), nullable=False)
+    latitude = Column(Float, nullable=False)
+    longitude = Column(Float, nullable=False)
+    
+    # Lunar data
+    moon_phase = Column(String(50), nullable=False)
+    moon_illumination = Column(Float, nullable=False)
+    moonrise = Column(String(10), nullable=True)
+    moonset = Column(String(10), nullable=True)
+    sunrise = Column(String(10), nullable=True)
+    sunset = Column(String(10), nullable=True)
+    
+    # Raw API response (for debugging/future use)
+    raw_data = Column(JSON, nullable=True)
+    
+    # Timestamps
+    created_at = Column(DateTime(timezone=True), server_default=text("CURRENT_TIMESTAMP"))  # type: ignore
+    updated_at = Column(DateTime(timezone=True), onupdate=text("CURRENT_TIMESTAMP"))  # type: ignore
+    
+    # Index for quick lookups
+    __table_args__ = (
+        Index('idx_lunar_cache_date_location', 'date', 'location'),
+    )
+
+
+class WeatherDataCache(Base):
+    """
+    Cache for weather data from external API.
+    Stores temperature, precipitation, wind, and forecasts by location and date.
+    """
+    __tablename__ = "weather_data_cache"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    date = Column(Date, nullable=False, index=True)
+    
+    # Location info
+    location = Column(String(500), nullable=False, index=True)
+    latitude = Column(Float, nullable=True)
+    longitude = Column(Float, nullable=True)
+    
+    # Temperature data
+    temp_max = Column(Float, nullable=True)
+    temp_min = Column(Float, nullable=True)
+    temp_avg = Column(Float, nullable=True)
+    
+    # Weather conditions
+    condition = Column(String(255), nullable=True)
+    humidity = Column(Integer, nullable=True)
+    precipitation_mm = Column(Float, nullable=True)
+    chance_of_rain = Column(Integer, nullable=True)
+    wind_kph = Column(Float, nullable=True)
+    uv_index = Column(Float, nullable=True)
+    
+    # Raw API response (for debugging/future use)
+    raw_data = Column(JSON, nullable=True)
+    
+    # Timestamps
+    cached_at = Column(DateTime(timezone=True), server_default=text("CURRENT_TIMESTAMP"))  # type: ignore
+    
+    # Constraints and indexes
+    __table_args__ = (
+        UniqueConstraint('date', 'location', name='uq_weather_date_location'),
+        Index('idx_weather_date_location', 'date', 'location'),
+    )
+    
+    def is_fresh(self, hours: int = 24) -> bool:
+        """Check if cached data is fresh (less than 'hours' old)."""
+        from datetime import datetime, timedelta, timezone
+        return datetime.now(timezone.utc) - self.cached_at < timedelta(hours=hours)
+    
+    def to_dict(self) -> Dict[str, Any]:
+        """Convert cache entry to dictionary format matching API response."""
+        return {
+            "date": self.date.isoformat(),
+            "location": self.location,
+            "coordinates": {
+                "latitude": self.latitude,
+                "longitude": self.longitude
+            },
+            "current": {
+                "temp_c": self.temp_avg,
+                "humidity": self.humidity,
+                "wind_kph": self.wind_kph,
+                "condition": self.condition,
+                "chance_of_rain": self.chance_of_rain
+            },
+            "daily": {
+                "max_temp_c": self.temp_max,
+                "min_temp_c": self.temp_min,
+                "avg_temp_c": self.temp_avg,
+                "condition": self.condition,
+                "total_precipitation_mm": self.precipitation_mm,
+                "chance_of_rain": self.chance_of_rain,
+                "uv_index": self.uv_index
+            },
+            "forecast_3_days": []
+        }

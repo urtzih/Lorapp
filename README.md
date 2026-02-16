@@ -102,10 +102,16 @@ docker-compose up -d
 
 ## 📚 Documentación
 
+### Guías de Inicio
 - **[DOCKER.md](DOCKER.md)** - 🐳 **EMPIEZA AQUÍ** - Guía completa de Docker
 - **[QUICK_START.md](QUICK_START.md)** - Setup local sin Docker
 - **[DEPLOYMENT.md](DEPLOYMENT.md)** - Deployment a Railway/Vercel
 - **[walkthrough.md](walkthrough.md)** - Detalles técnicos
+
+### Arquitectura y Base de Datos
+- **[DATABASE_SCHEMA_REVIEW.md](DATABASE_SCHEMA_REVIEW.md)** - Revisión completa del esquema de BD
+- **[COLLABORATIVE_FEATURES_IMPLEMENTATION.md](COLLABORATIVE_FEATURES_IMPLEMENTATION.md)** - 🆕 Funcionalidades colaborativas
+- **[QUICK_REFERENCE.md](QUICK_REFERENCE.md)** - Referencia rápida de entidades nuevas
 
 ---
 

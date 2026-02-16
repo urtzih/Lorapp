@@ -34,10 +34,13 @@ async def get_current_user(
     Raises:
         HTTPException: If token is invalid or user not found
     """
+    print(f"[GET_CURRENT_USER] Starting authentication")
     token = credentials.credentials
+    print(f"[GET_CURRENT_USER] Token: {token[:20]}...")
     
     # Decode and verify token
     payload = decode_access_token(token)
+    print(f"[GET_CURRENT_USER] decoded payload: {payload}")
     if payload is None:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,

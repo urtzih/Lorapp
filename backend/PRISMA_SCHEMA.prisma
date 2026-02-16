@@ -305,58 +305,151 @@ model PruebaGerminacion {
 // ============================================================================
 
 model Temporada {
-  id                          Int          @id @default(autoincrement())
-  nombre                      String       @db.VarChar(100)
-  anno                        Int
-  mesInicio                   Int          @map("mes_inicio")
-  mesFin                      Int          @map("mes_fin")
-  descripcion                 String?      @db.Text
-  climaEsperado               String?      @map("clima_esperado")
-  
-  createdAt                   DateTime     @default(now()) @map("created_at")
-  updatedAt                   DateTime     @updatedAt @map("updated_at")
+  id            BigInt      @id @default(autoincrement())
+  usuarioId     BigInt      @map("usuario_id")
+  nombre        String
+  fechaInicio   DateTime?   @map("fecha_inicio")
+  fechaFin      DateTime?   @map("fecha_fin")
+  createdAt     DateTime    @default(now()) @map("created_at")
 
-  @@unique([nombre, anno])
-  @@index([anno])
+  usuario       User        @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+  plantaciones  Plantacion[]
+
+  @@unique([usuarioId, nombre])
   @@map("temporadas")
 }
 
 model Plantacion {
-  id                          Int          @id @default(autoincrement())
-  usuarioId                   Int          @map("usuario_id")
-  loteSemillasId              Int          @map("lote_semillas_id")
-  
-  nombrePlantacion            String       @map("nombre_plantacion")
-  fechaSiembra                DateTime     @map("fecha_siembra")
-  tipoSiembra                 String
-  cantidadSemillasPlantadas   Int?         @map("cantidad_semillas_plantadas")
-  
-  ubicacionDescripcion        String?      @map("ubicacion_descripcion")
-  coordenadasX                Float?       @map("coordenadas_x")
-  coordenadasY                Float?       @map("coordenadas_y")
-  
-  estado                      EstadoPlantacion @default(PLANIFICADA)
-  fechaGerminacion            DateTime?    @map("fecha_germinacion") @db.DateTime
-  fechaTrasplante             DateTime?    @map("fecha_trasplante") @db.DateTime
-  fechaCosechaEstimada        DateTime?    @map("fecha_cosecha_estimada") @db.DateTime
-  
-  fotos                       Json         @default("[]")
-  notas                       String?      @db.Text
-  
-  createdAt                   DateTime     @default(now()) @map("created_at")
-  updatedAt                   DateTime     @updatedAt @map("updated_at")
-  
-  // Relations
-  usuario                     User         @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
-  loteSemillas                LoteSemillas @relation(fields: [loteSemillasId], references: [id], onDelete: Cascade)
-  cosechas                    Cosecha[]
-  cosechasSemillas            CosechaSemillas[]
+  id            BigInt      @id @default(autoincrement())
+  usuarioId     BigInt      @map("usuario_id")
+  loteSemillasId BigInt     @map("lote_semillas_id")
+  temporadaId   BigInt?     @map("temporada_id")
+  lugarId       BigInt?     @map("lugar_id")
 
-  @@index([usuarioId])
+  nombrePlantacion          String       @map("nombre_plantacion")
+  fechaSiembra              DateTime     @map("fecha_siembra")
+  tipoSiembra               String
+  cantidadSemillasPlantadas Int?         @map("cantidad_semillas_plantadas")
+  ubicacionDescripcion      String?      @map("ubicacion_descripcion")
+  coordenadasX              Float?       @map("coordenadas_x")
+  coordenadasY              Float?       @map("coordenadas_y")
+  estado                    EstadoPlantacion @default(PLANIFICADA)
+  fechaGerminacion          DateTime?    @map("fecha_germinacion")
+  fechaTrasplante           DateTime?    @map("fecha_trasplante")
+  fechaCosechaEstimada      DateTime?    @map("fecha_cosecha_estimada")
+  fotos                     Json         @default("[]")
+  notas                     String?      @db.Text
+  createdAt                 DateTime     @default(now()) @map("created_at")
+  updatedAt                 DateTime     @updatedAt @map("updated_at")
+
+  usuario         User         @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+  loteSemillas    LoteSemillas @relation(fields: [loteSemillasId], references: [id], onDelete: Cascade)
+  temporada       Temporada?    @relation(fields: [temporadaId], references: [id])
+  lugar           Lugar?        @relation(fields: [lugarId], references: [id])
+  cosechas        Cosecha[]
+  cosechasSemillas CosechaSemillas[]
+
+  @@index([usuarioId, temporadaId])
+  @@index([usuarioId, lugarId, temporadaId])
   @@index([loteSemillasId])
   @@index([estado])
   @@index([fechaSiembra])
   @@map("plantaciones")
+}
+// ========================================
+// LUGARES (Bancales / Parcelas)
+// ========================================
+model Lugar {
+  id        BigInt    @id @default(autoincrement())
+  usuarioId BigInt    @map("usuario_id")
+  nombre    String
+  tipo      String?
+  metadata  Json?
+  createdAt DateTime  @default(now()) @map("created_at")
+
+  usuario      User         @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+  plantaciones Plantacion[]
+
+  @@unique([usuarioId, nombre])
+  @@map("lugares")
+}
+
+// ========================================
+// ARCHIVOS (Fotos, Planos, Documentos)
+// ========================================
+model Archivo {
+  id            BigInt    @id @default(autoincrement())
+  usuarioId     BigInt    @map("usuario_id")
+  entidadTipo   String    @map("entidad_tipo")
+  entidadId     BigInt    @map("entidad_id")
+  tipoArchivo   String    @map("tipo_archivo")
+  url           String
+  nombreOriginal String?  @map("nombre_original")
+  mimeType      String?   @map("mime_type")
+  tamanoBytes   BigInt?   @map("tamano_bytes")
+  metadata      Json?
+  createdAt     DateTime  @default(now()) @map("created_at")
+
+  usuario       User      @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+
+  @@index([entidadTipo, entidadId], name: "idx_archivos_entidad")
+  @@map("archivos")
+}
+
+// ========================================
+// LISTAS COMPARTIBLES DE SEMILLAS
+// ========================================
+model Lista {
+  id          BigInt    @id @default(autoincrement())
+  usuarioId   BigInt    @map("usuario_id")
+  nombre      String
+  descripcion String?
+  visibilidad String
+  slugPublico String?   @unique @map("slug_publico")
+  createdAt   DateTime  @default(now()) @map("created_at")
+
+  usuario     User      @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+  items       ListaItem[]
+
+  @@index([usuarioId, visibilidad])
+  @@map("listas")
+}
+
+model ListaItem {
+  id         BigInt    @id @default(autoincrement())
+  listaId    BigInt    @map("lista_id")
+  loteId     BigInt?   @map("lote_id")
+  variedadId BigInt?   @map("variedad_id")
+  cantidadOfrecida Int? @map("cantidad_ofrecida")
+  notas      String?
+
+  lista      Lista     @relation(fields: [listaId], references: [id], onDelete: Cascade)
+  lote       LoteSemillas? @relation(fields: [loteId], references: [id], onDelete: Cascade)
+  variedad   Variedad? @relation(fields: [variedadId], references: [id])
+
+  @@map("listas_items")
+  @@check(loteId IS NOT NULL OR variedadId IS NOT NULL)
+}
+
+// ========================================
+// FICHAS DE CONOCIMIENTO COLABORATIVO
+// ========================================
+model FichaConocimiento {
+  id           BigInt    @id @default(autoincrement())
+  entidadTipo  String    @map("entidad_tipo")
+  entidadId    BigInt    @map("entidad_id")
+  tipoFicha    String    @map("tipo_ficha")
+  contenidoMd  String?   @map("contenido_md")
+  version      Int       @default(1)
+  estado       String
+  creadoPorUsuarioId BigInt? @map("creado_por_usuario_id")
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime  @default(now()) @map("updated_at")
+
+  creadoPorUsuario User? @relation(fields: [creadoPorUsuarioId], references: [id])
+
+  @@index([entidadTipo, entidadId, tipoFicha, estado], name: "idx_fichas_conocimiento")
+  @@map("fichas_conocimiento")
 }
 
 model Cosecha {

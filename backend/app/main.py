@@ -10,13 +10,14 @@ from fastapi.responses import JSONResponse
 from starlette.exceptions import HTTPException as StarletteHTTPException
 import logging
 import os
+from datetime import datetime
 
 from app.core.config import settings
 from app.infrastructure.database.base import init_db
 from app.application.services.notification_scheduler import notification_scheduler
 
 # Import routers
-from app.api.routes import auth, users, seeds, notifications, calendar, planting, my_garden, my_seedling
+from app.api.routes import auth, users, seeds, notifications, calendar, planting, my_garden, my_seedling, lunar, calendar_integrated
 
 
 # Configure logging
@@ -71,10 +72,33 @@ async def general_exception_handler(request: Request, exc: Exception):
     """
     Handle general unhandled exceptions and ensure CORS headers are included.
     """
+    import traceback
+    import sys
+    error_details = traceback.format_exc()
     logger.error(f"Unhandled exception: {exc}", exc_info=True)
+    
+    # Write to stderr to force output
+    sys.stderr.write(f"\n\n========== UNHANDLED EXCEPTION ==========\n")
+    sys.stderr.write(f"Error: {exc}\n")
+    sys.stderr.write(f"Traceback:\n{error_details}\n")
+    sys.stderr.write("=========================================\n\n")
+    sys.stderr.flush()
+    
+    # Also write to a file (use correct path)
+    try:
+        error_log_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "error_log.txt")
+        with open(error_log_path, "a") as f:
+            f.write(f"\n\n========== {datetime.now()} ==========\n")
+            f.write(f"URL: {request.url}\n")
+            f.write(f"Error: {exc}\n")
+            f.write(f"Traceback:\n{error_details}\n")
+            f.write("=========================================\n\n")
+    except Exception as log_error:
+        sys.stderr.write(f"Failed to write to error log: {log_error}\n")
+    
     return JSONResponse(
         status_code=500,
-        content={"detail": "Internal server error"},
+        content={"detail": "Internal server error", "error": str(exc), "traceback": error_details},
         headers={
             "Access-Control-Allow-Origin": request.headers.get("origin", "*"),
             "Access-Control-Allow-Credentials": "true",
@@ -98,6 +122,8 @@ app.include_router(calendar.router, prefix="/api")
 app.include_router(planting.router, prefix="/api")
 app.include_router(my_garden.router, prefix="/api")
 app.include_router(my_seedling.router, prefix="/api")
+app.include_router(lunar.router, prefix="/api")
+app.include_router(calendar_integrated.router, prefix="/api")
 
 
 # Startup event

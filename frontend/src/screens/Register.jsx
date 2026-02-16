@@ -9,6 +9,7 @@ export function Register() {
         email: '',
         password: '',
         name: '',
+        location: '',
         language: 'es'
     });
     const [error, setError] = useState('');
@@ -76,6 +77,28 @@ export function Register() {
                             required
                             placeholder="Tu nombre"
                         />
+                    </div>
+
+                    <div className="form-group">
+                        <label className="form-label" htmlFor="register-location">
+                            📍 Ubicación
+                            <span className="text-gray" style={{fontSize: '0.85em', marginLeft: '4px'}}>
+                                (para ajustar calendario agrícola)
+                            </span>
+                        </label>
+                        <input
+                            id="register-location"
+                            type="text"
+                            name="location"
+                            className="input"
+                            value={formData.location}
+                            onChange={handleChange}
+                            required
+                            placeholder="Ej: Vitoria-Gasteiz, España"
+                        />
+                        <small style={{display: 'block', marginTop: '4px', color: '#6B7280'}}>
+                            Ingresa tu ciudad/pueblo para que podamos personalizar las fechas de siembra según tu clima.
+                        </small>
                     </div>
 
                     <div className="form-group">

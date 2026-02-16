@@ -25,6 +25,91 @@
     margin-bottom: var(--space-4);
 }
 
+.seeddetail-header__content {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-2);
+}
+
+.seeddetail-header__actions {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+}
+
+.seeddetail-header__back-btn,
+.seeddetail-header__edit-btn,
+.seeddetail-header__delete-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 44px;
+    min-height: 44px;
+    padding: 0;
+    border-radius: var(--radius-full);
+    border: 1px solid var(--color-gray-200);
+    background: linear-gradient(180deg, #ffffff 0%, var(--color-gray-50) 100%);
+    color: var(--color-gray-800);
+    box-shadow: var(--shadow-sm);
+    cursor: pointer;
+    transition: transform var(--transition-fast), box-shadow var(--transition-fast), border-color var(--transition-fast), background var(--transition-fast);
+}
+
+.seeddetail-header__back-btn:active,
+.seeddetail-header__edit-btn:active,
+.seeddetail-header__delete-btn:active {
+    transform: scale(0.97);
+}
+
+.seeddetail-header__back-btn:hover,
+.seeddetail-header__edit-btn:hover,
+.seeddetail-header__delete-btn:hover {
+    border-color: var(--color-gray-300);
+    box-shadow: var(--shadow-md);
+}
+
+.seeddetail-header__back-btn:focus-visible,
+.seeddetail-header__edit-btn:focus-visible,
+.seeddetail-header__delete-btn:focus-visible,
+.seeddetail-header__exit-btn:focus-visible {
+    outline: 3px solid rgba(16, 185, 129, 0.3);
+    outline-offset: 2px;
+}
+
+.seeddetail-header__edit-btn {
+    background: linear-gradient(180deg, #ffffff 0%, rgba(16, 185, 129, 0.08) 100%);
+    border-color: rgba(16, 185, 129, 0.2);
+}
+
+.seeddetail-header__delete-btn {
+    background: linear-gradient(180deg, #ffffff 0%, rgba(239, 68, 68, 0.1) 100%);
+    border-color: rgba(239, 68, 68, 0.2);
+    color: var(--color-error);
+}
+
+.seeddetail-header__exit-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 44px;
+    padding: 0 var(--space-4);
+    border-radius: var(--radius-full);
+    border: 1px solid var(--color-gray-200);
+    background: var(--color-gray-900);
+    color: var(--color-white);
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: var(--shadow-sm);
+    transition: transform var(--transition-fast), box-shadow var(--transition-fast), background var(--transition-fast);
+}
+
+.seeddetail-header__exit-btn:hover {
+    background: var(--color-gray-800);
+    box-shadow: var(--shadow-md);
+}
+
 .seeddetail-header__back {
     min-width: unset;
     padding: var(--space-2);
@@ -114,6 +199,27 @@
 @media (max-width: 768px) {
     .seeddetail-container {
         padding: var(--space-2);
+    }
+
+    .seeddetail-header {
+        margin-bottom: var(--space-3);
+    }
+
+    .seeddetail-header__actions {
+        gap: var(--space-1);
+    }
+
+    .seeddetail-header__back-btn,
+    .seeddetail-header__edit-btn,
+    .seeddetail-header__delete-btn {
+        min-width: 40px;
+        min-height: 40px;
+    }
+
+    .seeddetail-header__exit-btn {
+        min-height: 40px;
+        padding: 0 var(--space-3);
+        font-size: 0.875rem;
     }
     
     .seeddetail-info-grid {

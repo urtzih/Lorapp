@@ -18,8 +18,12 @@ class UserBase(BaseModel):
 
 
 class UserCreate(UserBase):
-    """Schema for user registration with email/password"""
+    """Schema for user registration with email/password and location"""
     password: str = Field(..., min_length=6, max_length=100)
+    location: str = Field(..., min_length=3, max_length=500, description="City/Town name or full address")
+    latitude: Optional[float] = Field(None, ge=-90, le=90, description="Auto-calculated from location if omitted")
+    longitude: Optional[float] = Field(None, ge=-180, le=180, description="Auto-calculated from location if omitted")
+    climate_zone: Optional[str] = Field(None, description="e.g., 'temperate', 'mediterranean', 'tropical'")
 
 
 class UserLogin(BaseModel):
