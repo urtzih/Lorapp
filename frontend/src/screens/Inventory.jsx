@@ -44,7 +44,7 @@ export function Inventory() {
         }
     };
 
-    // Agrupar semillas por especie
+    // Agrupar semillas por especie y ordenar por variedad
     const groupSeedsBySpecies = () => {
         const grouped = {};
         const filteredSeeds = getFilteredSeeds();
@@ -55,6 +55,16 @@ export function Inventory() {
             }
             grouped[speciesName].push(seed);
         });
+        
+        // Ordenar cada grupo de variedades por nombre_variedad
+        Object.keys(grouped).forEach(species => {
+            grouped[species].sort((a, b) => {
+                const varA = a.variedad?.nombre_variedad || '';
+                const varB = b.variedad?.nombre_variedad || '';
+                return varA.localeCompare(varB);
+            });
+        });
+        
         return grouped;
     };
 
@@ -137,17 +147,23 @@ export function Inventory() {
             return badges[estado] || badges['activo'];
         };
         
-        // Obtener mes promedio de siembra
-        const getMesesSiembra = () => {
-            if (!seed.variedad?.especie) return null;
-            const meses = seed.variedad.especie.meses_siembra_exterior || seed.variedad.especie.meses_siembra_interior || [];
-            if (meses.length === 0) return null;
-            const mesesNombres = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
-            return meses.map(m => mesesNombres[m - 1]).join(', ');
+        // Obtener meses de siembra interior y exterior
+        const getSiembraInfo = () => {
+            const variedad = seed.variedad;
+            if (!variedad) return { interior: null, exterior: null };
+            
+            const interior = variedad.meses_siembra_interior;
+            const exterior = variedad.meses_siembra_exterior;
+            
+            return {
+                interior: interior && interior.length > 0 ? interior : null,
+                exterior: exterior && exterior.length > 0 ? exterior : null
+            };
         };
-        
+
+        const siembraInfo = getSiembraInfo();
         const estadoBadge = getEstadoBadge(seed.estado);
-        const mesesSiembra = getMesesSiembra();
+
         
         return (
             <Link to={`/seeds/${seed.id}`} className="inventory-seed-card">
@@ -178,6 +194,47 @@ export function Inventory() {
                             <p className="seed-variety">{seed.variedad.nombre_variedad}</p>
                         )}
 
+                        {/* Visual Indicators for Planting Type */}
+                        <div style={{
+                            display: 'flex',
+                            gap: '6px',
+                            marginBottom: '8px',
+                            flexWrap: 'wrap'
+                        }}>
+                            {siembraInfo.interior && (
+                                <div style={{
+                                    background: '#f3e8ff',
+                                    color: '#6d28d9',
+                                    padding: '4px 8px',
+                                    borderRadius: '4px',
+                                    fontSize: '11px',
+                                    fontWeight: '600',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '4px'
+                                }}>
+                                    <span>🏠</span> Interior
+                                    <span style={{fontSize: '10px'}}>({siembraInfo.interior.join(', ')})</span>
+                                </div>
+                            )}
+                            {siembraInfo.exterior && (
+                                <div style={{
+                                    background: '#dcfce7',
+                                    color: '#166534',
+                                    padding: '4px 8px',
+                                    borderRadius: '4px',
+                                    fontSize: '11px',
+                                    fontWeight: '600',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '4px'
+                                }}>
+                                    <span>🌾</span> Exterior
+                                    <span style={{fontSize: '10px'}}>({siembraInfo.exterior.join(', ')})</span>
+                                </div>
+                            )}
+                        </div>
+
                         <div className="seed-tags">
                             {seed.marca && (
                                 <span className="badge badge-primary">{seed.marca}</span>
@@ -191,12 +248,6 @@ export function Inventory() {
                                 <span className="badge badge-success" title="Origen del Lote">
                                     🏠 {seed.origen}
                                 </span>
-                            )}
-                        </div>
-
-                        <div className="inventory-seed-details">
-                            {mesesSiembra && (
-                                <div>🌱 Siembra: {mesesSiembra}</div>
                             )}
                         </div>
 
@@ -221,16 +272,22 @@ export function Inventory() {
             return badges[estado] || badges['activo'];
         };
         
-        const getMesesSiembra = () => {
-            if (!seed.variedad?.especie) return null;
-            const meses = seed.variedad.especie.meses_siembra_exterior || seed.variedad.especie.meses_siembra_interior || [];
-            if (meses.length === 0) return null;
-            const mesesNombres = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
-            return meses.map(m => mesesNombres[m - 1]).join(', ');
+        // Obtener meses de siembra interior y exterior
+        const getSiembraInfo = () => {
+            const variedad = seed.variedad;
+            if (!variedad) return { interior: null, exterior: null };
+            
+            const interior = variedad.meses_siembra_interior;
+            const exterior = variedad.meses_siembra_exterior;
+            
+            return {
+                interior: interior && interior.length > 0 ? interior : null,
+                exterior: exterior && exterior.length > 0 ? exterior : null
+            };
         };
         
+        const siembraInfo = getSiembraInfo();
         const estadoBadge = getEstadoBadge(seed.estado);
-        const mesesSiembra = getMesesSiembra();
         
         return (
             <Link to={`/seeds/${seed.id}`} className="inventory-seed-list-item">
@@ -245,10 +302,43 @@ export function Inventory() {
                                     {seed.variedad.nombre_variedad}
                                 </p>
                             )}
+                            
+                            {/* Visual Indicators for Planting Type */}
+                            <div style={{
+                                display: 'flex',
+                                gap: '6px',
+                                marginBottom: '6px',
+                                flexWrap: 'wrap'
+                            }}>
+                                {siembraInfo.interior && (
+                                    <div style={{
+                                        background: '#f3e8ff',
+                                        color: '#6d28d9',
+                                        padding: '3px 6px',
+                                        borderRadius: '3px',
+                                        fontSize: '10px',
+                                        fontWeight: '600'
+                                    }}>
+                                        🏠 Interior: {siembraInfo.interior.join(', ')}
+                                    </div>
+                                )}
+                                {siembraInfo.exterior && (
+                                    <div style={{
+                                        background: '#dcfce7',
+                                        color: '#166534',
+                                        padding: '3px 6px',
+                                        borderRadius: '3px',
+                                        fontSize: '10px',
+                                        fontWeight: '600'
+                                    }}>
+                                        🌾 Exterior: {siembraInfo.exterior.join(', ')}
+                                    </div>
+                                )}
+                            </div>
+                            
                             <div className="inventory-seed-list-item__tags">
                                 {seed.marca && <span>🏷️ {seed.marca}</span>}
                                 {seed.variedad?.especie?.familia_botanica && <span>🌿 {seed.variedad.especie.familia_botanica}</span>}
-                                {mesesSiembra && <span>🌱 {mesesSiembra}</span>}
                             </div>
                         </div>
                         <div>
@@ -438,32 +528,36 @@ export function Inventory() {
             ) : viewMode === 'grid' ? (
                 /* Seeds Grid - Grouped by Species */
                 <div className="inventory-species-group">
-                    {Object.entries(groupSeedsBySpecies()).map(([speciesName, speciesSeeds]) => (
-                        <div key={speciesName} className="inventory-species-group__section">
-                            <h3 className="inventory-species-header">
-                                {speciesName} <span className="inventory-species-header__count">({speciesSeeds.length} {speciesSeeds.length === 1 ? 'variedad' : 'variedades'})</span>
-                            </h3>
-                            <div className="grid grid-cols-3 mb-8 inventory-grid">
-                                {speciesSeeds.map(seed => (
-                                    <SeedCard key={seed.id} seed={seed} />
-                                ))}
+                    {Object.entries(groupSeedsBySpecies())
+                        .sort(([a], [b]) => a.localeCompare(b))
+                        .map(([speciesName, speciesSeeds]) => (
+                            <div key={speciesName} className="inventory-species-group__section">
+                                <h3 className="inventory-species-header">
+                                    {speciesName} <span className="inventory-species-header__count">({speciesSeeds.length} {speciesSeeds.length === 1 ? 'variedad' : 'variedades'})</span>
+                                </h3>
+                                <div className="grid grid-cols-3 mb-8 inventory-grid">
+                                    {speciesSeeds.map(seed => (
+                                        <SeedCard key={seed.id} seed={seed} />
+                                    ))}
+                                </div>
                             </div>
-                        </div>
-                    ))}
+                        ))}
                 </div>
             ) : (
                 /* Seeds List - Grouped by Species */
                 <div className="inventory-species-group">
-                    {Object.entries(groupSeedsBySpecies()).map(([speciesName, speciesSeeds]) => (
-                        <div key={speciesName} className="inventory-species-group__section">
-                            <h3 className="inventory-species-header">
-                                {speciesName} <span className="inventory-species-header__count">({speciesSeeds.length} {speciesSeeds.length === 1 ? 'variedad' : 'variedades'})</span>
-                            </h3>
-                            {speciesSeeds.map(seed => (
-                                <SeedListItem key={seed.id} seed={seed} />
-                            ))}
-                        </div>
-                    ))}
+                    {Object.entries(groupSeedsBySpecies())
+                        .sort(([a], [b]) => a.localeCompare(b))
+                        .map(([speciesName, speciesSeeds]) => (
+                            <div key={speciesName} className="inventory-species-group__section">
+                                <h3 className="inventory-species-header">
+                                    {speciesName} <span className="inventory-species-header__count">({speciesSeeds.length} {speciesSeeds.length === 1 ? 'variedad' : 'variedades'})</span>
+                                </h3>
+                                {speciesSeeds.map(seed => (
+                                    <SeedListItem key={seed.id} seed={seed} />
+                                ))}
+                            </div>
+                        ))}
                 </div>
             )}
 

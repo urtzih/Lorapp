@@ -10,34 +10,63 @@ export function Calendar() {
     const [recommendations, setRecommendations] = useState([]);
     const [upcomingTransplants, setUpcomingTransplants] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [loadingRecommendations, setLoadingRecommendations] = useState(false);
+    const [loadingTransplants, setLoadingTransplants] = useState(false);
 
     useEffect(() => {
-        loadData();
+        loadCalendar();
+        loadRecommendations();
+        loadTransplants();
     }, [currentMonth, currentYear]);
 
-    const loadData = async () => {
+    // Carga el calendario principal (más rápido - solo BBDD)
+    const loadCalendar = async () => {
         setLoading(true);
         try {
-            // Load integrated calendar (lunar + weather data)
-            const calendarData = await integratedCalendarAPI.getMonth(currentYear, currentMonth);
+            console.log('[Calendar] Loading calendar for:', currentYear, currentMonth);
+            const response = await integratedCalendarAPI.getMonth(currentYear, currentMonth);
+            const calendarData = response.data; // axios devuelve response.data
+            console.log('[Calendar] Calendar data received:', calendarData);
+            console.log('[Calendar] Days count:', calendarData.days?.length);
             setIntegratedCalendar(calendarData);
-            
-            // Load recommendations and upcoming transplants if available
-            try {
-                const [recs, transplants] = await Promise.all([
-                    calendarAPI.getRecommendations().catch(() => ({ data: [] })),
-                    calendarAPI.getUpcomingTransplants(7).catch(() => ({ data: [] }))
-                ]);
-                
-                setRecommendations(recs?.data?.recommendations || recs?.data || []);
-                setUpcomingTransplants(transplants?.data || []);
-            } catch (error) {
-                console.warn('Could not load recommendations/transplants:', error);
-            }
         } catch (error) {
-            console.error('Error loading calendar:', error);
+            console.error('[Calendar] Error loading calendar:', error);
+            console.error('[Calendar] Error details:', error.response?.data);
+            setIntegratedCalendar(null);
         } finally {
             setLoading(false);
+        }
+    };
+
+    // Carga recomendaciones de forma independiente
+    const loadRecommendations = async () => {
+        setLoadingRecommendations(true);
+        try {
+            const response = await calendarAPI.getRecommendations();
+            const recs = response.data;
+            console.log('[Calendar] Recommendations loaded:', recs);
+            setRecommendations(recs?.recommendations || recs?.data || recs || []);
+        } catch (error) {
+            console.warn('[Calendar] Could not load recommendations:', error);
+            setRecommendations([]);
+        } finally {
+            setLoadingRecommendations(false);
+        }
+    };
+
+    // Carga trasplantes de forma independiente
+    const loadTransplants = async () => {
+        setLoadingTransplants(true);
+        try {
+            const response = await calendarAPI.getUpcomingTransplants(7);
+            const transplants = response.data;
+            console.log('[Calendar] Transplants loaded:', transplants);
+            setUpcomingTransplants(transplants || []);
+        } catch (error) {
+            console.warn('[Calendar] Could not load transplants:', error);
+            setUpcomingTransplants([]);
+        } finally {
+            setLoadingTransplants(false);
         }
     };
 
@@ -47,8 +76,19 @@ export function Calendar() {
     ];
 
     const TaskCard = ({ task, type }) => {
-        const icons = {
+        const typeIcons = {
+            planting: '🌱',
+            indoor: '🏠',
+            outdoor: '🌾',
+            transplanting: '🌳',
+            harvesting: '🥕',
+            reminders: '📌'
+        };
+
+        const typeLabels = {
             planting: 'Siembra',
+            indoor: 'Interior',
+            outdoor: 'Exterior',
             transplanting: 'Trasplante',
             harvesting: 'Cosecha',
             reminders: 'Recordatorio'
@@ -64,14 +104,44 @@ export function Calendar() {
         return (
             <div className={`calendar-task-card card ${cardClasses[type]}`}>
                 <div className="calendar-task-card__content">
-                    <div className="calendar-task-card__icon">{icons[type]}</div>
+                    {/* Icon with Type Badge */}
+                    <div style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '8px',
+                        marginBottom: '8px'
+                    }}>
+                        <span style={{fontSize: '24px'}}>{typeIcons[task.type] || typeIcons[type]}</span>
+                        <span className="badge" style={{
+                            background: type === 'planting' ? '#dcfce7' : type === 'harvesting' ? '#fef3c7' : '#dbeafe',
+                            color: type === 'planting' ? '#166534' : type === 'harvesting' ? '#92400e' : '#0c4a6e',
+                            fontSize: '11px',
+                            fontWeight: '600',
+                            padding: '4px 8px',
+                            borderRadius: '4px'
+                        }}>
+                            {typeLabels[task.type] || typeLabels[type]}
+                        </span>
+                    </div>
+
                     <div className="calendar-task-card__details">
-                        <h4 className="calendar-task-card__title">{task.seed_name}</h4>
-                        <p className="calendar-task-card__description text-gray text-sm">{task.description || task.type}</p>
+                        <h4 className="calendar-task-card__title" style={{marginBottom: '4px'}}>
+                            {task.especie || task.seed_name}
+                        </h4>
                         {task.variety && (
-                            <span className="calendar-task-card__variety badge badge-primary">
+                            <p style={{
+                                fontSize: '12px',
+                                color: '#4b5563',
+                                marginBottom: '6px',
+                                fontWeight: '500'
+                            }}>
                                 {task.variety}
-                            </span>
+                            </p>
+                        )}
+                        {task.description && (
+                            <p className="calendar-task-card__description text-gray text-sm">
+                                {task.description}
+                            </p>
                         )}
                     </div>
                 </div>
@@ -149,8 +219,15 @@ export function Calendar() {
                 ))}
             </div>
 
+            {/* Loading State for Monthly */}
+            {activeTab === 'monthly' && loading && (
+                <div className="flex justify-center items-center" style={{ minHeight: '400px' }}>
+                    <div className="spinner" style={{ width: '50px', height: '50px' }}></div>
+                </div>
+            )}
+
             {/* Content - Monthly View */}
-            {activeTab === 'monthly' && integratedCalendar && (
+            {activeTab === 'monthly' && !loading && integratedCalendar && (
                 <div>
                     {/* Location and Period Info */}
                     <div className="card mb-6" style={{
@@ -159,10 +236,12 @@ export function Calendar() {
                     }}>
                         <div className="p-4">
                             <h3 className="text-lg font-semibold mb-2">📍 {integratedCalendar.location}</h3>
-                            <p className="text-sm opacity-90">
-                                Lat: {integratedCalendar.coordinates.latitude.toFixed(2)}° | 
-                                Lon: {integratedCalendar.coordinates.longitude.toFixed(2)}°
-                            </p>
+                            {integratedCalendar.coordinates && (
+                                <p className="text-sm opacity-90">
+                                    Lat: {integratedCalendar.coordinates.latitude?.toFixed(2) || 'N/A'}° | 
+                                    Lon: {integratedCalendar.coordinates.longitude?.toFixed(2) || 'N/A'}°
+                                </p>
+                            )}
                         </div>
                     </div>
 
@@ -178,6 +257,67 @@ export function Calendar() {
                         </div>
                     </div>
 
+                    {/* Lunar Phases Section - Prominent */}
+                    <div className="card mb-6" style={{
+                        background: 'linear-gradient(135deg, #1e293b 0%, #334155 100%)',
+                        color: 'white'
+                    }}>
+                        <div className="p-4">
+                            <h3 className="text-lg font-semibold mb-4">🌙 Fases Lunares</h3>
+                            <div style={{
+                                display: 'grid',
+                                gridTemplateColumns: 'repeat(auto-fit, minmax(80px, 1fr))',
+                                gap: '12px'
+                            }}>
+                                {integratedCalendar.days
+                                    ?.filter((day, idx, arr) => 
+                                        idx === 0 || day.lunar?.phase !== arr[idx-1]?.lunar?.phase
+                                    )
+                                    .map((day, idx) => (
+                                        <div key={idx} style={{
+                                            background: 'rgba(255,255,255,0.1)',
+                                            borderRadius: '8px',
+                                            padding: '12px',
+                                            textAlign: 'center',
+                                            border: '1px solid rgba(255,255,255,0.2)'
+                                        }}>
+                                            <div style={{
+                                                fontSize: '32px',
+                                                marginBottom: '4px'
+                                            }}>
+                                                {day.lunar?.phase === 'new_moon' && '🌑'}
+                                                {day.lunar?.phase === 'waxing_crescent' && '🌒'}
+                                                {day.lunar?.phase === 'first_quarter' && '🌓'}
+                                                {day.lunar?.phase === 'waxing_gibbous' && '🌔'}
+                                                {day.lunar?.phase === 'full_moon' && '🌕'}
+                                                {day.lunar?.phase === 'waning_gibbous' && '🌖'}
+                                                {day.lunar?.phase === 'last_quarter' && '🌗'}
+                                                {day.lunar?.phase === 'waning_crescent' && '🌘'}
+                                                {day.lunar?.phase === 'Creciente' && '🌒'}
+                                                {day.lunar?.phase === 'Llena' && '🌕'}
+                                                {day.lunar?.phase === 'Menguante' && '🌖'}
+                                                {day.lunar?.phase === 'Nueva' && '🌑'}
+                                            </div>
+                                            <div style={{
+                                                fontSize: '12px',
+                                                fontWeight: '600',
+                                                marginBottom: '4px'
+                                            }}>
+                                                {day.lunar?.phase}
+                                            </div>
+                                            <div style={{
+                                                fontSize: '11px',
+                                                opacity: '0.8'
+                                            }}>
+                                                Día {day.day}
+                                            </div>
+                                        </div>
+                                    ))
+                                }
+                            </div>
+                        </div>
+                    </div>
+
                     {/* Calendar Grid */}
                     <div className="card mb-6">
                         <div className="p-4">
@@ -185,14 +325,15 @@ export function Calendar() {
                             <div className="calendar-grid" style={{
                                 display: 'grid',
                                 gridTemplateColumns: 'repeat(7, 1fr)',
-                                gap: '8px'
+                                gap: '6px'
                             }}>
                                 {/* Day headers */}
                                 {['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sab'].map(day => (
                                     <div key={day} style={{
                                         fontWeight: 'bold',
                                         textAlign: 'center',
-                                        padding: '8px',
+                                        padding: '6px 2px',
+                                        fontSize: '11px',
                                         borderBottom: '2px solid #e5e7eb'
                                     }}>
                                         {day}
@@ -206,17 +347,17 @@ export function Calendar() {
                                         className="calendar-day-card"
                                         style={{
                                             border: '1px solid #e5e7eb',
-                                            borderRadius: '8px',
-                                            padding: '8px',
-                                            minHeight: '100px',
+                                            borderRadius: '6px',
+                                            padding: '6px',
+                                            minHeight: '70px',
                                             background: day.plantable_seeds > 0 ? '#f0fdf4' : '#f9fafb'
                                         }}
                                     >
                                         {/* Day number */}
                                         <div style={{
-                                            fontSize: '12px',
+                                            fontSize: '11px',
                                             fontWeight: 'bold',
-                                            marginBottom: '4px',
+                                            marginBottom: '3px',
                                             color: '#6b7280'
                                         }}>
                                             {day.day}
@@ -224,45 +365,33 @@ export function Calendar() {
 
                                         {/* Lunar phase indicator */}
                                         <div style={{
-                                            fontSize: '10px',
+                                            fontSize: '9px',
                                             background: '#ede9fe',
                                             color: '#6d28d9',
-                                            padding: '2px 4px',
-                                            borderRadius: '4px',
-                                            marginBottom: '4px',
-                                            fontWeight: '500'
+                                            padding: '1px 3px',
+                                            borderRadius: '3px',
+                                            marginBottom: '3px',
+                                            fontWeight: '500',
+                                            whiteSpace: 'nowrap',
+                                            overflow: 'hidden',
+                                            textOverflow: 'ellipsis'
                                         }}>
-                                            {day.lunar.phase} ({Math.round(day.lunar.illumination)}%)
+                                            {day.lunar.phase} {Math.round(day.lunar.illumination)}%
                                         </div>
 
                                         {/* Weather info */}
                                         <div style={{
-                                            fontSize: '9px',
+                                            fontSize: '8px',
                                             color: '#6b7280',
-                                            marginBottom: '4px',
-                                            lineHeight: '1.3'
+                                            lineHeight: '1.2'
                                         }}>
                                             {typeof day.weather?.temperature === 'object' ? (
-                                                <>🌡️ {day.weather.temperature.max_c}°/</>
-                                            ) : (
-                                                <>°C|</>
-                                            )}
-                                            🌧️ {typeof day.weather?.precipitation === 'object' ? day.weather.precipitation.chance_of_rain : 0}%
+                                                <div>🌡️ {day.weather.temperature.max_c}°</div>
+                                            ) : null}
+                                            {typeof day.weather?.precipitation === 'object' ? (
+                                                <div>🌧️ {day.weather.precipitation.chance_of_rain}%</div>
+                                            ) : null}
                                         </div>
-
-                                        {/* Plantable indicator */}
-                                        {day.plantable_seeds > 0 && (
-                                            <div style={{
-                                                fontSize: '10px',
-                                                background: '#dcfce7',
-                                                color: '#166534',
-                                                padding: '2px 4px',
-                                                borderRadius: '4px',
-                                                fontWeight: 'bold'
-                                            }}>
-                                                ✓ {day.plantable_seeds} semilla{day.plantable_seeds !== 1 ? 's' : ''}
-                                            </div>
-                                        )}
                                     </div>
                                 ))}
                             </div>
@@ -335,12 +464,26 @@ export function Calendar() {
                     </div>
 
                     {/* Empty State */}
-                    {!integratedCalendar.days || integratedCalendar.days.length === 0 && (
+                    {(!integratedCalendar.days || integratedCalendar.days.length === 0) && (
                         <div className="empty-state">
                             <h3>Sin datos para este mes</h3>
                             <p className="text-gray">No hay información disponible para {monthNames[currentMonth - 1]}</p>
                         </div>
                     )}
+                </div>
+            )}
+
+            {/* Empty state when calendar fails to load */}
+            {activeTab === 'monthly' && !loading && !integratedCalendar && (
+                <div className="empty-state">
+                    <h3>📅 No se pudo cargar el calendario</h3>
+                    <p className="text-gray">Intenta refrescar la página o selecciona otro mes</p>
+                    <button 
+                        onClick={() => loadCalendar()} 
+                        className="btn btn-primary mt-4"
+                    >
+                        🔄 Reintentar
+                    </button>
                 </div>
             )}
 
@@ -356,63 +499,103 @@ export function Calendar() {
                             <div className="p-4">
                                 <div className="flex items-center justify-between mb-3">
                                     <h3 className="text-lg font-semibold">
-                                        🌙 {integratedCalendar.days[0].lunar.phase}
+                                        🌙 {integratedCalendar.days[0].lunar?.phase || 'Cargando...'}
                                     </h3>
                                     <div className="text-2xl">
-                                        {Math.round(integratedCalendar.days[0].lunar.illumination)}%
+                                        {integratedCalendar.days[0].lunar?.illumination ? Math.round(integratedCalendar.days[0].lunar.illumination) : 0}%
                                     </div>
                                 </div>
                                 <p className="text-sm opacity-90">
-                                    Fase lunar actual para {integratedCalendar.location}
+                                    Fase lunar actual para {integratedCalendar.location || 'tu ubicación'}
                                 </p>
                             </div>
                         </div>
                     )}
                     
                     <h3 className="tasks-title mb-4">¿Qué puedo sembrar este mes?</h3>
-                    {recommendations.length > 0 ? (
-                        <div className="grid gap-3">
-                            {recommendations.map((rec, index) => (
-                                <div 
-                                    key={index} 
-                                    className="calendar-recommendation-card card"
-                                >
-                                    <div className="calendar-recommendation-card__content">
-                                        <div>
-                                            <h4 className="calendar-recommendation-card__title">{rec.seed_name}</h4>
-                                            {rec.variety && (
-                                                <p className="calendar-recommendation-card__variety text-gray text-sm mb-2">{rec.variety}</p>
-                                            )}
-                                            <div className="calendar-recommendation-card__badges">
-                                                {rec.can_plant_indoor && (
-                                                    <span className="badge badge-info">🏠 Interior</span>
-                                                )}
-                                                {rec.can_plant_outdoor && (
-                                                    <span className="badge badge-success">🌱 Exterior</span>
-                                                )}
-                                                {rec.cantidad_disponible > 0 && (
-                                                    <span className="badge badge-secondary">
-                                                        {rec.cantidad_disponible} disponible{rec.cantidad_disponible !== 1 ? 's' : ''}
-                                                    </span>
-                                                )}
-                                            </div>
-                                        </div>
-                                        {rec.germination_days && (
-                                            <div className="calendar-recommendation-card__germination">
-                                                <div className="calendar-recommendation-card__germination-label text-gray text-xs">Germinación</div>
-                                                <div className="calendar-recommendation-card__germination-days">{rec.germination_days}d</div>
-                                            </div>
-                                        )}
-                                    </div>
-                                </div>
-                            ))}
+                    
+                    {/* Loading state for recommendations */}
+                    {loadingRecommendations && (
+                        <div className="flex justify-center items-center" style={{ minHeight: '200px' }}>
+                            <div className="spinner"></div>
                         </div>
-                    ) : (
+                    )}
+                    
+                    {!loadingRecommendations && recommendations.length > 0 ? (
+                        <div className="grid gap-3">
+                            {(() => {
+                                // Group by especie (seed_name) and sort alphabetically
+                                const grouped = {};
+                                recommendations.forEach(rec => {
+                                    if (!grouped[rec.seed_name]) {
+                                        grouped[rec.seed_name] = [];
+                                    }
+                                    grouped[rec.seed_name].push(rec);
+                                });
+
+                                // Sort species alphabetically
+                                const sortedSpecies = Object.keys(grouped).sort();
+
+                                return sortedSpecies.map((speciesName) => (
+                                    <div key={speciesName}>
+                                        {/* Species header */}
+                                        <h4 style={{
+                                            fontSize: '14px',
+                                            fontWeight: '600',
+                                            color: '#2d3748',
+                                            marginBottom: '8px',
+                                            marginTop: '12px',
+                                            paddingBottom: '8px',
+                                            borderBottom: '2px solid #e5e7eb'
+                                        }}>
+                                            🌱 {speciesName}
+                                        </h4>
+                                        {/* Varieties for this species */}
+                                        <div className="grid gap-3 mb-4">
+                                            {grouped[speciesName].map((rec, index) => (
+                                                <div 
+                                                    key={`${speciesName}-${index}`} 
+                                                    className="calendar-recommendation-card card"
+                                                >
+                                                    <div className="calendar-recommendation-card__content">
+                                                        <div>
+                                                            {rec.variety && (
+                                                                <p className="calendar-recommendation-card__variety text-gray text-sm mb-2">Variedad: {rec.variety}</p>
+                                                            )}
+                                                            <div className="calendar-recommendation-card__badges">
+                                                                {rec.can_plant_indoor && (
+                                                                    <span className="badge badge-info">🏠 Interior</span>
+                                                                )}
+                                                                {rec.can_plant_outdoor && (
+                                                                    <span className="badge badge-success">🌱 Exterior</span>
+                                                                )}
+                                                                {rec.cantidad_disponible > 0 && (
+                                                                    <span className="badge badge-secondary">
+                                                                        {rec.cantidad_disponible} disponible{rec.cantidad_disponible !== 1 ? 's' : ''}
+                                                                    </span>
+                                                                )}
+                                                            </div>
+                                                        </div>
+                                                        {rec.germination_days && (
+                                                            <div className="calendar-recommendation-card__germination">
+                                                                <div className="calendar-recommendation-card__germination-label text-gray text-xs">Germinación</div>
+                                                                <div className="calendar-recommendation-card__germination-days">{rec.germination_days}d</div>
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                ));
+                            })()}
+                        </div>
+                    ) : !loadingRecommendations ? (
                         <div className="empty-state">
                             <h3>Sin recomendaciones</h3>
                             <p className="text-gray">Añade semillas a tu inventario para recibir recomendaciones</p>
                         </div>
-                    )}
+                    ) : null}
                 </div>
             )}
 
@@ -421,8 +604,15 @@ export function Calendar() {
                 <div>
                     <h3 className="tasks-title mb-4">Próximos 7 días</h3>
                     
+                    {/* Loading states */}
+                    {(loading || loadingTransplants) && (
+                        <div className="flex justify-center items-center" style={{ minHeight: '200px' }}>
+                            <div className="spinner"></div>
+                        </div>
+                    )}
+                    
                     {/* Show seeds plantable in the next week */}
-                    {integratedCalendar && integratedCalendar.days && (
+                    {!loading && integratedCalendar && integratedCalendar.days && (
                         <div>
                             {integratedCalendar.days.slice(0, 7).some(d => d.plantable_seeds > 0) ? (
                                 <div className="grid gap-3 mb-6">
@@ -461,36 +651,69 @@ export function Calendar() {
                     )}
 
                     {/* Upcoming transplants from inventory */}
-                    {upcomingTransplants.length > 0 ? (
+                    {!loadingTransplants && upcomingTransplants.length > 0 ? (
                         <>
                             <h3 className="tasks-title mb-4">Trasplantes Pendientes</h3>
                             <div className="grid gap-3">
-                                {upcomingTransplants.map((item, index) => (
-                                    <div 
-                                        key={index} 
-                                        className="calendar-upcoming-card card"
-                                    >
-                                        <div className="calendar-upcoming-card__content">
-                                            <div>
-                                                <h4 className="calendar-upcoming-card__title">{item.seed_name}</h4>
-                                                {item.variety && (
-                                                    <p className="calendar-upcoming-card__variety text-gray text-sm">{item.variety}</p>
-                                                )}
-                                            </div>
-                                            <div className="calendar-upcoming-card__days">
-                                                <div className="calendar-upcoming-card__days-label text-gray text-xs">En</div>
-                                                <div className="calendar-upcoming-card__days-count">{item.days_until}</div>
-                                                <div className="calendar-upcoming-card__days-unit text-gray text-xs">día{item.days_until !== 1 ? 's' : ''}</div>
+                                {(() => {
+                                    // Group by especie (seed_name) and sort alphabetically
+                                    const grouped = {};
+                                    upcomingTransplants.forEach(item => {
+                                        if (!grouped[item.seed_name]) {
+                                            grouped[item.seed_name] = [];
+                                        }
+                                        grouped[item.seed_name].push(item);
+                                    });
+
+                                    // Sort species alphabetically
+                                    const sortedSpecies = Object.keys(grouped).sort();
+
+                                    return sortedSpecies.map((speciesName) => (
+                                        <div key={speciesName}>
+                                            {/* Species header */}
+                                            <h4 style={{
+                                                fontSize: '14px',
+                                                fontWeight: '600',
+                                                color: '#2d3748',
+                                                marginBottom: '8px',
+                                                marginTop: '12px',
+                                                paddingBottom: '8px',
+                                                borderBottom: '2px solid #e5e7eb'
+                                            }}>
+                                                🌾 {speciesName}
+                                            </h4>
+                                            {/* Items for this species */}
+                                            <div className="grid gap-3 mb-4">
+                                                {grouped[speciesName].map((item, index) => (
+                                                    <div 
+                                                        key={`${speciesName}-${index}`}
+                                                        className="calendar-upcoming-card card"
+                                                    >
+                                                        <div className="calendar-upcoming-card__content">
+                                                            <div>
+                                                                {item.variety && (
+                                                                    <p className="calendar-upcoming-card__variety text-gray text-sm">Variedad: {item.variety}</p>
+                                                                )}
+                                                            </div>
+                                                            <div className="calendar-upcoming-card__days">
+                                                                <div className="calendar-upcoming-card__days-label text-gray text-xs">En</div>
+                                                                <div className="calendar-upcoming-card__days-count">{item.days_until}</div>
+                                                                <div className="calendar-upcoming-card__days-unit text-gray text-xs">día{item.days_until !== 1 ? 's' : ''}</div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                ))}
                                             </div>
                                         </div>
-                                    </div>
-                                ))}
+                                    ));
+                                })()}
                             </div>
                         </>
                     ) : null}
 
                     {/* Empty state */}
-                    {(!integratedCalendar || !integratedCalendar.days?.slice(0, 7).some(d => d.plantable_seeds > 0)) && 
+                    {!loading && !loadingTransplants && 
+                     (!integratedCalendar || !integratedCalendar.days?.slice(0, 7).some(d => d.plantable_seeds > 0)) && 
                      upcomingTransplants.length === 0 && (
                         <div className="empty-state">
                             <h3>¡Todo al día!</h3>
