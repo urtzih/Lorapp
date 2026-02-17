@@ -362,9 +362,6 @@ export function Inventory() {
                     {filtersExpanded && (
                         <div className="inventory-filters__content">
                         <div className="inventory-filters__group inventory-filters__group--search">
-                            <label className="inventory-filters__label inventory-filters__label--sr" htmlFor="filter-search">
-                                Buscar por nombre o marca
-                            </label>
                             <input
                                 type="text"
                                 className="input inventory-filters__input"
@@ -377,14 +374,13 @@ export function Inventory() {
                         </div>
 
                         <div className="inventory-filters__group">
-                            <label className="inventory-filters__label form-label" htmlFor="filter-especie">🌱 Especie</label>
                             <select
                                 className="input inventory-filters__input"
                                 id="filter-especie"
                                 value={filters.especie}
                                 onChange={(e) => setFilters({ ...filters, especie: e.target.value })}
                             >
-                                <option value="">Todas las especies</option>
+                                <option value="">🌱 Especie (todas)</option>
                                 {getUniqueSpecies().map(species => (
                                     <option key={species} value={species}>{species}</option>
                                 ))}
@@ -392,14 +388,13 @@ export function Inventory() {
                         </div>
 
                         <div className="inventory-filters__group">
-                            <label className="inventory-filters__label form-label" htmlFor="filter-familia">🌿 Familia Botánica</label>
                             <select
                                 className="input inventory-filters__input"
                                 id="filter-familia"
                                 value={filters.familia}
                                 onChange={(e) => setFilters({ ...filters, familia: e.target.value })}
                             >
-                                <option value="">Todas las familias</option>
+                                <option value="">🌿 Familia botanica (todas)</option>
                                 {getUniqueFamilies().map(family => (
                                     <option key={family} value={family}>{family}</option>
                                 ))}
@@ -407,28 +402,26 @@ export function Inventory() {
                         </div>
                         
                         <div className="inventory-filters__group">
-                            <label className="inventory-filters__label form-label" htmlFor="filter-estado">🌾 Estado</label>
                             <select
                                 className="input inventory-filters__input"
                                 id="filter-estado"
                                 value={filters.is_planted || ''}
                                 onChange={(e) => setFilters({ ...filters, is_planted: e.target.value ? e.target.value === 'true' : null })}
                             >
-                                <option value="">Todas las semillas</option>
+                                <option value="">🌾 Estado (todas)</option>
                                 <option value="false">Sin plantar</option>
                                 <option value="true">Plantadas</option>
                             </select>
                         </div>
 
                         <div className="inventory-filters__group">
-                            <label className="inventory-filters__label form-label" htmlFor="filter-origen">🏠 Origen del Lote</label>
                             <select
                                 className="input inventory-filters__input"
                                 id="filter-origen"
                                 value={filters.origen}
                                 onChange={(e) => setFilters({ ...filters, origen: e.target.value })}
                             >
-                                <option value="">Todos los orígenes</option>
+                                <option value="">🏠 Origen (todos)</option>
                                 {getUniqueOrig().map(origen => (
                                     <option key={origen} value={origen}>{origen}</option>
                                 ))}

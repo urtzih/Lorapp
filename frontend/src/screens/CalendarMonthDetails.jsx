@@ -88,12 +88,15 @@ export function CalendarMonthDetails() {
 
     const getMonthProgress = (months = []) => {
         if (!months || months.length === 0) return null;
-        const index = months.indexOf(numericMonth);
-        if (index === -1) return null;
-        if (months.length === 1) {
+        const normalized = months.map((value) => Number(value));
+        const index = normalized.indexOf(numericMonth);
+        if (index === -1) {
+            return { phase: 'off', label: 'Fuera de temporada' };
+        }
+        if (normalized.length === 1) {
             return { phase: 'full', label: 'Unico' };
         }
-        const ratio = index / (months.length - 1);
+        const ratio = index / (normalized.length - 1);
         if (ratio < 0.34) return { phase: 'start', label: 'Inicio' };
         if (ratio < 0.67) return { phase: 'mid', label: 'Mitad' };
         return { phase: 'end', label: 'Final' };
@@ -106,31 +109,29 @@ export function CalendarMonthDetails() {
                 <p className="calendar-header__description text-gray">
                     Detalle de siembras del mes agrupadas por especie
                 </p>
+                <div className="calendar-header__actions">
+                    <Link to="/calendar" className="calendar-back-link">
+                        ← Volver al resumen
+                    </Link>
+                    <Link
+                        to={`/calendar/mes/${currentYear}/${currentMonth}`}
+                        className="calendar-today-chip"
+                    >
+                        Mes actual
+                    </Link>
+                </div>
             </div>
 
-            <div className="calendar-nav calendar-nav--month-details">
-                <button
-                    type="button"
-                    onClick={() => navigate(-1)}
-                    className="calendar-nav__btn btn btn-secondary"
-                >
-                    ← Volver atras
-                </button>
+            <div className="calendar-month-nav">
                 <Link
                     to={`/calendar/mes/${getPrevMonthLink().year}/${getPrevMonthLink().month}`}
-                    className="calendar-nav__btn btn btn-secondary"
+                    className="calendar-month-nav__btn"
                 >
                     ← Mes anterior
                 </Link>
                 <Link
-                    to={`/calendar/mes/${currentYear}/${currentMonth}`}
-                    className="calendar-nav__btn btn btn-secondary"
-                >
-                    Volver a mes actual
-                </Link>
-                <Link
                     to={`/calendar/mes/${getNextMonthLink().year}/${getNextMonthLink().month}`}
-                    className="calendar-nav__btn btn btn-secondary"
+                    className="calendar-month-nav__btn"
                 >
                     Mes siguiente →
                 </Link>
@@ -173,13 +174,6 @@ export function CalendarMonthDetails() {
                         </select>
                     </label>
                 </div>
-            </div>
-
-            <div className="tabs-container mb-4">
-                <Link to="/calendar" className="tab-button">
-                    <span className="tab-icon">←</span>
-                    <span className="tab-label">Volver al resumen</span>
-                </Link>
             </div>
 
             {loading && (

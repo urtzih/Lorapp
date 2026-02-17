@@ -56,6 +56,10 @@
     .inventory-view-toggle {
         align-self: flex-end;
     }
+
+    .inventory-filters__label {
+        display: none;
+    }
 }
 
 /* View Mode Toggle */

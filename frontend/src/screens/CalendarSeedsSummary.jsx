@@ -35,12 +35,15 @@ export function CalendarSeedsSummary() {
 
     const getMonthProgress = (months = []) => {
         if (!months || months.length === 0) return null;
-        const index = months.indexOf(currentMonth);
-        if (index === -1) return null;
-        if (months.length === 1) {
+        const normalized = months.map((value) => Number(value));
+        const index = normalized.indexOf(currentMonth);
+        if (index === -1) {
+            return { phase: 'off', label: 'Fuera de temporada' };
+        }
+        if (normalized.length === 1) {
             return { phase: 'full', label: 'Unico' };
         }
-        const ratio = index / (months.length - 1);
+        const ratio = index / (normalized.length - 1);
         if (ratio < 0.34) return { phase: 'start', label: 'Inicio' };
         if (ratio < 0.67) return { phase: 'mid', label: 'Mitad' };
         return { phase: 'end', label: 'Final' };
@@ -56,7 +59,7 @@ export function CalendarSeedsSummary() {
         return months.map((monthNumber) => (
             <span
                 key={monthNumber}
-                className={`calendar-month-badge${variantClass}${monthNumber === currentMonth ? ' is-current' : ''}`}
+                className={`calendar-month-badge${variantClass}${Number(monthNumber) === currentMonth ? ' is-current' : ''}`}
             >
                 {shortMonthNames[monthNumber - 1]}
             </span>

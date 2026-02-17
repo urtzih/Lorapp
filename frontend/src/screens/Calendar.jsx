@@ -37,6 +37,13 @@ export function Calendar() {
         return { label: 'Otono', className: 'calendar-season calendar-season--autumn' };
     };
 
+    const getSeasonCardClass = (month) => {
+        if ([12, 1, 2].includes(month)) return 'calendar-month-card--winter';
+        if ([3, 4, 5].includes(month)) return 'calendar-month-card--spring';
+        if ([6, 7, 8].includes(month)) return 'calendar-month-card--summer';
+        return 'calendar-month-card--autumn';
+    };
+
     const loadYearSummary = async () => {
         setLoading(true);
         setError(null);
@@ -116,7 +123,7 @@ export function Calendar() {
                             <Link
                                 key={item.month}
                                 to={`/calendar/mes/${currentYear}/${item.month}`}
-                                className={`card calendar-month-card ${item.month === currentMonth ? 'calendar-month-card--current' : ''}`}
+                                className={`card calendar-month-card ${getSeasonCardClass(item.month)} ${item.month === currentMonth ? 'calendar-month-card--current' : ''}`}
                             >
                                 <div className="calendar-month-card__row">
                                     <div>

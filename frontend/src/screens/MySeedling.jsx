@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { mySeedlingAPI } from '../services/api';
+import CreateSeedlingModal from '../components/CreateSeedlingModal';
 import '../styles/MySeedling.css';
 
 /**
@@ -17,6 +18,8 @@ export function MySeedling() {
         status: 'all', // 'all', 'germinating', 'ready', 'transplanted'
         search: ''
     });
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [fabMenuOpen, setFabMenuOpen] = useState(false);
 
     const { user } = useAuth();
 
@@ -85,6 +88,14 @@ export function MySeedling() {
 
     return (
         <div className="myseedling-container">
+            {/* Overlay para cerrar FAB menu */}
+            {fabMenuOpen && (
+                <div 
+                    className="fab-overlay"
+                    onClick={() => setFabMenuOpen(false)}
+                />
+            )}
+
             {/* Header */}
             <div className="myseedling-header">
                 <h1 className="myseedling-header__title">
@@ -256,6 +267,43 @@ export function MySeedling() {
                     <li>🌱 Trasplanta cuando tengan 2-4 hojas verdaderas</li>
                 </ul>
             </div>
+
+            {/* FAB Button */}
+            <button 
+                className="fab" 
+                title="Crear Semillero" 
+                aria-expanded={fabMenuOpen}
+                aria-controls="fab-menu"
+                onClick={() => setFabMenuOpen(!fabMenuOpen)}
+            >
+                +
+            </button>
+
+            {/* FAB Menu */}
+            {fabMenuOpen && (
+                <div className="fab-menu" id="fab-menu">
+                    <div 
+                        className="fab-menu__item"
+                        onClick={() => {
+                            setIsModalOpen(true);
+                            setFabMenuOpen(false);
+                        }}
+                    >
+                        <span className="fab-menu__label">Crear Semillero</span>
+                        <span>🌱</span>
+                    </div>
+                </div>
+            )}
+
+            {/* Modal */}
+            <CreateSeedlingModal 
+                isOpen={isModalOpen}
+                onClose={() => setIsModalOpen(false)}
+                onSuccess={() => {
+                    loadSeedlings();
+                    loadStats();
+                }}
+            />
         </div>
     );
 }

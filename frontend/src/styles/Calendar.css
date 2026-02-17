@@ -51,6 +51,40 @@
     font-weight: bold;
 }
 
+.calendar-header__actions {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    flex-wrap: wrap;
+    margin-top: var(--space-3);
+}
+
+.calendar-back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    font-weight: 600;
+    color: var(--color-primary-darker);
+    padding: 6px 2px;
+}
+
+.calendar-back-link:active {
+    opacity: 0.7;
+}
+
+.calendar-today-chip {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 6px 12px;
+    border-radius: var(--radius-full);
+    background: var(--color-primary-lighter);
+    color: var(--color-primary-darker);
+    font-weight: 600;
+    font-size: 0.875rem;
+    border: 1px solid rgba(16, 185, 129, 0.2);
+}
+
 .calendar-cta {
     display: flex;
     align-items: center;
@@ -127,6 +161,34 @@
 .calendar-nav--month-details {
     flex-wrap: wrap;
     justify-content: flex-start;
+}
+
+.calendar-month-nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3);
+    margin: var(--space-4) 0;
+}
+
+.calendar-month-nav__btn {
+    flex: 1 1 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-2);
+    padding: 10px 14px;
+    border-radius: var(--radius-full);
+    background: var(--color-white);
+    color: var(--color-gray-700);
+    border: 1px solid var(--color-gray-200);
+    font-weight: 600;
+    box-shadow: var(--shadow-sm);
+}
+
+.calendar-month-nav__btn:active {
+    transform: scale(0.98);
+    box-shadow: var(--shadow-md);
 }
 
 .calendar-nav--year {
@@ -697,6 +759,8 @@
     border-radius: 999px;
     background: #e5e7eb;
     overflow: hidden;
+    flex: 1;
+    min-width: 120px;
 }
 
 .calendar-progress__fill {
@@ -752,6 +816,20 @@
     left: 85%;
 }
 
+.calendar-progress--off .calendar-progress__fill {
+    width: 100%;
+    background: #e5e7eb;
+}
+
+.calendar-progress--off .calendar-progress__dot {
+    left: 100%;
+    background: #9ca3af;
+}
+
+.calendar-progress--off .calendar-progress__label {
+    color: var(--color-gray-500);
+}
+
 .calendar-progress--full .calendar-progress__fill {
     width: 100%;
 }
@@ -766,6 +844,7 @@
 
 .calendar-progress--compact .calendar-progress__track {
     height: 4px;
+    min-width: 90px;
 }
 
 .calendar-progress--compact .calendar-progress__dot {
@@ -789,6 +868,30 @@
 
     .calendar-month-card__badges {
         align-items: flex-start;
+    }
+
+    .calendar-season {
+        display: none;
+    }
+
+    .calendar-month-card--winter {
+        background: #eff6ff;
+        border-color: #bfdbfe;
+    }
+
+    .calendar-month-card--spring {
+        background: #ecfdf3;
+        border-color: #a7f3d0;
+    }
+
+    .calendar-month-card--summer {
+        background: #fff7ed;
+        border-color: #fed7aa;
+    }
+
+    .calendar-month-card--autumn {
+        background: #f5f3ff;
+        border-color: #ddd6fe;
     }
 
     .calendar-seeds-group__title {
@@ -837,14 +940,25 @@
         padding: var(--space-1);
     }
 
-    .calendar-nav--month-details {
+    .calendar-header__actions {
         gap: var(--space-2);
     }
 
-    .calendar-nav--month-details .calendar-nav__btn {
-        flex: 1 1 calc(50% - 8px);
+    .calendar-back-link {
+        font-size: 0.9rem;
+    }
+
+    .calendar-today-chip {
+        font-size: 0.8rem;
+    }
+
+    .calendar-month-nav {
+        gap: var(--space-2);
+    }
+
+    .calendar-month-nav__btn {
         padding: 8px 10px;
-        font-size: 12px;
+        font-size: 0.8rem;
     }
 
     .calendar-month-controls {
@@ -913,5 +1027,9 @@
 
     .calendar-progress {
         margin-top: 4px;
+    }
+
+    .calendar-progress__label {
+        font-size: 0.625rem;
     }
 }

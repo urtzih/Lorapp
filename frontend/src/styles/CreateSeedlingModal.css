@@ -1,0 +1,414 @@
+/**
+ * LORAPP - Create Seedling Modal Styles
+ * Estilos para el modal de crear semillero
+ */
+
+.create-seedling-modal {
+    width: 100%;
+    max-width: 600px;
+}
+
+/* Pasos */
+.csm-step {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+}
+
+.csm-step--search {
+    min-height: 300px;
+}
+
+.csm-step--photo {
+    min-height: 400px;
+}
+
+.csm-step--edit {
+    min-height: 400px;
+}
+
+/* Mensajes */
+.csm-message {
+    padding: var(--space-2);
+    border-radius: var(--radius-md);
+    text-align: center;
+    font-size: 0.875rem;
+}
+
+.csm-message--success {
+    background: rgba(76, 175, 80, 0.1);
+    color: var(--color-success);
+    border: 1px solid var(--color-success);
+}
+
+.csm-message--error {
+    background: rgba(244, 67, 54, 0.1);
+    color: #f44336;
+    border: 1px solid #f44336;
+}
+
+/* Búsqueda */
+.csm-search-box {
+    margin-bottom: var(--space-2);
+}
+
+.csm-search-input {
+    width: 100%;
+    padding: var(--space-2);
+    font-size: 1rem;
+}
+
+/* Loading */
+.csm-loading {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 200px;
+}
+
+.csm-loading .spinner {
+    width: 40px;
+    height: 40px;
+    border: 4px solid var(--border-color);
+    border-top-color: var(--color-primary);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Empty State */
+.csm-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 200px;
+    color: var(--text-gray);
+}
+
+.csm-empty__icon {
+    font-size: 2rem;
+    margin-bottom: var(--space-2);
+}
+
+.csm-empty p {
+    font-size: 0.875rem;
+}
+
+/* Seeds List */
+.csm-seeds-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.csm-seed-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--space-2);
+    background: var(--card-background);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: all var(--transition-base);
+}
+
+.csm-seed-item:hover {
+    background: rgba(76, 175, 80, 0.05);
+    border-color: var(--color-primary);
+    box-shadow: var(--shadow-sm);
+}
+
+.csm-seed-item__content {
+    flex: 1;
+    min-width: 0;
+}
+
+.csm-seed-item__name {
+    font-weight: 600;
+    font-size: 0.95rem;
+    margin-bottom: 0.25rem;
+}
+
+.csm-seed-item__variety {
+    font-size: 0.8rem;
+    color: var(--text-gray);
+    margin-bottom: 0.5rem;
+}
+
+.csm-seed-item__details {
+    display: flex;
+    gap: var(--space-2);
+    font-size: 0.75rem;
+    color: var(--text-gray);
+}
+
+.csm-seed-item__arrow {
+    font-size: 1.5rem;
+    color: var(--color-primary);
+    margin-left: var(--space-1);
+}
+
+/* Photo Step */
+.csm-selected-seed {
+    margin-bottom: var(--space-2);
+    padding: var(--space-2);
+    background: rgba(76, 175, 80, 0.05);
+    border: 1px solid var(--color-primary);
+    border-radius: var(--radius-md);
+}
+
+.csm-selected-seed__name {
+    font-weight: 600;
+    margin-bottom: var(--space-1);
+    font-size: 0.95rem;
+}
+
+.csm-change-btn {
+    background: none;
+    border: none;
+    color: var(--color-primary);
+    cursor: pointer;
+    font-size: 0.8rem;
+    text-decoration: underline;
+    padding: 0;
+}
+
+.csm-change-btn:hover {
+    color: var(--color-primary-dark);
+}
+
+/* Photo Options */
+.csm-photo-options {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+}
+
+.csm-photo-btn {
+    padding: var(--space-2);
+    border: 2px solid var(--border-color);
+    background: var(--card-background);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    font-size: 0.95rem;
+    font-weight: 500;
+    transition: all var(--transition-base);
+}
+
+.csm-photo-btn:hover:not(:disabled) {
+    border-color: var(--color-primary);
+    background: rgba(76, 175, 80, 0.05);
+}
+
+.csm-photo-btn--camera {
+    border-color: var(--color-primary);
+    color: var(--color-primary);
+}
+
+.csm-photo-btn--camera:hover {
+    background: rgba(76, 175, 80, 0.1);
+}
+
+.csm-photo-btn--upload {
+    border-color: #2196f3;
+    color: #2196f3;
+    display: block;
+}
+
+.csm-photo-btn--upload:hover {
+    background: rgba(33, 150, 243, 0.1);
+}
+
+.csm-photo-btn--skip {
+    border-color: var(--text-gray);
+    color: var(--text-gray);
+}
+
+.csm-photo-btn--skip:hover {
+    background: rgba(158, 158, 158, 0.1);
+}
+
+.csm-photo-btn--retake,
+.csm-photo-btn--continue {
+    width: 100%;
+    padding: var(--space-2);
+    font-size: 0.875rem;
+}
+
+.csm-divider {
+    text-align: center;
+    color: var(--text-gray);
+    font-size: 0.875rem;
+}
+
+/* Camera */
+.csm-camera-preview {
+    width: 100%;
+    border-radius: var(--radius-md);
+    background: black;
+    max-height: 300px;
+    object-fit: cover;
+}
+
+.csm-camera-controls {
+    display: flex;
+    gap: var(--space-2);
+    margin-top: var(--space-2);
+}
+
+.csm-capture-btn {
+    flex: 1;
+    padding: var(--space-2);
+    background: var(--color-primary);
+    color: white;
+    border: none;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    font-weight: 600;
+    transition: all var(--transition-base);
+}
+
+.csm-capture-btn:hover {
+    background: var(--color-primary-dark);
+    transform: scale(1.02);
+}
+
+.csm-cancel-btn {
+    flex: 1;
+    padding: var(--space-2);
+    background: var(--border-color);
+    color: var(--text-primary);
+    border: none;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    font-weight: 600;
+    transition: all var(--transition-base);
+}
+
+.csm-cancel-btn:hover {
+    background: var(--text-gray);
+}
+
+/* Photo Preview */
+.csm-photo-preview {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+}
+
+.csm-photo-image {
+    width: 100%;
+    max-height: 300px;
+    border-radius: var(--radius-md);
+    object-fit: cover;
+}
+
+.csm-photo-actions {
+    display: flex;
+    gap: var(--space-2);
+}
+
+.csm-photo-actions .csm-photo-btn {
+    flex: 1;
+}
+
+.csm-photo-btn--retake {
+    border-color: #ff9800;
+    color: #ff9800;
+}
+
+.csm-photo-btn--retake:hover {
+    background: rgba(255, 152, 0, 0.1);
+}
+
+.csm-photo-btn--continue {
+    border-color: var(--color-primary);
+    color: white;
+    background: var(--color-primary);
+    border: none;
+}
+
+.csm-photo-btn--continue:hover {
+    background: var(--color-primary-dark);
+}
+
+/* Form */
+.csm-form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.csm-form-group label {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.csm-input,
+.csm-textarea {
+    padding: var(--space-2);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    font-size: 0.95rem;
+    font-family: inherit;
+    transition: border-color var(--transition-base);
+}
+
+.csm-input:focus,
+.csm-textarea:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.1);
+}
+
+.csm-textarea {
+    resize: vertical;
+}
+
+.csm-form-photo {
+    width: 100%;
+    max-height: 200px;
+    border-radius: var(--radius-md);
+    object-fit: cover;
+    margin-top: var(--space-1);
+}
+
+.csm-form-actions {
+    display: flex;
+    gap: var(--space-2);
+    margin-top: var(--space-2);
+}
+
+.csm-form-actions .btn {
+    flex: 1;
+    padding: var(--space-2);
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+    .create-seedling-modal {
+        max-width: 100%;
+    }
+
+    .csm-camera-preview {
+        max-height: 250px;
+    }
+
+    .csm-shape {
+        font-size: 0.85rem;
+    }
+
+    .csm-seeds-list {
+        max-height: 300px;
+    }
+}
