@@ -14,21 +14,24 @@
 
 /* Header Section */
 .inventory-header {
-    margin-bottom: var(--space-2);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--space-3);
+    margin-bottom: var(--space-4);
+}
+
+.inventory-header__info {
+    display: flex;
+    align-items: baseline;
+    gap: var(--space-3);
+    flex-wrap: wrap;
 }
 
 .inventory-header__title {
     margin: 0;
-    margin-bottom: var(--space-2);
     font-size: clamp(1.5rem, 5vw, 2rem);
     font-weight: 700;
-}
-
-.inventory-header__controls {
-    margin-bottom: var(--space-6);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
 }
 
 .inventory-header__stats {
@@ -37,10 +40,22 @@
     font-size: 0.875rem;
 }
 
-.inventory-header__actions {
-    display: flex;
-    gap: var(--space-2);
-    align-items: center;
+@media (max-width: 768px) {
+    .inventory-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--space-2);
+    }
+
+    .inventory-header__info {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--space-1);
+    }
+
+    .inventory-view-toggle {
+        align-self: flex-end;
+    }
 }
 
 /* View Mode Toggle */
@@ -84,6 +99,14 @@
     box-shadow: 0 6px 14px rgba(15, 23, 42, 0.06);
 }
 
+.inventory-filters__toggle--expanded {
+    justify-content: center;
+}
+
+.inventory-filters__toggle--expanded .inventory-filters__toggle-text {
+    display: none;
+}
+
 .inventory-filters__toggle:hover {
     color: var(--color-primary);
 }
@@ -122,6 +145,26 @@
     display: flex;
     flex-direction: column;
     gap: var(--space-1);
+}
+
+.inventory-filters__group--search {
+    grid-column: 1 / -1;
+}
+
+.inventory-filters__group--search .inventory-filters__input {
+    padding-left: var(--space-5);
+}
+
+.inventory-filters__label--sr {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
 }
 
 .inventory-filters__label {
@@ -184,7 +227,8 @@
 .inventory-species-header {
     font-size: 1.5rem;
     font-weight: 600;
-    margin-bottom: var(--space-4);
+    margin-top: var(--space-4);
+    margin-bottom: var(--space-1);
     color: var(--color-primary);
     border-bottom: 2px solid var(--color-primary);
     padding-bottom: var(--space-2);
@@ -255,6 +299,47 @@
     margin-top: var(--space-3);
     font-size: 0.85rem;
     color: var(--text-gray);
+}
+
+.inventory-planting-tags {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 8px;
+    flex-wrap: wrap;
+}
+
+.inventory-planting-tags--compact {
+    margin-bottom: 6px;
+}
+
+.inventory-planting-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.6875rem;
+    font-weight: 600;
+}
+
+.inventory-planting-tag--compact {
+    padding: 3px 6px;
+    border-radius: 3px;
+    font-size: 0.625rem;
+}
+
+.inventory-planting-tag--indoor {
+    background: #f3e8ff;
+    color: #6d28d9;
+}
+
+.inventory-planting-tag--outdoor {
+    background: #dcfce7;
+    color: #166534;
+}
+
+.inventory-planting-tag__months {
+    font-size: 0.625rem;
 }
 
 /* Responsive Adjustments */

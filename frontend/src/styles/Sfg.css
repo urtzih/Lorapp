@@ -222,6 +222,14 @@
     line-height: 1.6;
 }
 
+.sfg-details__value--italic {
+    font-style: italic;
+}
+
+.sfg-details__value--prewrap {
+    white-space: pre-wrap;
+}
+
 /* SFG Data Grid */
 .sfg-details__sfg-grid {
     display: grid;

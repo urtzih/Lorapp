@@ -185,6 +185,10 @@
     justify-content: center;
 }
 
+.csv-file-input {
+    display: none;
+}
+
 .import-card:hover {
     border-color: #48bb78;
     background: linear-gradient(135deg, #f0fff4 0%, #ffffff 100%);

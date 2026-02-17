@@ -26,15 +26,15 @@ export function Calendar() {
 
     const getSeasonStyles = (month) => {
         if ([12, 1, 2].includes(month)) {
-            return { label: 'Invierno', color: '#2563eb', bg: '#e0f2fe' };
+            return { label: 'Invierno', className: 'calendar-season calendar-season--winter' };
         }
         if ([3, 4, 5].includes(month)) {
-            return { label: 'Primavera', color: '#16a34a', bg: '#dcfce7' };
+            return { label: 'Primavera', className: 'calendar-season calendar-season--spring' };
         }
         if ([6, 7, 8].includes(month)) {
-            return { label: 'Verano', color: '#ea580c', bg: '#ffedd5' };
+            return { label: 'Verano', className: 'calendar-season calendar-season--summer' };
         }
-        return { label: 'Otono', color: '#7c3aed', bg: '#ede9fe' };
+        return { label: 'Otono', className: 'calendar-season calendar-season--autumn' };
     };
 
     const loadYearSummary = async () => {
@@ -64,8 +64,110 @@ export function Calendar() {
                 </p>
             </div>
 
+            <Link
+                to="/calendar/luna-tiempo"
+                className="card calendar-cta calendar-cta--dark"
+            >
+                <div>
+                    <div className="calendar-cta__title">
+                        🌙 Ver calendario completo de luna y tiempo
+                    </div>
+                    <div className="calendar-cta__subtitle">
+                        Fases lunares, clima y detalles diarios
+                    </div>
+                </div>
+                <span className="calendar-cta__arrow">→</span>
+            </Link>
+
+            {/* Filters */}
+            <div className="card mb-6 calendar-filters-card">
+                <div className="calendar-filters-row">
+                    <label className="calendar-filters-label">
+                        <input
+                            type="checkbox"
+                            checked={pendingOnly}
+                            onChange={(event) => setPendingOnly(event.target.checked)}
+                        />
+                        Solo pendientes
+                    </label>
+                </div>
+            </div>
+
+            {loading && (
+                <div className="shared-loading">
+                    <div className="spinner shared-loading__spinner"></div>
+                    <p className="text-gray shared-loading__text">Cargando resumen anual...</p>
+                </div>
+            )}
+
+            {!loading && error && (
+                <div className="empty-state">
+                    <h3>📅 {error}</h3>
+                    <button onClick={loadYearSummary} className="btn btn-primary mt-4">
+                        🔄 Reintentar
+                    </button>
+                </div>
+            )}
+
+            {!loading && !error && (
+                <>
+                    <div className="grid gap-3">
+                        {months.map((item) => (
+                            <Link
+                                key={item.month}
+                                to={`/calendar/mes/${currentYear}/${item.month}`}
+                                className={`card calendar-month-card ${item.month === currentMonth ? 'calendar-month-card--current' : ''}`}
+                            >
+                                <div className="calendar-month-card__row">
+                                    <div>
+                                        <h4 className="calendar-month-card__title">
+                                            {monthNames[item.month - 1]}
+                                        </h4>
+                                        <p className="text-gray calendar-month-card__meta">
+                                            {getSummaryLabel()}
+                                        </p>
+                                        {item.month === currentMonth && (
+                                            <span className="calendar-current-badge">
+                                                Mes actual
+                                            </span>
+                                        )}
+                                    </div>
+                                    <div className="calendar-month-card__badges">
+                                        <div className={getSeasonStyles(item.month).className}>
+                                            <span className="calendar-season__dot" aria-hidden="true"></span>
+                                            {getSeasonStyles(item.month).label}
+                                        </div>
+                                        <span className="calendar-badge calendar-badge--status">
+                                            {getStatusBadgeLabel()}
+                                        </span>
+                                        <div className="calendar-badge calendar-badge--total">
+                                            {item.total}
+                                        </div>
+                                    </div>
+                                </div>
+                            </Link>
+                        ))}
+                    </div>
+
+                    <Link
+                        to="/calendar/semillas"
+                        className="card calendar-cta calendar-cta--light"
+                    >
+                        <div>
+                            <div className="calendar-cta__title">
+                                📋 Ver resumen ejecutivo de semillas
+                            </div>
+                            <div className="text-gray calendar-cta__subtitle">
+                                Ordenadas por fecha de plantacion
+                            </div>
+                        </div>
+                        <span className="calendar-cta__arrow">→</span>
+                    </Link>
+                </>
+            )}
+
             {/* Year Navigation */}
-            <div className="calendar-nav">
+            <div className="calendar-nav calendar-nav--year">
                 <button
                     onClick={() => setCurrentYear(currentYear - 1)}
                     className="calendar-nav__btn btn btn-secondary"
@@ -80,149 +182,6 @@ export function Calendar() {
                     →
                 </button>
             </div>
-
-            {/* Quick Links */}
-            <div className="tabs-container mb-4">
-                <Link to="/calendar/luna-tiempo" className="tab-button">
-                    <span className="tab-icon">🌙</span>
-                    <span className="tab-label">Luna y tiempo</span>
-                </Link>
-            </div>
-
-            <Link
-                to="/calendar/luna-tiempo"
-                className="card"
-                style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    padding: '14px 16px',
-                    marginBottom: '16px',
-                    background: 'linear-gradient(135deg, #1e293b 0%, #334155 100%)',
-                    color: '#ffffff',
-                    textDecoration: 'none'
-                }}
-            >
-                <div>
-                    <div style={{ fontSize: '14px', fontWeight: '600', marginBottom: '4px' }}>
-                        🌙 Ver calendario completo de luna y tiempo
-                    </div>
-                    <div style={{ fontSize: '12px', opacity: 0.85 }}>
-                        Fases lunares, clima y detalles diarios
-                    </div>
-                </div>
-                <span style={{ fontSize: '18px', fontWeight: '700' }}>→</span>
-            </Link>
-
-            {/* Filters */}
-            <div className="card mb-6" style={{ padding: '12px' }}>
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px', alignItems: 'center' }}>
-                    <label style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px' }}>
-                        <input
-                            type="checkbox"
-                            checked={pendingOnly}
-                            onChange={(event) => setPendingOnly(event.target.checked)}
-                        />
-                        Solo pendientes
-                    </label>
-                </div>
-            </div>
-
-            {loading && (
-                <div className="flex justify-center items-center" style={{ minHeight: '320px', flexDirection: 'column', gap: '16px' }}>
-                    <div className="spinner" style={{ width: '50px', height: '50px' }}></div>
-                    <p className="text-gray" style={{ fontSize: '14px' }}>Cargando resumen anual...</p>
-                </div>
-            )}
-
-            {!loading && error && (
-                <div className="empty-state">
-                    <h3>📅 {error}</h3>
-                    <button onClick={loadYearSummary} className="btn btn-primary mt-4">
-                        🔄 Reintentar
-                    </button>
-                </div>
-            )}
-
-            {!loading && !error && (
-                <div className="grid gap-3">
-                    {months.map((item) => (
-                        <Link
-                            key={item.month}
-                            to={`/calendar/mes/${currentYear}/${item.month}`}
-                            className="card"
-                            style={{
-                                display: 'block',
-                                padding: '12px',
-                                textDecoration: 'none',
-                                border: item.month === currentMonth ? '2px solid #16a34a' : '1px solid transparent',
-                                background: item.month === currentMonth ? '#f0fdf4' : undefined
-                            }}
-                        >
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '12px' }}>
-                                <div>
-                                    <h4 style={{ fontWeight: '600', marginBottom: '4px' }}>
-                                        {monthNames[item.month - 1]}
-                                    </h4>
-                                    <p className="text-gray" style={{ fontSize: '12px' }}>
-                                        {getSummaryLabel()}
-                                    </p>
-                                    {item.month === currentMonth && (
-                                        <span style={{
-                                            display: 'inline-block',
-                                            marginTop: '6px',
-                                            background: '#16a34a',
-                                            color: '#ffffff',
-                                            borderRadius: '999px',
-                                            padding: '2px 8px',
-                                            fontSize: '10px',
-                                            fontWeight: '600',
-                                            textTransform: 'uppercase'
-                                        }}>
-                                            Mes actual
-                                        </span>
-                                    )}
-                                </div>
-                                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '6px' }}>
-                                    <span style={{
-                                        background: getSeasonStyles(item.month).bg,
-                                        color: getSeasonStyles(item.month).color,
-                                        borderRadius: '999px',
-                                        padding: '3px 8px',
-                                        fontSize: '10px',
-                                        fontWeight: '600',
-                                        textTransform: 'uppercase',
-                                        letterSpacing: '0.02em'
-                                    }}>
-                                        {getSeasonStyles(item.month).label}
-                                    </span>
-                                    <span style={{
-                                        background: '#e5e7eb',
-                                        color: '#374151',
-                                        borderRadius: '999px',
-                                        padding: '3px 8px',
-                                        fontSize: '10px',
-                                        fontWeight: '600',
-                                        textTransform: 'uppercase',
-                                        letterSpacing: '0.02em'
-                                    }}>
-                                        {getStatusBadgeLabel()}
-                                    </span>
-                                    <div style={{
-                                        background: '#dcfce7',
-                                        color: '#166534',
-                                        borderRadius: '999px',
-                                        padding: '6px 12px',
-                                        fontWeight: '700'
-                                    }}>
-                                        {item.total}
-                                    </div>
-                                </div>
-                            </div>
-                        </Link>
-                    ))}
-                </div>
-            )}
         </div>
     );
 }

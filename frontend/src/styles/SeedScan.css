@@ -1,0 +1,60 @@
+/**
+ * LORAPP - SeedScan Screen Styles
+ * Estilos para la pantalla de escaneo de semillas
+ */
+
+.seedscan-container {
+    padding-bottom: 150px;
+}
+
+.seedscan-file-input {
+    display: none;
+}
+
+.seedscan-preview {
+    position: relative;
+}
+
+.seedscan-preview__image {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+    border-radius: var(--radius-lg);
+    display: block;
+}
+
+.seedscan-preview__remove {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background-color: var(--color-error);
+    color: #ffffff;
+    border: none;
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    cursor: pointer;
+}
+
+.seedscan-scan-btn {
+    width: 100%;
+}
+
+.seedscan-spinner {
+    width: 20px;
+    height: 20px;
+    margin-right: 8px;
+}
+
+.seedscan-result {
+    background-color: #ecfdf5;
+    border-left: 4px solid var(--color-success);
+}
+
+.seedscan-action-btn {
+    flex: 1;
+}
+
+.seedscan-action-btn--primary {
+    flex: 2;
+}

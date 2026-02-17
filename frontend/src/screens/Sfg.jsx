@@ -432,7 +432,7 @@ function Sfg() {
 
                                                     <div className="sfg-details__item">
                                                         <label className="sfg-details__label">Nombre Científico</label>
-                                                        <p className="sfg-details__value" style={{ fontStyle: 'italic' }}>{plant.nombre_cientifico || '—'}</p>
+                                                        <p className="sfg-details__value sfg-details__value--italic">{plant.nombre_cientifico || '—'}</p>
                                                     </div>
 
                                                     <div>
@@ -442,7 +442,7 @@ function Sfg() {
 
                                                     <div className="sfg-details__item">
                                                         <label className="sfg-details__label">Descripción</label>
-                                                        <p className="sfg-details__value" style={{ whiteSpace: 'pre-wrap' }}>{plant.descripcion || '—'}</p>
+                                                        <p className="sfg-details__value sfg-details__value--prewrap">{plant.descripcion || '—'}</p>
                                                     </div>
                                                 </div>
 

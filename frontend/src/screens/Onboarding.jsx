@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import '../styles/Onboarding.css';
 
 const slides = [
     {
@@ -36,46 +37,32 @@ export function Onboarding() {
     };
 
     return (
-        <div style={{
-            minHeight: '100vh',
-            background: 'linear-gradient(135deg, #10b981, #059669)',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'center',
-            padding: '2rem'
-        }}>
-            <div className="card animate-slideUp" style={{ maxWidth: '500px', width: '100%', textAlign: 'center' }}>
-                <div style={{ fontSize: '5rem', marginBottom: '2rem' }}>
+        <div className="onboarding">
+            <div className="card animate-slideUp onboarding-card">
+                <div className="onboarding-icon">
                     {slides[currentSlide].icon}
                 </div>
 
                 <h1 className="mb-4">{slides[currentSlide].title}</h1>
-                <p className="text-gray mb-8" style={{ fontSize: '1.125rem' }}>
+                <p className="text-gray mb-8 onboarding-description">
                     {slides[currentSlide].description}
                 </p>
 
                 {/* Dots */}
-                <div className="flex justify-center gap-2 mb-8">
+                <div className="onboarding-dots">
                     {slides.map((_, index) => (
                         <div
                             key={index}
-                            style={{
-                                width: '10px',
-                                height: '10px',
-                                borderRadius: '50%',
-                                backgroundColor: index === currentSlide ? 'var(--color-primary)' : 'var(--color-gray-300)',
-                                transition: 'all 0.3s'
-                            }}
+                            className={`onboarding-dot ${index === currentSlide ? 'is-active' : ''}`}
                         />
                     ))}
                 </div>
 
-                <div className="flex gap-4">
-                    <button onClick={skipOnboarding} className="btn btn-secondary" style={{ flex: 1 }}>
+                <div className="onboarding-actions">
+                    <button onClick={skipOnboarding} className="btn btn-secondary onboarding-action">
                         Saltar
                     </button>
-                    <button onClick={nextSlide} className="btn btn-primary" style={{ flex: 2 }}>
+                    <button onClick={nextSlide} className="btn btn-primary onboarding-action onboarding-action--primary">
                         {currentSlide === slides.length - 1 ? 'Comenzar' : 'Siguiente'}
                     </button>
                 </div>

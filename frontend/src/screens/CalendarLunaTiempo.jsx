@@ -128,9 +128,9 @@ export function CalendarLunaTiempo() {
             </div>
 
             {loading && (
-                <div className="flex justify-center items-center" style={{ minHeight: '320px', flexDirection: 'column', gap: '16px' }}>
-                    <div className="spinner" style={{ width: '50px', height: '50px' }}></div>
-                    <p className="text-gray" style={{ fontSize: '14px' }}>Cargando luna y tiempo...</p>
+                <div className="shared-loading">
+                    <div className="spinner shared-loading__spinner"></div>
+                    <p className="text-gray shared-loading__text">Cargando luna y tiempo...</p>
                 </div>
             )}
 
@@ -145,14 +145,11 @@ export function CalendarLunaTiempo() {
 
             {!loading && !error && integratedCalendar && (
                 <div>
-                    <div className="card mb-6" style={{
-                        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                        color: 'white'
-                    }}>
+                    <div className="card mb-6 calendar-location-card">
                         <div className="p-4">
                             <h3 className="text-lg font-semibold mb-2">📍 {integratedCalendar.location}</h3>
                             {integratedCalendar.coordinates && (
-                                <p className="text-sm opacity-90">
+                                <p className="calendar-location-meta">
                                     Lat: {integratedCalendar.coordinates.latitude?.toFixed(2) || 'N/A'}° |
                                     Lon: {integratedCalendar.coordinates.longitude?.toFixed(2) || 'N/A'}°
                                 </p>
@@ -173,36 +170,23 @@ export function CalendarLunaTiempo() {
                         </div>
                     </div>
 
-                    <div className="card mb-6" style={{
-                        background: 'linear-gradient(135deg, #1e293b 0%, #334155 100%)',
-                        color: 'white'
-                    }}>
+                    <div className="card mb-6 calendar-lunar-panel">
                         <div className="p-4">
                             <h3 className="text-lg font-semibold mb-4">🌙 Fases lunares</h3>
-                            <div style={{
-                                display: 'grid',
-                                gridTemplateColumns: 'repeat(auto-fit, minmax(80px, 1fr))',
-                                gap: '12px'
-                            }}>
+                            <div className="calendar-lunar-grid">
                                 {integratedCalendar.days
                                     ?.filter((day, idx, arr) =>
                                         idx === 0 || day.lunar?.phase !== arr[idx - 1]?.lunar?.phase
                                     )
                                     .map((day, idx) => (
-                                        <div key={idx} style={{
-                                            background: 'rgba(255,255,255,0.1)',
-                                            borderRadius: '8px',
-                                            padding: '12px',
-                                            textAlign: 'center',
-                                            border: '1px solid rgba(255,255,255,0.2)'
-                                        }}>
-                                            <div style={{ fontSize: '32px', marginBottom: '4px' }}>
+                                        <div key={idx} className="calendar-lunar-item">
+                                            <div className="calendar-lunar-emoji">
                                                 {getLunarPhaseEmoji(day.lunar?.phase)}
                                             </div>
-                                            <div style={{ fontSize: '12px', fontWeight: '600', marginBottom: '4px' }}>
+                                            <div className="calendar-lunar-title">
                                                 {translateLunarPhase(day.lunar?.phase)}
                                             </div>
-                                            <div style={{ fontSize: '11px', opacity: '0.8' }}>
+                                            <div className="calendar-lunar-day">
                                                 Dia {day.day}
                                             </div>
                                         </div>
@@ -214,19 +198,9 @@ export function CalendarLunaTiempo() {
                     <div className="card mb-6">
                         <div className="p-4">
                             <h3 className="text-lg font-semibold mb-4">📅 Calendario del mes</h3>
-                            <div className="calendar-grid" style={{
-                                display: 'grid',
-                                gridTemplateColumns: 'repeat(7, 1fr)',
-                                gap: '6px'
-                            }}>
+                            <div className="calendar-grid calendar-grid--compact">
                                 {['Dom', 'Lun', 'Mar', 'Mie', 'Jue', 'Vie', 'Sab'].map(day => (
-                                    <div key={day} style={{
-                                        fontWeight: 'bold',
-                                        textAlign: 'center',
-                                        padding: '6px 2px',
-                                        fontSize: '11px',
-                                        borderBottom: '2px solid #e5e7eb'
-                                    }}>
+                                    <div key={day} className="calendar-weekday">
                                         {day}
                                     </div>
                                 ))}
@@ -234,44 +208,17 @@ export function CalendarLunaTiempo() {
                                 {integratedCalendar.days?.map((day, idx) => (
                                     <div
                                         key={idx}
-                                        className="calendar-day-card"
-                                        style={{
-                                            border: '1px solid #e5e7eb',
-                                            borderRadius: '6px',
-                                            padding: '6px',
-                                            minHeight: '70px',
-                                            background: day.plantable_seeds > 0 ? '#f0fdf4' : '#f9fafb'
-                                        }}
+                                        className={`calendar-day-card ${day.plantable_seeds > 0 ? 'calendar-day-card--plantable' : 'calendar-day-card--idle'}`}
                                     >
-                                        <div style={{
-                                            fontSize: '11px',
-                                            fontWeight: 'bold',
-                                            marginBottom: '3px',
-                                            color: '#6b7280'
-                                        }}>
+                                        <div className="calendar-day-card__date">
                                             {day.day}
                                         </div>
 
-                                        <div style={{
-                                            fontSize: '9px',
-                                            background: '#ede9fe',
-                                            color: '#6d28d9',
-                                            padding: '1px 3px',
-                                            borderRadius: '3px',
-                                            marginBottom: '3px',
-                                            fontWeight: '500',
-                                            whiteSpace: 'nowrap',
-                                            overflow: 'hidden',
-                                            textOverflow: 'ellipsis'
-                                        }}>
+                                        <div className="calendar-day-card__lunar">
                                             {translateLunarPhase(day.lunar?.phase)} {Math.round(day.lunar?.illumination || 0)}%
                                         </div>
 
-                                        <div style={{
-                                            fontSize: '8px',
-                                            color: '#6b7280',
-                                            lineHeight: '1.2'
-                                        }}>
+                                        <div className="calendar-day-card__weather">
                                             {typeof day.weather?.temperature === 'object' ? (
                                                 <div>🌡️ {day.weather.temperature.max_c}°</div>
                                             ) : null}
@@ -290,33 +237,22 @@ export function CalendarLunaTiempo() {
                             <h3 className="text-lg font-semibold mb-4">🔍 Detalles diarios</h3>
                             <div className="grid gap-3">
                                 {integratedCalendar.days?.slice(0, 7).map((day, idx) => (
-                                    <div key={idx} style={{
-                                        border: '1px solid #e5e7eb',
-                                        borderRadius: '8px',
-                                        padding: '12px',
-                                        background: day.plantable_seeds > 0 ? '#f0fdf4' : '#fafafa'
-                                    }}>
-                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '8px' }}>
+                                    <div key={idx} className={`calendar-daily-card ${day.plantable_seeds > 0 ? 'calendar-daily-card--plantable' : ''}`}>
+                                        <div className="calendar-daily-card__header">
                                             <div>
-                                                <div style={{ fontWeight: 'bold', fontSize: '14px' }}>
+                                                <div className="calendar-daily-card__title">
                                                     {weekdayMap[day.day_name] || day.day_name} {day.day}
                                                 </div>
-                                                <div style={{ fontSize: '12px', color: '#6b7280' }}>
+                                                <div className="calendar-daily-card__date">
                                                     {day.date}
                                                 </div>
                                             </div>
-                                            <div style={{ textAlign: 'right', fontSize: '12px', color: '#6b7280' }}>
+                                            <div className="calendar-daily-card__phase">
                                                 {translateLunarPhase(day.lunar?.phase)}
                                             </div>
                                         </div>
 
-                                        <div style={{
-                                            background: 'white',
-                                            padding: '8px',
-                                            borderRadius: '4px',
-                                            marginBottom: '8px',
-                                            fontSize: '12px'
-                                        }}>
+                                        <div className="calendar-daily-card__stats">
                                             <div>🌙 Iluminacion: <strong>{Math.round(day.lunar?.illumination || 0)}%</strong></div>
                                             {typeof day.weather?.temperature === 'object' && (
                                                 <div>🌡️ Temperatura: <strong>{day.weather.temperature.max_c}°C / {day.weather.temperature.min_c}°C</strong></div>
@@ -329,15 +265,7 @@ export function CalendarLunaTiempo() {
                                         </div>
 
                                         {day.plantable_seeds > 0 && (
-                                            <div style={{
-                                                background: '#dcfce7',
-                                                border: '1px solid #86efac',
-                                                borderRadius: '4px',
-                                                padding: '8px',
-                                                fontSize: '12px',
-                                                fontWeight: 'bold',
-                                                color: '#166534'
-                                            }}>
+                                            <div className="calendar-daily-card__plantable">
                                                 ✓ {day.plantable_seeds} semilla{day.plantable_seeds !== 1 ? 's' : ''} sembrable{day.plantable_seeds !== 1 ? 's' : ''}
                                             </div>
                                         )}

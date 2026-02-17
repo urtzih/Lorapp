@@ -103,23 +103,29 @@ class CalendarService:
             
             # Check if this month is good for indoor planting
             if month in meses_interior_ajustados:
+                meses_totales = sorted(set(meses_interior_ajustados + meses_exterior_ajustados))
                 tasks["planting"].append({
                     "lote_id": lote.id,
                     "seed_name": lote.nombre_comercial,
                     "especie": especie.nombre_comun,
                     "variety": variedad.nombre_variedad,
                     "type": "indoor",
+                    "planting_months": meses_totales,
+                    "planting_months_total": len(meses_totales),
                     "description": f"Siembra interior de {especie.nombre_comun} - {variedad.nombre_variedad}"
                 })
             
             # Check if this month is good for outdoor planting
             if month in meses_exterior_ajustados:
+                meses_totales = sorted(set(meses_interior_ajustados + meses_exterior_ajustados))
                 tasks["planting"].append({
                     "lote_id": lote.id,
                     "seed_name": lote.nombre_comercial,
                     "especie": especie.nombre_comun,
                     "variety": variedad.nombre_variedad,
                     "type": "outdoor",
+                    "planting_months": meses_totales,
+                    "planting_months_total": len(meses_totales),
                     "description": f"Siembra exterior de {especie.nombre_comun} - {variedad.nombre_variedad}"
                 })
         
@@ -176,6 +182,57 @@ class CalendarService:
                     })
         
         return tasks
+
+    def get_seed_planting_summary(
+        self,
+        user: User,
+        db: Session
+    ) -> List[Dict[str, Any]]:
+        """
+        Get planting months summary for seeds in the user's inventory.
+
+        Returns list of seed lots with planting months adjusted for the user.
+        """
+        lotes = db.query(LoteSemillas).filter(
+            LoteSemillas.usuario_id == user.id,
+            LoteSemillas.estado == EstadoLoteSemillas.ACTIVO
+        ).options(
+            joinedload(LoteSemillas.variedad).joinedload(Variedad.especie)
+        ).all()
+
+        summary = []
+        for lote in lotes:
+            variedad = lote.variedad
+            if not variedad:
+                continue
+            especie = variedad.especie
+
+            meses_interior_ajustados = self.adjust_planting_months(
+                variedad.meses_siembra_interior or [],
+                user.latitude,
+                user.climate_zone
+            )
+            meses_exterior_ajustados = self.adjust_planting_months(
+                variedad.meses_siembra_exterior or [],
+                user.latitude,
+                user.climate_zone
+            )
+
+            meses_totales = sorted(set(meses_interior_ajustados + meses_exterior_ajustados))
+
+            summary.append({
+                "lote_id": lote.id,
+                "seed_name": lote.nombre_comercial,
+                "especie": especie.nombre_comun if especie else None,
+                "variety": variedad.nombre_variedad,
+                "estado": lote.estado,
+                "cantidad_disponible": lote.cantidad_restante or lote.cantidad_estimada or 0,
+                "planting_months_indoor": meses_interior_ajustados,
+                "planting_months_outdoor": meses_exterior_ajustados,
+                "planting_months_total": meses_totales
+            })
+
+        return sorted(summary, key=lambda item: (item["especie"] or "", item["variety"] or ""))
     
     def get_lunar_info_for_month(
         self,

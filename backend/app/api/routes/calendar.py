@@ -203,3 +203,19 @@ async def get_year_summary(
         "year": year,
         "months": summary
     }
+
+
+@router.get("/seed-summary", response_model=List[Dict[str, Any]])
+async def get_seed_summary(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """
+    Get planting months summary for seeds in the user's inventory.
+
+    Returns seed lots with planting months adjusted to the user's location.
+    """
+    return calendar_service.get_seed_planting_summary(
+        user=current_user,
+        db=db
+    )

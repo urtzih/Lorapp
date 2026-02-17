@@ -259,10 +259,10 @@ export function SeedDetail() {
 
     const getEstadoBadge = (estado) => {
         const badges = {
-            'activo': { text: 'Activo', color: '#10b981', bg: '#d1fae5' },
-            'agotado': { text: 'Agotado', color: '#6b7280', bg: '#e5e7eb' },
-            'descartado': { text: 'Descartado', color: '#ef4444', bg: '#fecaca' },
-            'vencido': { text: 'Vencido', color: '#f59e0b', bg: '#fed7aa' }
+            'activo': { text: 'Activo', className: 'seeddetail-badge--status seeddetail-badge--activo' },
+            'agotado': { text: 'Agotado', className: 'seeddetail-badge--status seeddetail-badge--agotado' },
+            'descartado': { text: 'Descartado', className: 'seeddetail-badge--status seeddetail-badge--descartado' },
+            'vencido': { text: 'Vencido', className: 'seeddetail-badge--status seeddetail-badge--vencido' }
         };
         return badges[estado] || badges['activo'];
     };
@@ -332,60 +332,28 @@ export function SeedDetail() {
             </div>
 
             {/* Contenido principal */}
-            <div style={{ maxWidth: '768px', margin: '0 auto', padding: '1rem' }}>
+            <div className="seeddetail-content">
                 {/* Mensajes */}
                 {message && (
-                    <div style={{
-                        padding: '1rem',
-                        borderRadius: '12px',
-                        backgroundColor: message.type === 'success' ? '#d1fae5' : '#fecaca',
-                        color: message.type === 'success' ? '#065f46' : '#991b1b',
-                        marginBottom: '1rem',
-                        fontSize: '0.9rem',
-                        fontWeight: '500',
-                        boxShadow: '0 1px 3px rgba(0,0,0,0.1)'
-                    }}>
+                    <div className={`seeddetail-message ${message.type === 'success' ? 'seeddetail-message--success' : 'seeddetail-message--error'}`}>
                         {message.text}
                     </div>
                 )}
 
                 {/* Slider de fotos moderno */}
-                <div style={{
-                    backgroundColor: 'white',
-                    borderRadius: '16px',
-                    overflow: 'hidden',
-                    marginBottom: '1rem',
-                    boxShadow: '0 1px 3px rgba(0,0,0,0.1)'
-                }}>
+                <div className="seeddetail-gallery-card">
                     {seed.fotos && seed.fotos.length > 0 ? (
                         <>
                             {/* Foto principal */}
-                            <div style={{ position: 'relative', backgroundColor: '#000' }}>
+                            <div className="seeddetail-photo-main">
                                 <img
                                     src={`${import.meta.env.VITE_API_URL}/uploads/${seed.fotos[currentPhotoIndex]}`}
                                     alt={seed.nombre_comercial}
-                                    style={{
-                                        width: '100%',
-                                        height: '350px',
-                                        maxHeight: '350px',
-                                        objectFit: 'cover',
-                                        display: 'block'
-                                    }}
+                                    className="seeddetail-photo-image"
                                 />
                                 
                                 {/* Contador */}
-                                <div style={{
-                                    position: 'absolute',
-                                    top: '12px',
-                                    left: '12px',
-                                    backgroundColor: 'rgba(0, 0, 0, 0.7)',
-                                    color: 'white',
-                                    padding: '6px 12px',
-                                    borderRadius: '20px',
-                                    fontSize: '0.85rem',
-                                    fontWeight: '600',
-                                    backdropFilter: 'blur(4px)'
-                                }}>
+                                <div className="seeddetail-photo-counter">
                                     {currentPhotoIndex + 1} / {seed.fotos.length}
                                 </div>
 
@@ -394,24 +362,7 @@ export function SeedDetail() {
                                     <button
                                         onClick={() => handleRemovePhoto(seed.fotos[currentPhotoIndex])}
                                         disabled={saving.fotos}
-                                        style={{
-                                            position: 'absolute',
-                                            top: '12px',
-                                            right: '12px',
-                                            backgroundColor: '#ef4444',
-                                            color: 'white',
-                                            border: 'none',
-                                            borderRadius: '50%',
-                                            width: '40px',
-                                            height: '40px',
-                                            fontSize: '1.2rem',
-                                            cursor: 'pointer',
-                                            display: 'flex',
-                                            alignItems: 'center',
-                                            justifyContent: 'center',
-                                            boxShadow: '0 2px 8px rgba(0,0,0,0.2)',
-                                            opacity: saving.fotos ? 0.5 : 1
-                                        }}
+                                        className="seeddetail-photo-delete"
                                     >
                                         ✖
                                     </button>
@@ -422,55 +373,13 @@ export function SeedDetail() {
                                     <>
                                         <button
                                             onClick={prevPhoto}
-                                            style={{
-                                                position: 'absolute',
-                                                left: '12px',
-                                                top: '50%',
-                                                transform: 'translateY(-50%)',
-                                                backgroundColor: 'rgba(0, 0, 0, 0.6)',
-                                                color: 'white',
-                                                border: 'none',
-                                                borderRadius: '50%',
-                                                width: '44px',
-                                                height: '44px',
-                                                fontSize: '1.3rem',
-                                                cursor: 'pointer',
-                                                display: 'flex',
-                                                alignItems: 'center',
-                                                justifyContent: 'center',
-                                                backdropFilter: 'blur(4px)',
-                                                transition: 'all 0.2s'
-                                            }}
-                                            onMouseDown={(e) => e.currentTarget.style.transform = 'translateY(-50%) scale(0.95)'}
-                                            onMouseUp={(e) => e.currentTarget.style.transform = 'translateY(-50%) scale(1)'}
-                                            onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(-50%) scale(1)'}
+                                            className="seeddetail-photo-nav seeddetail-photo-nav--prev"
                                         >
                                             ◀
                                         </button>
                                         <button
                                             onClick={nextPhoto}
-                                            style={{
-                                                position: 'absolute',
-                                                right: '12px',
-                                                top: '50%',
-                                                transform: 'translateY(-50%)',
-                                                backgroundColor: 'rgba(0, 0, 0, 0.6)',
-                                                color: 'white',
-                                                border: 'none',
-                                                borderRadius: '50%',
-                                                width: '44px',
-                                                height: '44px',
-                                                fontSize: '1.3rem',
-                                                cursor: 'pointer',
-                                                display: 'flex',
-                                                alignItems: 'center',
-                                                justifyContent: 'center',
-                                                backdropFilter: 'blur(4px)',
-                                                transition: 'all 0.2s'
-                                            }}
-                                            onMouseDown={(e) => e.currentTarget.style.transform = 'translateY(-50%) scale(0.95)'}
-                                            onMouseUp={(e) => e.currentTarget.style.transform = 'translateY(-50%) scale(1)'}
-                                            onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(-50%) scale(1)'}
+                                            className="seeddetail-photo-nav seeddetail-photo-nav--next"
                                         >
                                             ▶
                                         </button>
@@ -480,15 +389,9 @@ export function SeedDetail() {
 
                             {/* Miniaturas */}
                             {seed.fotos.length > 1 && (
-                                <div style={{ 
-                                    padding: '1rem',
-                                    display: 'flex',
-                                    gap: '0.5rem',
-                                    overflowX: 'auto',
-                                    scrollbarWidth: 'thin'
-                                }}>
+                                <div className="seeddetail-thumbnails">
                                     {seed.fotos.map((photo, index) => (
-                                        <div key={index} style={{ position: 'relative', flexShrink: 0 }}>
+                                        <div key={index} className="seeddetail-thumbnail">
                                             <button
                                                 onClick={() => {
                                                     if (editing && index !== 0) {
@@ -498,42 +401,15 @@ export function SeedDetail() {
                                                     }
                                                 }}
                                                 disabled={saving.fotos || (editing && index === 0)}
-                                                style={{
-                                                    width: '70px',
-                                                    height: '70px',
-                                                    borderRadius: '12px',
-                                                    border: currentPhotoIndex === index ? '3px solid #3b82f6' : '2px solid #e5e7eb',
-                                                    padding: '0',
-                                                    cursor: (editing && index === 0) ? 'default' : 'pointer',
-                                                    overflow: 'hidden',
-                                                    transition: 'all 0.2s',
-                                                    transform: currentPhotoIndex === index ? 'scale(1.05)' : 'scale(1)',
-                                                    opacity: saving.fotos ? 0.5 : 1,
-                                                    backgroundColor: editing && index !== 0 ? '#eff6ff' : 'transparent'
-                                                }}
+                                                className={`seeddetail-thumbnail-btn ${currentPhotoIndex === index ? 'is-active' : ''} ${editing && index !== 0 ? 'is-editable' : ''}`}
                                             >
                                                 <img
                                                     src={`${import.meta.env.VITE_API_URL}/uploads/${photo}`}
                                                     alt={`Miniatura ${index + 1}`}
-                                                    style={{
-                                                        width: '100%',
-                                                        height: '100%',
-                                                        objectFit: 'cover'
-                                                    }}
+                                                    className="seeddetail-thumbnail-img"
                                                 />
                                                 {index === 0 && (
-                                                    <div style={{
-                                                        position: 'absolute',
-                                                        top: '4px',
-                                                        right: '4px',
-                                                        backgroundColor: '#3b82f6',
-                                                        color: 'white',
-                                                        fontSize: '0.7rem',
-                                                        padding: '2px 5px',
-                                                        borderRadius: '4px',
-                                                        fontWeight: '700',
-                                                        boxShadow: '0 1px 3px rgba(0,0,0,0.3)'
-                                                    }}>
+                                                    <div className="seeddetail-thumbnail-star">
                                                         ⭐
                                                     </div>
                                                 )}
@@ -545,18 +421,8 @@ export function SeedDetail() {
 
                             {/* Subir fotos (modo edición) */}
                             {editing && (
-                                <div style={{ 
-                                    padding: '1rem', 
-                                    borderTop: '1px solid #e5e7eb',
-                                    backgroundColor: '#f9fafb'
-                                }}>
-                                    <label style={{ 
-                                        display: 'block',
-                                        fontSize: '0.85rem',
-                                        fontWeight: '600',
-                                        color: '#374151',
-                                        marginBottom: '0.5rem'
-                                    }}>
+                                <div className="seeddetail-upload">
+                                    <label className="seeddetail-upload__label">
                                         📸 Añadir más fotos
                                     </label>
                                     <input
@@ -564,31 +430,13 @@ export function SeedDetail() {
                                         accept="image/*"
                                         multiple
                                         onChange={(e) => setNewPhotos(Array.from(e.target.files || []))}
-                                        style={{
-                                            width: '100%',
-                                            padding: '0.5rem',
-                                            border: '1px solid #d1d5db',
-                                            borderRadius: '8px',
-                                            fontSize: '0.85rem',
-                                            marginBottom: '0.5rem'
-                                        }}
+                                        className="seeddetail-upload__input"
                                     />
                                     {newPhotos.length > 0 && (
                                         <button
                                             onClick={handleAddPhotos}
                                             disabled={saving.fotos}
-                                            style={{
-                                                width: '100%',
-                                                backgroundColor: '#10b981',
-                                                color: 'white',
-                                                border: 'none',
-                                                borderRadius: '8px',
-                                                padding: '0.75rem',
-                                                fontSize: '0.9rem',
-                                                fontWeight: '600',
-                                                cursor: 'pointer',
-                                                opacity: saving.fotos ? 0.5 : 1
-                                            }}
+                                            className="seeddetail-upload__btn"
                                         >
                                             {saving.fotos ? '⏳ Subiendo...' : `📤 Subir ${newPhotos.length} foto${newPhotos.length > 1 ? 's' : ''}`}
                                         </button>
@@ -597,13 +445,9 @@ export function SeedDetail() {
                             )}
                         </>
                     ) : (
-                        <div style={{ 
-                            padding: '3rem 2rem',
-                            textAlign: 'center',
-                            backgroundColor: '#f9fafb'
-                        }}>
-                            <div style={{ fontSize: '4rem', marginBottom: '1rem' }}>📸</div>
-                            <p style={{ color: '#6b7280', marginBottom: '1rem' }}>Sin fotos</p>
+                        <div className="seeddetail-empty-photos">
+                            <div className="seeddetail-empty-photos__icon">📸</div>
+                            <p className="seeddetail-empty-photos__text">Sin fotos</p>
                             {editing && (
                                 <>
                                     <input
@@ -611,30 +455,13 @@ export function SeedDetail() {
                                         accept="image/*"
                                         multiple
                                         onChange={(e) => setNewPhotos(Array.from(e.target.files || []))}
-                                        style={{
-                                            width: '100%',
-                                            padding: '0.5rem',
-                                            border: '1px solid #d1d5db',
-                                            borderRadius: '8px',
-                                            fontSize: '0.85rem',
-                                            marginBottom: '0.5rem'
-                                        }}
+                                        className="seeddetail-upload__input"
                                     />
                                     {newPhotos.length > 0 && (
                                         <button
                                             onClick={handleAddPhotos}
                                             disabled={saving.fotos}
-                                            style={{
-                                                width: '100%',
-                                                backgroundColor: '#10b981',
-                                                color: 'white',
-                                                border: 'none',
-                                                borderRadius: '8px',
-                                                padding: '0.75rem',
-                                                fontSize: '0.9rem',
-                                                fontWeight: '600',
-                                                cursor: 'pointer'
-                                            }}
+                                            className="seeddetail-upload__btn"
                                         >
                                             {saving.fotos ? '⏳ Subiendo...' : `📤 Subir ${newPhotos.length} foto${newPhotos.length > 1 ? 's' : ''}`}
                                         </button>
@@ -646,53 +473,21 @@ export function SeedDetail() {
                 </div>
 
                 {/* Título y estado */}
-                <div style={{
-                    backgroundColor: 'white',
-                    borderRadius: '16px',
-                    padding: '1.25rem',
-                    marginBottom: '1rem',
-                    boxShadow: '0 1px 3px rgba(0,0,0,0.1)'
-                }}>
-                    <h1 style={{ 
-                        fontSize: '1.5rem',
-                        fontWeight: '700',
-                        color: '#111827',
-                        marginBottom: '0.75rem'
-                    }}>
+                <div className="seeddetail-summary">
+                    <h1 className="seeddetail-summary__title">
                         {seed.nombre_comercial}
                     </h1>
-                    <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
-                        <span style={{
-                            backgroundColor: estadoBadge.bg,
-                            color: estadoBadge.color,
-                            padding: '0.25rem 0.75rem',
-                            borderRadius: '20px',
-                            fontSize: '0.8rem',
-                            fontWeight: '600'
-                        }}>
+                    <div className="seeddetail-summary__badges">
+                        <span className={`seeddetail-badge ${estadoBadge.className}`}>
                             {estadoBadge.text}
                         </span>
                         {seed.variedad?.especie?.nombre_comun && (
-                            <span style={{
-                                backgroundColor: '#dbeafe',
-                                color: '#1e40af',
-                                padding: '0.25rem 0.75rem',
-                                borderRadius: '20px',
-                                fontSize: '0.8rem',
-                                fontWeight: '600'
-                            }}>
+                            <span className="seeddetail-badge seeddetail-badge--species">
                                 🌿 {seed.variedad.especie.nombre_comun}
                             </span>
                         )}
                         {seed.variedad?.nombre_variedad && (
-                            <span style={{
-                                backgroundColor: '#fef3c7',
-                                color: '#92400e',
-                                padding: '0.25rem 0.75rem',
-                                borderRadius: '20px',
-                                fontSize: '0.8rem',
-                                fontWeight: '600'
-                            }}>
+                            <span className="seeddetail-badge seeddetail-badge--variety">
                                 🌾 {seed.variedad.nombre_variedad}
                             </span>
                         )}
@@ -704,24 +499,23 @@ export function SeedDetail() {
                     title="📦 Información del Lote"
                     isExpanded={expandedSection === 'lote'}
                     onToggle={() => toggleSection('lote')}
-                    color="#10b981"
-                    bgColor="#d1fae5"
+                    variant="lote"
                     editing={editing}
                     saving={saving.lote}
                     onSave={handleSaveLote}
                 >
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1rem' }}>
+                    <div className="seeddetail-grid seeddetail-grid--two">
                         <Field label="Nombre Comercial" fullWidth>
                             {editing ? (
                                 <input
                                     type="text"
                                     value={editData?.nombre_comercial || ''}
                                     onChange={(e) => updateLoteField('nombre_comercial', e.target.value)}
-                                    style={inputStyle}
+                                    className="seeddetail-input"
                                     required
                                 />
                             ) : (
-                                <p style={valueStyle}>{seed.nombre_comercial}</p>
+                                <p className="seeddetail-value">{seed.nombre_comercial}</p>
                             )}
                         </Field>
 
@@ -731,10 +525,10 @@ export function SeedDetail() {
                                     type="text"
                                     value={editData?.marca || ''}
                                     onChange={(e) => updateLoteField('marca', e.target.value)}
-                                    style={inputStyle}
+                                    className="seeddetail-input"
                                 />
                             ) : (
-                                <p style={valueStyle}>{seed.marca || '—'}</p>
+                                <p className="seeddetail-value">{seed.marca || '—'}</p>
                             )}
                         </Field>
 
@@ -744,10 +538,10 @@ export function SeedDetail() {
                                     type="text"
                                     value={editData?.numero_lote || ''}
                                     onChange={(e) => updateLoteField('numero_lote', e.target.value)}
-                                    style={inputStyle}
+                                    className="seeddetail-input"
                                 />
                             ) : (
-                                <p style={valueStyle}>{seed.numero_lote || '—'}</p>
+                                <p className="seeddetail-value">{seed.numero_lote || '—'}</p>
                             )}
                         </Field>
 
@@ -757,11 +551,11 @@ export function SeedDetail() {
                                     type="text"
                                     value={editData?.origen || ''}
                                     onChange={(e) => updateLoteField('origen', e.target.value)}
-                                    style={inputStyle}
+                                    className="seeddetail-input"
                                     placeholder="Ej: Huerta Urtzi"
                                 />
                             ) : (
-                                <p style={valueStyle}>{seed.origen || '—'}</p>
+                                <p className="seeddetail-value">{seed.origen || '—'}</p>
                             )}
                         </Field>
 
@@ -771,10 +565,10 @@ export function SeedDetail() {
                                     type="text"
                                     value={editData?.generacion || ''}
                                     onChange={(e) => updateLoteField('generacion', e.target.value)}
-                                    style={inputStyle}
+                                    className="seeddetail-input"
                                 />
                             ) : (
-                                <p style={valueStyle}>{seed.generacion || '—'}</p>
+                                <p className="seeddetail-value">{seed.generacion || '—'}</p>
                             )}
                         </Field>
 
@@ -783,7 +577,7 @@ export function SeedDetail() {
                                 <select
                                     value={editData?.estado || 'activo'}
                                     onChange={(e) => updateLoteField('estado', e.target.value)}
-                                    style={inputStyle}
+                                    className="seeddetail-input"
                                 >
                                     <option value="activo">Activo</option>
                                     <option value="agotado">Agotado</option>
@@ -791,7 +585,7 @@ export function SeedDetail() {
                                     <option value="descartado">Descartado</option>
                                 </select>
                             ) : (
-                                <p style={valueStyle}>{estadoBadge.text}</p>
+                                <p className="seeddetail-value">{estadoBadge.text}</p>
                             )}
                         </Field>
 
@@ -801,11 +595,11 @@ export function SeedDetail() {
                                     type="number"
                                     value={editData?.cantidad_restante ?? ''}
                                     onChange={(e) => updateLoteField('cantidad_restante', e.target.value)}
-                                    style={inputStyle}
+                                    className="seeddetail-input"
                                     min="0"
                                 />
                             ) : (
-                                <p style={valueStyle}>
+                                <p className="seeddetail-value">
                                     {seed.cantidad_restante ?? '—'} {seed.cantidad_restante && 'semillas'}
                                 </p>
                             )}
@@ -817,11 +611,11 @@ export function SeedDetail() {
                                     type="number"
                                     value={editData?.cantidad_estimada ?? ''}
                                     onChange={(e) => updateLoteField('cantidad_estimada', e.target.value)}
-                                    style={inputStyle}
+                                    className="seeddetail-input"
                                     min="0"
                                 />
                             ) : (
-                                <p style={valueStyle}>
+                                <p className="seeddetail-value">
                                     {seed.cantidad_estimada ?? '—'} {seed.cantidad_estimada && 'semillas'}
                                 </p>
                             )}
@@ -833,12 +627,12 @@ export function SeedDetail() {
                                     type="number"
                                     value={editData?.anno_produccion ?? ''}
                                     onChange={(e) => updateLoteField('anno_produccion', e.target.value)}
-                                    style={inputStyle}
+                                    className="seeddetail-input"
                                     min="1900"
                                     max="2100"
                                 />
                             ) : (
-                                <p style={valueStyle}>{seed.anno_produccion || '—'}</p>
+                                <p className="seeddetail-value">{seed.anno_produccion || '—'}</p>
                             )}
                         </Field>
 
@@ -848,10 +642,10 @@ export function SeedDetail() {
                                     type="date"
                                     value={formatDateInput(editData?.fecha_adquisicion)}
                                     onChange={(e) => updateLoteField('fecha_adquisicion', e.target.value)}
-                                    style={inputStyle}
+                                    className="seeddetail-input"
                                 />
                             ) : (
-                                <p style={valueStyle}>
+                                <p className="seeddetail-value">
                                     {seed.fecha_adquisicion ? new Date(seed.fecha_adquisicion).toLocaleDateString('es-ES') : '—'}
                                 </p>
                             )}
@@ -863,10 +657,10 @@ export function SeedDetail() {
                                     type="date"
                                     value={formatDateInput(editData?.fecha_vencimiento)}
                                     onChange={(e) => updateLoteField('fecha_vencimiento', e.target.value)}
-                                    style={inputStyle}
+                                    className="seeddetail-input"
                                 />
                             ) : (
-                                <p style={valueStyle}>
+                                <p className="seeddetail-value">
                                     {seed.fecha_vencimiento ? new Date(seed.fecha_vencimiento).toLocaleDateString('es-ES') : '—'}
                                 </p>
                             )}
@@ -878,10 +672,10 @@ export function SeedDetail() {
                                     type="text"
                                     value={editData?.lugar_almacenamiento || ''}
                                     onChange={(e) => updateLoteField('lugar_almacenamiento', e.target.value)}
-                                    style={inputStyle}
+                                    className="seeddetail-input"
                                 />
                             ) : (
-                                <p style={valueStyle}>{seed.lugar_almacenamiento || '—'}</p>
+                                <p className="seeddetail-value">{seed.lugar_almacenamiento || '—'}</p>
                             )}
                         </Field>
 
@@ -891,10 +685,10 @@ export function SeedDetail() {
                                     type="number"
                                     value={editData?.temperatura_almacenamiento_c ?? ''}
                                     onChange={(e) => updateLoteField('temperatura_almacenamiento_c', e.target.value)}
-                                    style={inputStyle}
+                                    className="seeddetail-input"
                                 />
                             ) : (
-                                <p style={valueStyle}>
+                                <p className="seeddetail-value">
                                     {seed.temperatura_almacenamiento_c ?? '—'}{seed.temperatura_almacenamiento_c !== null && '°C'}
                                 </p>
                             )}
@@ -906,12 +700,12 @@ export function SeedDetail() {
                                     type="number"
                                     value={editData?.humedad_relativa ?? ''}
                                     onChange={(e) => updateLoteField('humedad_relativa', e.target.value)}
-                                    style={inputStyle}
+                                    className="seeddetail-input"
                                     min="0"
                                     max="100"
                                 />
                             ) : (
-                                <p style={valueStyle}>
+                                <p className="seeddetail-value">
                                     {seed.humedad_relativa ?? '—'}{seed.humedad_relativa !== null && '%'}
                                 </p>
                             )}
@@ -922,10 +716,10 @@ export function SeedDetail() {
                                 <textarea
                                     value={editData?.notas || ''}
                                     onChange={(e) => updateLoteField('notas', e.target.value)}
-                                    style={{ ...inputStyle, minHeight: '80px', resize: 'vertical' }}
+                                    className="seeddetail-input seeddetail-input--textarea"
                                 />
                             ) : (
-                                <p style={{ ...valueStyle, whiteSpace: 'pre-wrap' }}>{seed.notas || '—'}</p>
+                                <p className="seeddetail-value seeddetail-value--prewrap">{seed.notas || '—'}</p>
                             )}
                         </Field>
                     </div>
@@ -937,24 +731,23 @@ export function SeedDetail() {
                         title={`🌾 Detalles (${seed.variedad.nombre_variedad || 'Variedad'})`}
                         isExpanded={expandedSection === 'variedad'}
                         onToggle={() => toggleSection('variedad')}
-                        color="#d97706"
-                        bgColor="#fef3c7"
+                        variant="variedad"
                         editing={editing}
                         saving={saving.variedad}
                         onSave={handleSaveVariedad}
                     >
-                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1rem' }}>
+                        <div className="seeddetail-grid seeddetail-grid--two">
                             <Field label="Nombre Variedad" fullWidth>
                                 {editing ? (
                                     <input
                                         type="text"
                                         value={editData?.variedad?.nombre_variedad || ''}
                                         onChange={(e) => updateVariedadField('nombre_variedad', e.target.value)}
-                                        style={inputStyle}
+                                        className="seeddetail-input"
                                         required
                                     />
                                 ) : (
-                                    <p style={valueStyle}>{seed.variedad.nombre_variedad}</p>
+                                    <p className="seeddetail-value">{seed.variedad.nombre_variedad}</p>
                                 )}
                             </Field>
 
@@ -964,10 +757,10 @@ export function SeedDetail() {
                                         type="text"
                                         value={editData?.variedad?.codigo_interno || ''}
                                         onChange={(e) => updateVariedadField('codigo_interno', e.target.value)}
-                                        style={inputStyle}
+                                        className="seeddetail-input"
                                     />
                                 ) : (
-                                    <p style={valueStyle}>{seed.variedad.codigo_interno || '—'}</p>
+                                    <p className="seeddetail-value">{seed.variedad.codigo_interno || '—'}</p>
                                 )}
                             </Field>
 
@@ -977,10 +770,10 @@ export function SeedDetail() {
                                         type="text"
                                         value={editData?.variedad?.color_fruto || ''}
                                         onChange={(e) => updateVariedadField('color_fruto', e.target.value)}
-                                        style={inputStyle}
+                                        className="seeddetail-input"
                                     />
                                 ) : (
-                                    <p style={valueStyle}>{seed.variedad.color_fruto || '—'}</p>
+                                    <p className="seeddetail-value">{seed.variedad.color_fruto || '—'}</p>
                                 )}
                             </Field>
 
@@ -990,10 +783,10 @@ export function SeedDetail() {
                                         type="text"
                                         value={editData?.variedad?.sabor || ''}
                                         onChange={(e) => updateVariedadField('sabor', e.target.value)}
-                                        style={inputStyle}
+                                        className="seeddetail-input"
                                     />
                                 ) : (
-                                    <p style={valueStyle}>{seed.variedad.sabor || '—'}</p>
+                                    <p className="seeddetail-value">{seed.variedad.sabor || '—'}</p>
                                 )}
                             </Field>
 
@@ -1003,10 +796,10 @@ export function SeedDetail() {
                                         type="text"
                                         value={editData?.variedad?.tamanio_planta || ''}
                                         onChange={(e) => updateVariedadField('tamanio_planta', e.target.value)}
-                                        style={inputStyle}
+                                        className="seeddetail-input"
                                     />
                                 ) : (
-                                    <p style={valueStyle}>{seed.variedad.tamanio_planta || '—'}</p>
+                                    <p className="seeddetail-value">{seed.variedad.tamanio_planta || '—'}</p>
                                 )}
                             </Field>
 
@@ -1016,10 +809,10 @@ export function SeedDetail() {
                                         type="number"
                                         value={editData?.variedad?.profundidad_siembra_cm ?? ''}
                                         onChange={(e) => updateVariedadField('profundidad_siembra_cm', e.target.value)}
-                                        style={inputStyle}
+                                        className="seeddetail-input"
                                     />
                                 ) : (
-                                    <p style={valueStyle}>{seed.variedad.profundidad_siembra_cm ?? '—'} {seed.variedad.profundidad_siembra_cm && 'cm'}</p>
+                                    <p className="seeddetail-value">{seed.variedad.profundidad_siembra_cm ?? '—'} {seed.variedad.profundidad_siembra_cm && 'cm'}</p>
                                 )}
                             </Field>
 
@@ -1029,10 +822,10 @@ export function SeedDetail() {
                                         type="number"
                                         value={editData?.variedad?.distancia_plantas_cm ?? ''}
                                         onChange={(e) => updateVariedadField('distancia_plantas_cm', e.target.value)}
-                                        style={inputStyle}
+                                        className="seeddetail-input"
                                     />
                                 ) : (
-                                    <p style={valueStyle}>{seed.variedad.distancia_plantas_cm ?? '—'} {seed.variedad.distancia_plantas_cm && 'cm'}</p>
+                                    <p className="seeddetail-value">{seed.variedad.distancia_plantas_cm ?? '—'} {seed.variedad.distancia_plantas_cm && 'cm'}</p>
                                 )}
                             </Field>
 
@@ -1042,21 +835,21 @@ export function SeedDetail() {
                                         type="number"
                                         value={editData?.variedad?.distancia_surcos_cm ?? ''}
                                         onChange={(e) => updateVariedadField('distancia_surcos_cm', e.target.value)}
-                                        style={inputStyle}
+                                        className="seeddetail-input"
                                     />
                                 ) : (
-                                    <p style={valueStyle}>{seed.variedad.distancia_surcos_cm ?? '—'} {seed.variedad.distancia_surcos_cm && 'cm'}</p>
+                                    <p className="seeddetail-value">{seed.variedad.distancia_surcos_cm ?? '—'} {seed.variedad.distancia_surcos_cm && 'cm'}</p>
                                 )}
                             </Field>
 
                             <Field label="Días Germinación">
                                 {editing ? (
-                                    <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                                    <div className="seeddetail-inline-row">
                                         <input
                                             type="number"
                                             value={editData?.variedad?.dias_germinacion_min ?? ''}
                                             onChange={(e) => updateVariedadField('dias_germinacion_min', e.target.value)}
-                                            style={{ ...inputStyle, flex: 1 }}
+                                            className="seeddetail-input seeddetail-input--flex"
                                             placeholder="Min"
                                         />
                                         <span>-</span>
@@ -1064,12 +857,12 @@ export function SeedDetail() {
                                             type="number"
                                             value={editData?.variedad?.dias_germinacion_max ?? ''}
                                             onChange={(e) => updateVariedadField('dias_germinacion_max', e.target.value)}
-                                            style={{ ...inputStyle, flex: 1 }}
+                                            className="seeddetail-input seeddetail-input--flex"
                                             placeholder="Max"
                                         />
                                     </div>
                                 ) : (
-                                    <p style={valueStyle}>
+                                    <p className="seeddetail-value">
                                         {seed.variedad.dias_germinacion_min && seed.variedad.dias_germinacion_max
                                             ? `${seed.variedad.dias_germinacion_min} - ${seed.variedad.dias_germinacion_max} días`
                                             : '—'}
@@ -1079,12 +872,12 @@ export function SeedDetail() {
 
                             <Field label="Días hasta Cosecha">
                                 {editing ? (
-                                    <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                                    <div className="seeddetail-inline-row">
                                         <input
                                             type="number"
                                             value={editData?.variedad?.dias_hasta_cosecha_min ?? ''}
                                             onChange={(e) => updateVariedadField('dias_hasta_cosecha_min', e.target.value)}
-                                            style={{ ...inputStyle, flex: 1 }}
+                                            className="seeddetail-input seeddetail-input--flex"
                                             placeholder="Min"
                                         />
                                         <span>-</span>
@@ -1092,12 +885,12 @@ export function SeedDetail() {
                                             type="number"
                                             value={editData?.variedad?.dias_hasta_cosecha_max ?? ''}
                                             onChange={(e) => updateVariedadField('dias_hasta_cosecha_max', e.target.value)}
-                                            style={{ ...inputStyle, flex: 1 }}
+                                            className="seeddetail-input seeddetail-input--flex"
                                             placeholder="Max"
                                         />
                                     </div>
                                 ) : (
-                                    <p style={valueStyle}>
+                                    <p className="seeddetail-value">
                                         {seed.variedad.dias_hasta_cosecha_min && seed.variedad.dias_hasta_cosecha_max
                                             ? `${seed.variedad.dias_hasta_cosecha_min} - ${seed.variedad.dias_hasta_cosecha_max} días`
                                             : '—'}
@@ -1111,11 +904,11 @@ export function SeedDetail() {
                                         type="text"
                                         value={(editData?.variedad?.resistencias || []).join(', ')}
                                         onChange={(e) => updateVariedadField('resistencias', e.target.value.split(',').map(item => item.trim()).filter(Boolean))}
-                                        style={inputStyle}
+                                        className="seeddetail-input"
                                         placeholder="Separar con comas"
                                     />
                                 ) : (
-                                    <p style={valueStyle}>{(seed.variedad.resistencias || []).join(', ') || '—'}</p>
+                                    <p className="seeddetail-value">{(seed.variedad.resistencias || []).join(', ') || '—'}</p>
                                 )}
                             </Field>
 
@@ -1124,57 +917,43 @@ export function SeedDetail() {
                                     <textarea
                                         value={editData?.variedad?.descripcion || ''}
                                         onChange={(e) => updateVariedadField('descripcion', e.target.value)}
-                                        style={{ ...inputStyle, minHeight: '80px', resize: 'vertical' }}
+                                        className="seeddetail-input seeddetail-input--textarea"
                                     />
                                 ) : (
-                                    <p style={{ ...valueStyle, whiteSpace: 'pre-wrap' }}>{seed.variedad.descripcion || '—'}</p>
+                                    <p className="seeddetail-value seeddetail-value--prewrap">{seed.variedad.descripcion || '—'}</p>
                                 )}
                             </Field>
 
                             <Field fullWidth>
-                                <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+                                <div className="seeddetail-toggle-row">
                                     {editing ? (
                                         <>
-                                            <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
+                                            <label className="seeddetail-toggle-label">
                                                 <input
                                                     type="checkbox"
                                                     checked={!!editData?.variedad?.es_hibrido_f1}
                                                     onChange={(e) => updateVariedadField('es_hibrido_f1', e.target.checked)}
                                                 />
-                                                <span style={{ fontSize: '0.9rem', fontWeight: '500' }}>Híbrido F1</span>
+                                                <span className="seeddetail-toggle-text">Híbrido F1</span>
                                             </label>
-                                            <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
+                                            <label className="seeddetail-toggle-label">
                                                 <input
                                                     type="checkbox"
                                                     checked={!!editData?.variedad?.es_variedad_antigua}
                                                     onChange={(e) => updateVariedadField('es_variedad_antigua', e.target.checked)}
                                                 />
-                                                <span style={{ fontSize: '0.9rem', fontWeight: '500' }}>Variedad Antigua</span>
+                                                <span className="seeddetail-toggle-text">Variedad Antigua</span>
                                             </label>
                                         </>
                                     ) : (
                                         <>
                                             {seed.variedad.es_hibrido_f1 && (
-                                                <span style={{
-                                                    backgroundColor: '#dbeafe',
-                                                    color: '#1e40af',
-                                                    padding: '0.25rem 0.75rem',
-                                                    borderRadius: '20px',
-                                                    fontSize: '0.8rem',
-                                                    fontWeight: '600'
-                                                }}>
+                                                <span className="seeddetail-badge seeddetail-badge--hybrid">
                                                     Híbrido F1
                                                 </span>
                                             )}
                                             {seed.variedad.es_variedad_antigua && (
-                                                <span style={{
-                                                    backgroundColor: '#fed7aa',
-                                                    color: '#92400e',
-                                                    padding: '0.25rem 0.75rem',
-                                                    borderRadius: '20px',
-                                                    fontSize: '0.8rem',
-                                                    fontWeight: '600'
-                                                }}>
+                                                <span className="seeddetail-badge seeddetail-badge--heritage">
                                                     Variedad Antigua
                                                 </span>
                                             )}
@@ -1192,24 +971,23 @@ export function SeedDetail() {
                         title={`Plantación (${seed.variedad.nombre_variedad || 'Variedad'})`}
                         isExpanded={expandedSection === 'plantacion'}
                         onToggle={() => toggleSection('plantacion')}
-                        color="#8b5cf6"
-                        bgColor="#ede9fe"
+                        variant="plantacion"
                         editing={editing}
                         saving={saving.especie}
                         onSave={handleSaveEspecie}
                     >
-                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1rem' }}>
+                        <div className="seeddetail-grid seeddetail-grid--two">
                             <Field label="Nombre Común" fullWidth>
                                 {editing ? (
                                     <input
                                         type="text"
                                         value={editData?.variedad?.especie?.nombre_comun || ''}
                                         onChange={(e) => updateEspecieField('nombre_comun', e.target.value)}
-                                        style={inputStyle}
+                                        className="seeddetail-input"
                                         required
                                     />
                                 ) : (
-                                    <p style={valueStyle}>{seed.variedad.especie.nombre_comun}</p>
+                                    <p className="seeddetail-value">{seed.variedad.especie.nombre_comun}</p>
                                 )}
                             </Field>
 
@@ -1219,10 +997,10 @@ export function SeedDetail() {
                                         type="text"
                                         value={editData?.variedad?.especie?.nombre_cientifico || ''}
                                         onChange={(e) => updateEspecieField('nombre_cientifico', e.target.value)}
-                                        style={inputStyle}
+                                        className="seeddetail-input"
                                     />
                                 ) : (
-                                    <p style={{ ...valueStyle, fontStyle: 'italic' }}>{seed.variedad.especie.nombre_cientifico || '—'}</p>
+                                    <p className="seeddetail-value seeddetail-value--italic">{seed.variedad.especie.nombre_cientifico || '—'}</p>
                                 )}
                             </Field>
 
@@ -1232,10 +1010,10 @@ export function SeedDetail() {
                                         type="text"
                                         value={editData?.variedad?.especie?.familia_botanica || ''}
                                         onChange={(e) => updateEspecieField('familia_botanica', e.target.value)}
-                                        style={inputStyle}
+                                        className="seeddetail-input"
                                     />
                                 ) : (
-                                    <p style={valueStyle}>{seed.variedad.especie.familia_botanica || '—'}</p>
+                                    <p className="seeddetail-value">{seed.variedad.especie.familia_botanica || '—'}</p>
                                 )}
                             </Field>
 
@@ -1245,10 +1023,10 @@ export function SeedDetail() {
                                         type="text"
                                         value={editData?.variedad?.especie?.genero || ''}
                                         onChange={(e) => updateEspecieField('genero', e.target.value)}
-                                        style={inputStyle}
+                                        className="seeddetail-input"
                                     />
                                 ) : (
-                                    <p style={valueStyle}>{seed.variedad.especie.genero || '—'}</p>
+                                    <p className="seeddetail-value">{seed.variedad.especie.genero || '—'}</p>
                                 )}
                             </Field>
 
@@ -1258,10 +1036,10 @@ export function SeedDetail() {
                                         type="text"
                                         value={editData?.variedad?.especie?.tipo_cultivo || ''}
                                         onChange={(e) => updateEspecieField('tipo_cultivo', e.target.value)}
-                                        style={inputStyle}
+                                        className="seeddetail-input"
                                     />
                                 ) : (
-                                    <p style={valueStyle}>{seed.variedad.especie.tipo_cultivo || '—'}</p>
+                                    <p className="seeddetail-value">{seed.variedad.especie.tipo_cultivo || '—'}</p>
                                 )}
                             </Field>
 
@@ -1270,7 +1048,7 @@ export function SeedDetail() {
                                     <select
                                         value={editData?.variedad?.especie?.exposicion_solar || ''}
                                         onChange={(e) => updateEspecieField('exposicion_solar', e.target.value)}
-                                        style={inputStyle}
+                                        className="seeddetail-input"
                                     >
                                         <option value="">Seleccionar</option>
                                         <option value="total">☀️ Total</option>
@@ -1278,7 +1056,7 @@ export function SeedDetail() {
                                         <option value="sombra">🌑 Sombra</option>
                                     </select>
                                 ) : (
-                                    <p style={valueStyle}>
+                                    <p className="seeddetail-value">
                                         {seed.variedad.especie.exposicion_solar === 'total' && '☀️ Total'}
                                         {seed.variedad.especie.exposicion_solar === 'parcial' && '⛅ Parcial'}
                                         {seed.variedad.especie.exposicion_solar === 'sombra' && '🌑 Sombra'}
@@ -1292,7 +1070,7 @@ export function SeedDetail() {
                                     <select
                                         value={editData?.variedad?.especie?.frecuencia_riego || ''}
                                         onChange={(e) => updateEspecieField('frecuencia_riego', e.target.value)}
-                                        style={inputStyle}
+                                        className="seeddetail-input"
                                     >
                                         <option value="">Seleccionar</option>
                                         <option value="diario">💧 Diario</option>
@@ -1302,7 +1080,7 @@ export function SeedDetail() {
                                         <option value="mensual">🗓️ Mensual</option>
                                     </select>
                                 ) : (
-                                    <p style={valueStyle}>
+                                    <p className="seeddetail-value">
                                         {seed.variedad.especie.frecuencia_riego === 'diario' && '💧 Diario'}
                                         {seed.variedad.especie.frecuencia_riego === 'cada_dos_dias' && '💧💧 Cada 2 días'}
                                         {seed.variedad.especie.frecuencia_riego === 'semanal' && '📅 Semanal'}
@@ -1319,10 +1097,10 @@ export function SeedDetail() {
                                         type="number"
                                         value={editData?.variedad?.especie?.profundidad_siembra_cm ?? ''}
                                         onChange={(e) => updateEspecieField('profundidad_siembra_cm', e.target.value)}
-                                        style={inputStyle}
+                                        className="seeddetail-input"
                                     />
                                 ) : (
-                                    <p style={valueStyle}>{seed.variedad.especie.profundidad_siembra_cm ?? '—'} {seed.variedad.especie.profundidad_siembra_cm && 'cm'}</p>
+                                    <p className="seeddetail-value">{seed.variedad.especie.profundidad_siembra_cm ?? '—'} {seed.variedad.especie.profundidad_siembra_cm && 'cm'}</p>
                                 )}
                             </Field>
 
@@ -1332,10 +1110,10 @@ export function SeedDetail() {
                                         type="number"
                                         value={editData?.variedad?.especie?.distancia_plantas_cm ?? ''}
                                         onChange={(e) => updateEspecieField('distancia_plantas_cm', e.target.value)}
-                                        style={inputStyle}
+                                        className="seeddetail-input"
                                     />
                                 ) : (
-                                    <p style={valueStyle}>{seed.variedad.especie.distancia_plantas_cm ?? '—'} {seed.variedad.especie.distancia_plantas_cm && 'cm'}</p>
+                                    <p className="seeddetail-value">{seed.variedad.especie.distancia_plantas_cm ?? '—'} {seed.variedad.especie.distancia_plantas_cm && 'cm'}</p>
                                 )}
                             </Field>
 
@@ -1345,21 +1123,21 @@ export function SeedDetail() {
                                         type="number"
                                         value={editData?.variedad?.especie?.distancia_surcos_cm ?? ''}
                                         onChange={(e) => updateEspecieField('distancia_surcos_cm', e.target.value)}
-                                        style={inputStyle}
+                                        className="seeddetail-input"
                                     />
                                 ) : (
-                                    <p style={valueStyle}>{seed.variedad.especie.distancia_surcos_cm ?? '—'} {seed.variedad.especie.distancia_surcos_cm && 'cm'}</p>
+                                    <p className="seeddetail-value">{seed.variedad.especie.distancia_surcos_cm ?? '—'} {seed.variedad.especie.distancia_surcos_cm && 'cm'}</p>
                                 )}
                             </Field>
 
                             <Field label="Días Germinación">
                                 {editing ? (
-                                    <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                                    <div className="seeddetail-inline-row">
                                         <input
                                             type="number"
                                             value={editData?.variedad?.especie?.dias_germinacion_min ?? ''}
                                             onChange={(e) => updateEspecieField('dias_germinacion_min', e.target.value)}
-                                            style={{ ...inputStyle, flex: 1 }}
+                                            className="seeddetail-input seeddetail-input--flex"
                                             placeholder="Min"
                                         />
                                         <span>-</span>
@@ -1367,12 +1145,12 @@ export function SeedDetail() {
                                             type="number"
                                             value={editData?.variedad?.especie?.dias_germinacion_max ?? ''}
                                             onChange={(e) => updateEspecieField('dias_germinacion_max', e.target.value)}
-                                            style={{ ...inputStyle, flex: 1 }}
+                                            className="seeddetail-input seeddetail-input--flex"
                                             placeholder="Max"
                                         />
                                     </div>
                                 ) : (
-                                    <p style={valueStyle}>
+                                    <p className="seeddetail-value">
                                         {seed.variedad.especie.dias_germinacion_min && seed.variedad.especie.dias_germinacion_max
                                             ? `${seed.variedad.especie.dias_germinacion_min} - ${seed.variedad.especie.dias_germinacion_max} días`
                                             : '—'}
@@ -1386,21 +1164,21 @@ export function SeedDetail() {
                                         type="number"
                                         value={editData?.variedad?.especie?.dias_hasta_trasplante ?? ''}
                                         onChange={(e) => updateEspecieField('dias_hasta_trasplante', e.target.value)}
-                                        style={inputStyle}
+                                        className="seeddetail-input"
                                     />
                                 ) : (
-                                    <p style={valueStyle}>{seed.variedad.especie.dias_hasta_trasplante ?? '—'} {seed.variedad.especie.dias_hasta_trasplante && 'días'}</p>
+                                    <p className="seeddetail-value">{seed.variedad.especie.dias_hasta_trasplante ?? '—'} {seed.variedad.especie.dias_hasta_trasplante && 'días'}</p>
                                 )}
                             </Field>
 
                             <Field label="Días hasta Cosecha">
                                 {editing ? (
-                                    <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                                    <div className="seeddetail-inline-row">
                                         <input
                                             type="number"
                                             value={editData?.variedad?.especie?.dias_hasta_cosecha_min ?? ''}
                                             onChange={(e) => updateEspecieField('dias_hasta_cosecha_min', e.target.value)}
-                                            style={{ ...inputStyle, flex: 1 }}
+                                            className="seeddetail-input seeddetail-input--flex"
                                             placeholder="Min"
                                         />
                                         <span>-</span>
@@ -1408,12 +1186,12 @@ export function SeedDetail() {
                                             type="number"
                                             value={editData?.variedad?.especie?.dias_hasta_cosecha_max ?? ''}
                                             onChange={(e) => updateEspecieField('dias_hasta_cosecha_max', e.target.value)}
-                                            style={{ ...inputStyle, flex: 1 }}
+                                            className="seeddetail-input seeddetail-input--flex"
                                             placeholder="Max"
                                         />
                                     </div>
                                 ) : (
-                                    <p style={valueStyle}>
+                                    <p className="seeddetail-value">
                                         {seed.variedad.especie.dias_hasta_cosecha_min && seed.variedad.especie.dias_hasta_cosecha_max
                                             ? `${seed.variedad.especie.dias_hasta_cosecha_min} - ${seed.variedad.especie.dias_hasta_cosecha_max} días`
                                             : '—'}
@@ -1427,10 +1205,10 @@ export function SeedDetail() {
                                         type="number"
                                         value={editData?.variedad?.especie?.temperatura_minima_c ?? ''}
                                         onChange={(e) => updateEspecieField('temperatura_minima_c', e.target.value)}
-                                        style={inputStyle}
+                                        className="seeddetail-input"
                                     />
                                 ) : (
-                                    <p style={valueStyle}>{seed.variedad.especie.temperatura_minima_c ?? '—'}{seed.variedad.especie.temperatura_minima_c !== null && '°C'}</p>
+                                    <p className="seeddetail-value">{seed.variedad.especie.temperatura_minima_c ?? '—'}{seed.variedad.especie.temperatura_minima_c !== null && '°C'}</p>
                                 )}
                             </Field>
 
@@ -1440,10 +1218,10 @@ export function SeedDetail() {
                                         type="number"
                                         value={editData?.variedad?.especie?.temperatura_maxima_c ?? ''}
                                         onChange={(e) => updateEspecieField('temperatura_maxima_c', e.target.value)}
-                                        style={inputStyle}
+                                        className="seeddetail-input"
                                     />
                                 ) : (
-                                    <p style={valueStyle}>{seed.variedad.especie.temperatura_maxima_c ?? '—'}{seed.variedad.especie.temperatura_maxima_c !== null && '°C'}</p>
+                                    <p className="seeddetail-value">{seed.variedad.especie.temperatura_maxima_c ?? '—'}{seed.variedad.especie.temperatura_maxima_c !== null && '°C'}</p>
                                 )}
                             </Field>
 
@@ -1453,11 +1231,11 @@ export function SeedDetail() {
                                         type="text"
                                         value={(editData?.variedad?.especie?.meses_siembra_interior || []).join(', ')}
                                         onChange={(e) => updateEspecieField('meses_siembra_interior', e.target.value.split(',').map(m => parseInt(m.trim())).filter(n => !isNaN(n)))}
-                                        style={inputStyle}
+                                        className="seeddetail-input"
                                         placeholder="1-12 separados por coma"
                                     />
                                 ) : (
-                                    <p style={valueStyle}>
+                                    <p className="seeddetail-value">
                                         {(seed.variedad.especie.meses_siembra_interior || []).length > 0 
                                             ? seed.variedad.especie.meses_siembra_interior.map(m => {
                                                 const meses = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
@@ -1474,11 +1252,11 @@ export function SeedDetail() {
                                         type="text"
                                         value={(editData?.variedad?.especie?.meses_siembra_exterior || []).join(', ')}
                                         onChange={(e) => updateEspecieField('meses_siembra_exterior', e.target.value.split(',').map(m => parseInt(m.trim())).filter(n => !isNaN(n)))}
-                                        style={inputStyle}
+                                        className="seeddetail-input"
                                         placeholder="1-12 separados por coma"
                                     />
                                 ) : (
-                                    <p style={valueStyle}>
+                                    <p className="seeddetail-value">
                                         {(seed.variedad.especie.meses_siembra_exterior || []).length > 0 
                                             ? seed.variedad.especie.meses_siembra_exterior.map(m => {
                                                 const meses = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
@@ -1495,11 +1273,11 @@ export function SeedDetail() {
                                         type="text"
                                         value={(editData?.variedad?.especie?.zonas_climaticas_preferidas || []).join(', ')}
                                         onChange={(e) => updateEspecieField('zonas_climaticas_preferidas', e.target.value.split(',').map(z => z.trim()).filter(Boolean))}
-                                        style={inputStyle}
+                                        className="seeddetail-input"
                                         placeholder="Separar con comas"
                                     />
                                 ) : (
-                                    <p style={valueStyle}>{(seed.variedad.especie.zonas_climaticas_preferidas || []).join(', ') || '—'}</p>
+                                    <p className="seeddetail-value">{(seed.variedad.especie.zonas_climaticas_preferidas || []).join(', ') || '—'}</p>
                                 )}
                             </Field>
 
@@ -1508,86 +1286,52 @@ export function SeedDetail() {
                                     <textarea
                                         value={editData?.variedad?.especie?.descripcion || ''}
                                         onChange={(e) => updateEspecieField('descripcion', e.target.value)}
-                                        style={{ ...inputStyle, minHeight: '80px', resize: 'vertical' }}
+                                        className="seeddetail-input seeddetail-input--textarea"
                                     />
                                 ) : (
-                                    <p style={{ ...valueStyle, whiteSpace: 'pre-wrap' }}>{seed.variedad.especie.descripcion || '—'}</p>
+                                    <p className="seeddetail-value seeddetail-value--prewrap">{seed.variedad.especie.descripcion || '—'}</p>
                                 )}
                             </Field>
                         </div>
 
                         {/* Subsección: Square Foot Gardening */}
                         {(seed.variedad.especie.square_foot_plants || editing) && (
-                            <div style={{
-                                marginTop: 'var(--space-5)',
-                                padding: 'var(--space-4)',
-                                background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
-                                borderRadius: 'var(--radius-lg)',
-                                color: 'white'
-                            }}>
-                                <h3 style={{ 
-                                    margin: '0 0 var(--space-3) 0',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    gap: 'var(--space-2)',
-                                    fontSize: '1.25rem'
-                                }}>
+                            <div className="seeddetail-sfg">
+                                <h3 className="seeddetail-sfg__title">
                                     📐 Square Foot Gardening
                                 </h3>
                                 
-                                <div style={{ 
-                                    display: 'grid', 
-                                    gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', 
-                                    gap: 'var(--space-3)',
-                                    marginBottom: 'var(--space-3)'
-                                }}>
-                                    <div style={{
-                                        background: 'rgba(255, 255, 255, 0.15)',
-                                        padding: 'var(--space-3)',
-                                        borderRadius: 'var(--radius-md)',
-                                        textAlign: 'center'
-                                    }}>
+                                <div className="seeddetail-sfg__grid">
+                                    <div className="seeddetail-sfg__card">
                                         {editing ? (
                                             <>
-                                                <label style={{ fontSize: '0.85rem', opacity: 0.9, display: 'block', marginBottom: 'var(--space-2)' }}>
+                                                <label className="seeddetail-sfg__label">
                                                     Plantas por cuadrado
                                                 </label>
                                                 <input
                                                     type="number"
                                                     value={editData?.variedad?.especie?.square_foot_plants ?? ''}
                                                     onChange={(e) => updateEspecieField('square_foot_plants', e.target.value)}
-                                                    style={{
-                                                        ...inputStyle,
-                                                        textAlign: 'center',
-                                                        fontSize: '1.5rem',
-                                                        fontWeight: 'bold',
-                                                        background: 'rgba(255, 255, 255, 0.9)',
-                                                        color: '#059669'
-                                                    }}
+                                                    className="seeddetail-input seeddetail-sfg__input"
                                                     placeholder="0"
                                                 />
                                             </>
                                         ) : (
                                             <>
-                                                <div style={{ fontSize: '2.5rem', fontWeight: 'bold', lineHeight: 1 }}>
+                                                <div className="seeddetail-sfg__value">
                                                     {seed.variedad.especie.square_foot_plants || '—'}
                                                 </div>
-                                                <div style={{ fontSize: '0.85rem', opacity: 0.9, marginTop: 'var(--space-1)' }}>
+                                                <div className="seeddetail-sfg__meta">
                                                     planta{seed.variedad.especie.square_foot_plants !== 1 ? 's' : ''} / 30x30cm
                                                 </div>
                                             </>
                                         )}
                                     </div>
 
-                                    <div style={{
-                                        background: 'rgba(255, 255, 255, 0.15)',
-                                        padding: 'var(--space-3)',
-                                        borderRadius: 'var(--radius-md)',
-                                        textAlign: 'center'
-                                    }}>
+                                    <div className="seeddetail-sfg__card">
                                         {editing ? (
                                             <>
-                                                <label style={{ fontSize: '0.85rem', opacity: 0.9, display: 'block', marginBottom: 'var(--space-2)' }}>
+                                                <label className="seeddetail-sfg__label">
                                                     Espaciado (cm)
                                                 </label>
                                                 <input
@@ -1595,23 +1339,16 @@ export function SeedDetail() {
                                                     step="0.5"
                                                     value={editData?.variedad?.especie?.square_foot_spacing ?? ''}
                                                     onChange={(e) => updateEspecieField('square_foot_spacing', e.target.value)}
-                                                    style={{
-                                                        ...inputStyle,
-                                                        textAlign: 'center',
-                                                        fontSize: '1.5rem',
-                                                        fontWeight: 'bold',
-                                                        background: 'rgba(255, 255, 255, 0.9)',
-                                                        color: '#059669'
-                                                    }}
+                                                    className="seeddetail-input seeddetail-sfg__input"
                                                     placeholder="0"
                                                 />
                                             </>
                                         ) : (
                                             <>
-                                                <div style={{ fontSize: '2.5rem', fontWeight: 'bold', lineHeight: 1 }}>
+                                                <div className="seeddetail-sfg__value">
                                                     {seed.variedad.especie.square_foot_spacing || '—'}
                                                 </div>
-                                                <div style={{ fontSize: '0.85rem', opacity: 0.9, marginTop: 'var(--space-1)' }}>
+                                                <div className="seeddetail-sfg__meta">
                                                     cm entre plantas
                                                 </div>
                                             </>
@@ -1620,44 +1357,25 @@ export function SeedDetail() {
                                 </div>
 
                                 {(seed.variedad.especie.square_foot_notes || editing) && (
-                                    <div style={{
-                                        background: 'rgba(255, 255, 255, 0.15)',
-                                        padding: 'var(--space-3)',
-                                        borderRadius: 'var(--radius-md)'
-                                    }}>
+                                    <div className="seeddetail-sfg__notes">
                                         {editing ? (
                                             <>
-                                                <label style={{ 
-                                                    fontSize: '0.9rem', 
-                                                    fontWeight: 600,
-                                                    display: 'block',
-                                                    marginBottom: 'var(--space-2)'
-                                                }}>
+                                                <label className="seeddetail-sfg__notes-title">
                                                     💡 Notas SFG
                                                 </label>
                                                 <textarea
                                                     value={editData?.variedad?.especie?.square_foot_notes || ''}
                                                     onChange={(e) => updateEspecieField('square_foot_notes', e.target.value)}
-                                                    style={{
-                                                        ...inputStyle,
-                                                        minHeight: '60px',
-                                                        resize: 'vertical',
-                                                        background: 'rgba(255, 255, 255, 0.9)',
-                                                        color: '#059669'
-                                                    }}
+                                                    className="seeddetail-input seeddetail-sfg__notes-input"
                                                     placeholder="Notas especiales para Square Foot Gardening..."
                                                 />
                                             </>
                                         ) : (
                                             <>
-                                                <div style={{ 
-                                                    fontSize: '0.9rem', 
-                                                    fontWeight: 600,
-                                                    marginBottom: 'var(--space-2)'
-                                                }}>
+                                                <div className="seeddetail-sfg__notes-title">
                                                     💡 Notas:
                                                 </div>
-                                                <div style={{ fontSize: '0.9rem', lineHeight: 1.5, opacity: 0.95 }}>
+                                                <div className="seeddetail-sfg__notes-text">
                                                     {seed.variedad.especie.square_foot_notes}
                                                 </div>
                                             </>
@@ -1665,15 +1383,7 @@ export function SeedDetail() {
                                     </div>
                                 )}
 
-                                <div style={{
-                                    marginTop: 'var(--space-3)',
-                                    padding: 'var(--space-2)',
-                                    background: 'rgba(255, 255, 255, 0.1)',
-                                    borderRadius: 'var(--radius-md)',
-                                    fontSize: '0.85rem',
-                                    textAlign: 'center',
-                                    opacity: 0.9
-                                }}>
+                                <div className="seeddetail-sfg-note">
                                     ℹ️ Square Foot Gardening: método de cultivo intensivo en cuadrados de 30x30cm
                                 </div>
                             </div>
@@ -1687,24 +1397,23 @@ export function SeedDetail() {
                         title={`🧬 Especie (${seed.variedad.especie.nombre_comun || 'Especie'})`}
                         isExpanded={expandedSection === 'especie'}
                         onToggle={() => toggleSection('especie')}
-                        color="#06b6d4"
-                        bgColor="#cffafe"
+                        variant="especie"
                         editing={editing}
                         saving={saving.especie}
                         onSave={handleSaveEspecie}
                     >
-                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1rem' }}>
+                        <div className="seeddetail-grid seeddetail-grid--two">
                             <Field label="Nombre Común" fullWidth>
                                 {editing ? (
                                     <input
                                         type="text"
                                         value={editData?.variedad?.especie?.nombre_comun || ''}
                                         onChange={(e) => updateEspecieField('nombre_comun', e.target.value)}
-                                        style={inputStyle}
+                                        className="seeddetail-input"
                                         required
                                     />
                                 ) : (
-                                    <p style={valueStyle}>{seed.variedad.especie.nombre_comun}</p>
+                                    <p className="seeddetail-value">{seed.variedad.especie.nombre_comun}</p>
                                 )}
                             </Field>
 
@@ -1714,10 +1423,10 @@ export function SeedDetail() {
                                         type="text"
                                         value={editData?.variedad?.especie?.nombre_cientifico || ''}
                                         onChange={(e) => updateEspecieField('nombre_cientifico', e.target.value)}
-                                        style={inputStyle}
+                                        className="seeddetail-input"
                                     />
                                 ) : (
-                                    <p style={{ ...valueStyle, fontStyle: 'italic' }}>{seed.variedad.especie.nombre_cientifico || '—'}</p>
+                                    <p className="seeddetail-value seeddetail-value--italic">{seed.variedad.especie.nombre_cientifico || '—'}</p>
                                 )}
                             </Field>
 
@@ -1727,10 +1436,10 @@ export function SeedDetail() {
                                         type="text"
                                         value={editData?.variedad?.especie?.familia_botanica || ''}
                                         onChange={(e) => updateEspecieField('familia_botanica', e.target.value)}
-                                        style={inputStyle}
+                                        className="seeddetail-input"
                                     />
                                 ) : (
-                                    <p style={valueStyle}>{seed.variedad.especie.familia_botanica || '—'}</p>
+                                    <p className="seeddetail-value">{seed.variedad.especie.familia_botanica || '—'}</p>
                                 )}
                             </Field>
 
@@ -1740,10 +1449,10 @@ export function SeedDetail() {
                                         type="text"
                                         value={editData?.variedad?.especie?.genero || ''}
                                         onChange={(e) => updateEspecieField('genero', e.target.value)}
-                                        style={inputStyle}
+                                        className="seeddetail-input"
                                     />
                                 ) : (
-                                    <p style={valueStyle}>{seed.variedad.especie.genero || '—'}</p>
+                                    <p className="seeddetail-value">{seed.variedad.especie.genero || '—'}</p>
                                 )}
                             </Field>
 
@@ -1753,10 +1462,10 @@ export function SeedDetail() {
                                         type="text"
                                         value={editData?.variedad?.especie?.tipo_cultivo || ''}
                                         onChange={(e) => updateEspecieField('tipo_cultivo', e.target.value)}
-                                        style={inputStyle}
+                                        className="seeddetail-input"
                                     />
                                 ) : (
-                                    <p style={valueStyle}>{seed.variedad.especie.tipo_cultivo || '—'}</p>
+                                    <p className="seeddetail-value">{seed.variedad.especie.tipo_cultivo || '—'}</p>
                                 )}
                             </Field>
 
@@ -1765,10 +1474,10 @@ export function SeedDetail() {
                                     <textarea
                                         value={editData?.variedad?.especie?.descripcion || ''}
                                         onChange={(e) => updateEspecieField('descripcion', e.target.value)}
-                                        style={{ ...inputStyle, minHeight: '80px', resize: 'vertical' }}
+                                        className="seeddetail-input seeddetail-input--textarea"
                                     />
                                 ) : (
-                                    <p style={{ ...valueStyle, whiteSpace: 'pre-wrap' }}>{seed.variedad.especie.descripcion || '—'}</p>
+                                    <p className="seeddetail-value seeddetail-value--prewrap">{seed.variedad.especie.descripcion || '—'}</p>
                                 )}
                             </Field>
                         </div>
@@ -1780,38 +1489,17 @@ export function SeedDetail() {
 }
 
 // Componente Sección Colapsable
-function CollapsibleSection({ title, isExpanded, onToggle, color, bgColor, children, editing, saving, onSave }) {
+function CollapsibleSection({ title, isExpanded, onToggle, variant, children, editing, saving, onSave }) {
     return (
-        <div style={{
-            backgroundColor: 'white',
-            borderRadius: '16px',
-            marginBottom: '1rem',
-            boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
-            overflow: 'hidden'
-        }}>
+        <div className={`seeddetail-section seeddetail-section--${variant}`}>
             <button
                 onClick={onToggle}
-                style={{
-                    width: '100%',
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    padding: '1rem 1.25rem',
-                    backgroundColor: isExpanded ? bgColor : 'white',
-                    border: 'none',
-                    cursor: 'pointer',
-                    transition: 'all 0.3s',
-                    borderBottom: isExpanded ? '1px solid #e5e7eb' : 'none'
-                }}
+                className={`seeddetail-section__toggle ${isExpanded ? 'is-expanded' : ''}`}
             >
-                <span style={{
-                    fontSize: '1rem',
-                    fontWeight: '700',
-                    color: color
-                }}>
+                <span className="seeddetail-section__title">
                     {title}
                 </span>
-                <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
+                <div className="seeddetail-section__actions">
                     {editing && onSave && (
                         <button
                             onClick={(e) => {
@@ -1819,38 +1507,17 @@ function CollapsibleSection({ title, isExpanded, onToggle, color, bgColor, child
                                 onSave();
                             }}
                             disabled={saving}
-                            style={{
-                                backgroundColor: '#10b981',
-                                color: 'white',
-                                border: 'none',
-                                borderRadius: '8px',
-                                padding: '0.4rem 0.8rem',
-                                fontSize: '0.85rem',
-                                fontWeight: '600',
-                                cursor: 'pointer',
-                                opacity: saving ? 0.5 : 1
-                            }}
+                            className="seeddetail-section__save"
                         >
                             {saving ? '⏳' : '💾 Guardar'}
                         </button>
                     )}
-                    <span style={{
-                        fontSize: '1.2rem',
-                        transform: isExpanded ? 'rotate(180deg)' : 'rotate(0deg)',
-                        transition: 'transform 0.3s',
-                        display: 'flex'
-                    }}>
+                    <span className={`seeddetail-section__chevron ${isExpanded ? 'is-expanded' : ''}`}>
                         ▼
                     </span>
                 </div>
             </button>
-            <div style={{
-                maxHeight: isExpanded ? '5000px' : '0',
-                opacity: isExpanded ? '1' : '0',
-                overflow: isExpanded ? 'visible' : 'hidden',
-                transition: 'all 0.3s ease',
-                padding: isExpanded ? '1.25rem' : '0 1.25rem'
-            }}>
+            <div className={`seeddetail-section__content ${isExpanded ? 'is-expanded' : ''}`}>
                 {children}
             </div>
         </div>
@@ -1860,17 +1527,9 @@ function CollapsibleSection({ title, isExpanded, onToggle, color, bgColor, child
 // Componente Campo
 function Field({ label, children, fullWidth }) {
     return (
-        <div style={{ gridColumn: fullWidth ? '1 / -1' : 'auto' }}>
+        <div className={`seeddetail-field ${fullWidth ? 'seeddetail-field--full' : ''}`}>
             {label && (
-                <label style={{
-                    display: 'block',
-                    fontSize: '0.8rem',
-                    fontWeight: '600',
-                    color: '#6b7280',
-                    marginBottom: '0.35rem',
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.025em'
-                }}>
+                <label className="seeddetail-field__label">
                     {label}
                 </label>
             )}
@@ -1878,24 +1537,5 @@ function Field({ label, children, fullWidth }) {
         </div>
     );
 }
-
-// Estilos compartidos
-const inputStyle = {
-    width: '100%',
-    padding: '0.65rem 0.75rem',
-    fontSize: '0.95rem',
-    border: '1px solid #d1d5db',
-    borderRadius: '8px',
-    backgroundColor: 'white',
-    transition: 'all 0.2s',
-    outline: 'none'
-};
-
-const valueStyle = {
-    fontSize: '0.95rem',
-    color: '#111827',
-    margin: 0,
-    lineHeight: '1.6'
-};
 
 export default SeedDetail;

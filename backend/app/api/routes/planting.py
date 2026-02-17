@@ -60,6 +60,8 @@ class PlantingGuideResponse(BaseModel):
     profundidad_siembra_cm: Optional[float] = None
     distancia_plantas_cm: Optional[float] = None
     distancia_surcos_cm: Optional[float] = None
+    meses_siembra_interior: Optional[List[int]] = None
+    meses_siembra_exterior: Optional[List[int]] = None
     
     # Growth cycle
     dias_germinacion_min: Optional[int] = None
@@ -120,6 +122,16 @@ async def get_planting_guide(
     
     Returns comprehensive planting information for each species.
     """
+    def aggregate_months(variedades: List[Variedad]) -> tuple[Optional[List[int]], Optional[List[int]]]:
+        interior = set()
+        exterior = set()
+        for variedad in variedades:
+            if variedad.meses_siembra_interior:
+                interior.update(variedad.meses_siembra_interior)
+            if variedad.meses_siembra_exterior:
+                exterior.update(variedad.meses_siembra_exterior)
+        return (sorted(interior) or None, sorted(exterior) or None)
+
     # Usar SQL directo para evitar problemas con columnas inexistentes en el modelo
     from sqlalchemy import text
     
@@ -163,6 +175,9 @@ async def get_planting_guide(
         sfg_data = db.query(SquareFootGardening).filter(
             SquareFootGardening.especie_id == especie_id
         ).first()
+
+        variedades = db.query(Variedad).filter(Variedad.especie_id == especie_id).all()
+        meses_siembra_interior, meses_siembra_exterior = aggregate_months(variedades)
         
         data = {
             "id": especie_id,
@@ -173,6 +188,8 @@ async def get_planting_guide(
             "profundidad_siembra_cm": None,
             "distancia_plantas_cm": None,
             "distancia_surcos_cm": None,
+            "meses_siembra_interior": meses_siembra_interior,
+            "meses_siembra_exterior": meses_siembra_exterior,
             "dias_germinacion_min": None,
             "dias_germinacion_max": None,
             "dias_hasta_cosecha_min": None,
@@ -199,6 +216,16 @@ async def get_planting_guide_by_species(
     """
     Get detailed Square Foot Gardening information for a specific species.
     """
+    def aggregate_months(variedades: List[Variedad]) -> tuple[Optional[List[int]], Optional[List[int]]]:
+        interior = set()
+        exterior = set()
+        for variedad in variedades:
+            if variedad.meses_siembra_interior:
+                interior.update(variedad.meses_siembra_interior)
+            if variedad.meses_siembra_exterior:
+                exterior.update(variedad.meses_siembra_exterior)
+        return (sorted(interior) or None, sorted(exterior) or None)
+
     especie = db.query(Especie).filter(Especie.id == especie_id).first()
     
     if not especie:
@@ -217,6 +244,8 @@ async def get_planting_guide_by_species(
         "profundidad_siembra_cm": None,
         "distancia_plantas_cm": None,
         "distancia_surcos_cm": None,
+        "meses_siembra_interior": None,
+        "meses_siembra_exterior": None,
         "dias_germinacion_min": None,
         "dias_germinacion_max": None, 
         "dias_hasta_cosecha_min": None,
@@ -225,6 +254,11 @@ async def get_planting_guide_by_species(
         "exposicion_solar": None,
         "square_foot_gardening": None
     }
+
+    variedades = db.query(Variedad).filter(Variedad.especie_id == especie.id).all()
+    meses_siembra_interior, meses_siembra_exterior = aggregate_months(variedades)
+    data["meses_siembra_interior"] = meses_siembra_interior
+    data["meses_siembra_exterior"] = meses_siembra_exterior
     
     if especie.square_foot_gardening:
         data["square_foot_gardening"] = SquareFootGardeningData.model_validate(especie.square_foot_gardening)

@@ -233,7 +233,7 @@ export function CSVManager() {
                                 accept=".csv"
                                 onChange={handleImportCSV}
                                 disabled={loading}
-                                style={{ display: 'none' }}
+                                className="csv-file-input"
                             />
                             <button className="csv-button primary" disabled={loading}>
                                 {loading ? 'Importando...' : 'Seleccionar Archivo'}

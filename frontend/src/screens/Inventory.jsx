@@ -195,42 +195,17 @@ export function Inventory() {
                         )}
 
                         {/* Visual Indicators for Planting Type */}
-                        <div style={{
-                            display: 'flex',
-                            gap: '6px',
-                            marginBottom: '8px',
-                            flexWrap: 'wrap'
-                        }}>
+                        <div className="inventory-planting-tags">
                             {siembraInfo.interior && (
-                                <div style={{
-                                    background: '#f3e8ff',
-                                    color: '#6d28d9',
-                                    padding: '4px 8px',
-                                    borderRadius: '4px',
-                                    fontSize: '11px',
-                                    fontWeight: '600',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    gap: '4px'
-                                }}>
+                                <div className="inventory-planting-tag inventory-planting-tag--indoor">
                                     <span>🏠</span> Interior
-                                    <span style={{fontSize: '10px'}}>({siembraInfo.interior.join(', ')})</span>
+                                    <span className="inventory-planting-tag__months">({siembraInfo.interior.join(', ')})</span>
                                 </div>
                             )}
                             {siembraInfo.exterior && (
-                                <div style={{
-                                    background: '#dcfce7',
-                                    color: '#166534',
-                                    padding: '4px 8px',
-                                    borderRadius: '4px',
-                                    fontSize: '11px',
-                                    fontWeight: '600',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    gap: '4px'
-                                }}>
+                                <div className="inventory-planting-tag inventory-planting-tag--outdoor">
                                     <span>🌾</span> Exterior
-                                    <span style={{fontSize: '10px'}}>({siembraInfo.exterior.join(', ')})</span>
+                                    <span className="inventory-planting-tag__months">({siembraInfo.exterior.join(', ')})</span>
                                 </div>
                             )}
                         </div>
@@ -304,33 +279,14 @@ export function Inventory() {
                             )}
                             
                             {/* Visual Indicators for Planting Type */}
-                            <div style={{
-                                display: 'flex',
-                                gap: '6px',
-                                marginBottom: '6px',
-                                flexWrap: 'wrap'
-                            }}>
+                            <div className="inventory-planting-tags inventory-planting-tags--compact">
                                 {siembraInfo.interior && (
-                                    <div style={{
-                                        background: '#f3e8ff',
-                                        color: '#6d28d9',
-                                        padding: '3px 6px',
-                                        borderRadius: '3px',
-                                        fontSize: '10px',
-                                        fontWeight: '600'
-                                    }}>
+                                    <div className="inventory-planting-tag inventory-planting-tag--indoor inventory-planting-tag--compact">
                                         🏠 Interior: {siembraInfo.interior.join(', ')}
                                     </div>
                                 )}
                                 {siembraInfo.exterior && (
-                                    <div style={{
-                                        background: '#dcfce7',
-                                        color: '#166534',
-                                        padding: '3px 6px',
-                                        borderRadius: '3px',
-                                        fontSize: '10px',
-                                        fontWeight: '600'
-                                    }}>
+                                    <div className="inventory-planting-tag inventory-planting-tag--outdoor inventory-planting-tag--compact">
                                         🌾 Exterior: {siembraInfo.exterior.join(', ')}
                                     </div>
                                 )}
@@ -353,34 +309,32 @@ export function Inventory() {
     return (
         <div className="inventory-container">
             {/* Header Section */}
-            <h1 className="inventory-header__title">Mi Inventario</h1>
-            <div className="inventory-header__controls">
-                <div>
+            <div className="inventory-header">
+                <div className="inventory-header__info">
+                    <h1 className="inventory-header__title">Mi Inventario</h1>
                     <p className="inventory-header__stats">
                         {seeds.length} semilla{seeds.length !== 1 ? 's' : ''} registrada{seeds.length !== 1 ? 's' : ''}
                     </p>
                 </div>
-                <div className="inventory-header__actions">
-                    {/* View Mode Toggle */}
-                    {seeds.length > 0 && (
-                        <div className="inventory-view-toggle">
-                            <button 
-                                onClick={() => setViewMode('grid')}
-                                className={`inventory-view-toggle__btn btn ${viewMode === 'grid' ? 'btn-primary' : 'btn-secondary'} btn-sm`}
-                                title="Vista cuadrícula"
-                            >
-                                ⊞
-                            </button>
-                            <button 
-                                onClick={() => setViewMode('list')}
-                                className={`inventory-view-toggle__btn btn ${viewMode === 'list' ? 'btn-primary' : 'btn-secondary'} btn-sm`}
-                                title="Vista lista"
-                            >
-                                ≡
-                            </button>
-                        </div>
-                    )}
-                </div>
+                {/* View Mode Toggle */}
+                {seeds.length > 0 && (
+                    <div className="inventory-view-toggle">
+                        <button 
+                            onClick={() => setViewMode('grid')}
+                            className={`inventory-view-toggle__btn btn ${viewMode === 'grid' ? 'btn-primary' : 'btn-secondary'} btn-sm`}
+                            title="Vista cuadrícula"
+                        >
+                            ⊞
+                        </button>
+                        <button 
+                            onClick={() => setViewMode('list')}
+                            className={`inventory-view-toggle__btn btn ${viewMode === 'list' ? 'btn-primary' : 'btn-secondary'} btn-sm`}
+                            title="Vista lista"
+                        >
+                            ≡
+                        </button>
+                    </div>
+                )}
             </div>
 
             {/* Filters Section */}
@@ -389,7 +343,7 @@ export function Inventory() {
                     {/* Filters Header */}
                     <button
                         onClick={() => setFiltersExpanded(!filtersExpanded)}
-                        className="inventory-filters__toggle"
+                        className={`inventory-filters__toggle ${filtersExpanded ? 'inventory-filters__toggle--expanded' : ''}`}
                     >
                         <span className="inventory-filters__toggle-text">
                             🔍 Filtros
@@ -407,13 +361,16 @@ export function Inventory() {
                     {/* Filters Content */}
                     {filtersExpanded && (
                         <div className="inventory-filters__content">
-                        <div className="inventory-filters__group">
-                            <label className="inventory-filters__label form-label" htmlFor="filter-search">🔍 Buscar</label>
+                        <div className="inventory-filters__group inventory-filters__group--search">
+                            <label className="inventory-filters__label inventory-filters__label--sr" htmlFor="filter-search">
+                                Buscar por nombre o marca
+                            </label>
                             <input
                                 type="text"
                                 className="input inventory-filters__input"
                                 id="filter-search"
-                                placeholder="Nombre o marca..."
+                                placeholder="🔍 Buscar por nombre o marca"
+                                aria-label="Buscar por nombre o marca"
                                 value={filters.search}
                                 onChange={(e) => setFilters({ ...filters, search: e.target.value })}
                             />

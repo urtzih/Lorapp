@@ -55,6 +55,18 @@
     font-size: 1rem;
 }
 
+.auth-form__hint {
+    font-size: 0.85em;
+    margin-left: 4px;
+}
+
+.auth-form__helper {
+    display: block;
+    margin-top: 4px;
+    color: var(--color-gray-500);
+    font-size: 0.85rem;
+}
+
 .auth-form__submit {
     width: 100%;
     padding: var(--space-3);

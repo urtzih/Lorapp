@@ -82,7 +82,7 @@ export function Register() {
                     <div className="form-group">
                         <label className="form-label" htmlFor="register-location">
                             📍 Ubicación
-                            <span className="text-gray" style={{fontSize: '0.85em', marginLeft: '4px'}}>
+                            <span className="text-gray auth-form__hint">
                                 (para ajustar calendario agrícola)
                             </span>
                         </label>
@@ -96,7 +96,7 @@ export function Register() {
                             required
                             placeholder="Ej: Vitoria-Gasteiz, España"
                         />
-                        <small style={{display: 'block', marginTop: '4px', color: '#6B7280'}}>
+                        <small className="auth-form__helper">
                             Ingresa tu ciudad/pueblo para que podamos personalizar las fechas de siembra según tu clima.
                         </small>
                     </div>

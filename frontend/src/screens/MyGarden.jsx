@@ -97,6 +97,15 @@ export function MyGarden() {
                 </p>
             </div>
 
+            {/* CTA to Seedling */}
+            <Link to="/my-seedling" className="card calendar-cta calendar-cta--dark">
+                <div>
+                    <div className="calendar-cta__title">🌱 Ver Mi Semillero</div>
+                    <div className="calendar-cta__subtitle">Gestiona tus semilleros y trasplantes pendientes</div>
+                </div>
+                <span className="calendar-cta__arrow">→</span>
+            </Link>
+
             {/* Quick Stats */}
             <div className="mygarden-stats">
                 <div className="mygarden-stat-card">

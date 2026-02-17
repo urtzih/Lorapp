@@ -87,6 +87,7 @@ export const calendarAPI = {
     getMonthly: (month, year) => api.get('/calendar/monthly', { params: { month, year } }),
     getCurrent: () => api.get('/calendar/current'),
     getRecommendations: () => api.get('/calendar/recommendations'),
+    getSeedSummary: () => api.get('/calendar/seed-summary'),
     getUpcomingTransplants: (days = 7) =>
         api.get('/calendar/upcoming-transplants', { params: { days } }),
     getExpiring: (days = 30) =>

@@ -1,6 +1,7 @@
 import { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { seedsAPI } from '../services/api';
+import '../styles/SeedScan.css';
 
 export function SeedScan() {
     const [photos, setPhotos] = useState([]);
@@ -72,7 +73,7 @@ export function SeedScan() {
     };
 
     return (
-        <div className="container section" style={{ paddingBottom: '150px' }}>
+        <div className="container section seedscan-container">
             <h1 className="mb-6">📸 Escanear Semilla</h1>
 
             {!ocrResult ? (
@@ -87,7 +88,7 @@ export function SeedScan() {
                             accept="image/*"
                             multiple
                             capture="environment"
-                            style={{ display: 'none' }}
+                            className="seedscan-file-input"
                             onChange={handleFileSelect}
                         />
 
@@ -108,31 +109,15 @@ export function SeedScan() {
                         {previews.length > 0 && (
                             <div className="grid grid-3 gap-4">
                                 {previews.map((preview, index) => (
-                                    <div key={index} style={{ position: 'relative' }}>
+                                    <div key={index} className="seedscan-preview">
                                         <img
                                             src={preview}
                                             alt={`Preview ${index + 1}`}
-                                            style={{
-                                                width: '100%',
-                                                height: '200px',
-                                                objectFit: 'cover',
-                                                borderRadius: 'var(--radius-lg)'
-                                            }}
+                                            className="seedscan-preview__image"
                                         />
                                         <button
                                             onClick={() => removePhoto(index)}
-                                            style={{
-                                                position: 'absolute',
-                                                top: '8px',
-                                                right: '8px',
-                                                backgroundColor: 'var(--color-error)',
-                                                color: 'white',
-                                                border: 'none',
-                                                borderRadius: '50%',
-                                                width: '32px',
-                                                height: '32px',
-                                                cursor: 'pointer'
-                                            }}
+                                            className="seedscan-preview__remove"
                                         >
                                             ×
                                         </button>
@@ -146,13 +131,12 @@ export function SeedScan() {
                     {photos.length > 0 && (
                         <button
                             onClick={handleScan}
-                            className="btn btn-primary btn-lg"
-                            style={{ width: '100%' }}
+                            className="btn btn-primary btn-lg seedscan-scan-btn"
                             disabled={scanning}
                         >
                             {scanning ? (
                                 <>
-                                    <span className="spinner" style={{ width: '20px', height: '20px', marginRight: '8px' }}></span>
+                                    <span className="spinner seedscan-spinner"></span>
                                     Analizando imágenes...
                                 </>
                             ) : (
@@ -164,7 +148,7 @@ export function SeedScan() {
             ) : (
                 <>
                     {/* OCR Results */}
-                    <div className="card mb-4" style={{ backgroundColor: '#ecfdf5', borderLeft: '4px solid var(--color-success)' }}>
+                    <div className="card mb-4 seedscan-result">
                         <h4 className="mb-2">✅ Escaneo completado</h4>
                         <p className="text-sm text-gray">
                             Confianza: {Math.round(ocrResult.confidence * 100)}% •
@@ -263,10 +247,10 @@ export function SeedScan() {
 
                     {/* Actions */}
                     <div className="flex gap-4">
-                        <button onClick={() => { setOcrResult(null); setEditedData(null); }} className="btn btn-secondary" style={{ flex: 1 }}>
+                        <button onClick={() => { setOcrResult(null); setEditedData(null); }} className="btn btn-secondary seedscan-action-btn">
                             ← Volver a escanear
                         </button>
-                        <button onClick={handleSave} className="btn btn-primary" style={{ flex: 2 }}>
+                        <button onClick={handleSave} className="btn btn-primary seedscan-action-btn seedscan-action-btn--primary">
                             💾 Guardar semilla
                         </button>
                     </div>

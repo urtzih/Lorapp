@@ -14,8 +14,8 @@ export function Layout({ children }) {
         { path: '/my-garden', label: 'Mi Huerta', icon: 'garden' },
         { path: '/my-seedling', label: 'Mi Semillero', icon: 'seedling' },
         { path: '/inventory', label: 'Inventario', icon: 'inventory' },
-        { path: '/sfg', label: 'Guía SFG', icon: 'planting' },
-        { path: '/calendar', label: 'Calendario', icon: 'calendar' }
+        { path: '/calendar', label: 'Calendario', icon: 'calendar' },
+        { path: '/sfg', label: 'Guía SFG', icon: 'planting' }
     ];
 
     // Cerrar menú al hacer click fuera
@@ -122,19 +122,58 @@ export function Layout({ children }) {
                 {children}
             </main>
 
-            {/* Mobile Bottom Navigation */}
+            {/* Mobile Bottom Navigation - Modern Design */}
             <nav className="bottom-nav">
                 <div className="bottom-nav-container">
-                    {navItems.map(item => (
-                        <Link
-                            key={item.path}
-                            to={item.path}
-                            className={`nav-item ${isActive(item.path) ? 'active' : ''}`}
-                        >
-                            <span className="nav-item-icon">{getIcon(item.icon)}</span>
-                            <span>{item.label}</span>
-                        </Link>
-                    ))}
+                    {/* Left Side - Primary Actions */}
+                    <Link
+                        to="/inventory"
+                        className={`bottom-nav-item ${isActive('/inventory') ? 'active' : ''}`}
+                        onClick={() => navigator.vibrate && navigator.vibrate(5)}
+                    >
+                        <div className="bottom-nav-item__icon">
+                            {getIcon('inventory')}
+                        </div>
+                        <span className="bottom-nav-item__label">Inventario</span>
+                        {isActive('/inventory') && <span className="bottom-nav-item__indicator" />}
+                    </Link>
+
+                    <Link
+                        to="/calendar"
+                        className={`bottom-nav-item ${isActive('/calendar') ? 'active' : ''}`}
+                        onClick={() => navigator.vibrate && navigator.vibrate(5)}
+                    >
+                        <div className="bottom-nav-item__icon">
+                            {getIcon('calendar')}
+                        </div>
+                        <span className="bottom-nav-item__label">Calendario</span>
+                        {isActive('/calendar') && <span className="bottom-nav-item__indicator" />}
+                    </Link>
+
+                    {/* Right Side - Secondary Actions */}
+                    <Link
+                        to="/my-garden"
+                        className={`bottom-nav-item ${isActive('/my-garden') ? 'active' : ''}`}
+                        onClick={() => navigator.vibrate && navigator.vibrate(5)}
+                    >
+                        <div className="bottom-nav-item__icon">
+                            {getIcon('garden')}
+                        </div>
+                        <span className="bottom-nav-item__label">Huerta</span>
+                        {isActive('/my-garden') && <span className="bottom-nav-item__indicator" />}
+                    </Link>
+
+                    <Link
+                        to="/sfg"
+                        className={`bottom-nav-item ${isActive('/sfg') ? 'active' : ''}`}
+                        onClick={() => navigator.vibrate && navigator.vibrate(5)}
+                    >
+                        <div className="bottom-nav-item__icon">
+                            {getIcon('planting')}
+                        </div>
+                        <span className="bottom-nav-item__label">Guía</span>
+                        {isActive('/sfg') && <span className="bottom-nav-item__indicator" />}
+                    </Link>
                 </div>
             </nav>
         </div>

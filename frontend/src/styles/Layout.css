@@ -99,12 +99,36 @@
     flex-shrink: 0;
 }
 
-/* Bottom Nav User Button */
-.bottom-nav button.nav-item {
-    background: transparent;
-    border: none;
-    font-family: inherit;
-    font-size: inherit;
+/* Bottom Nav - Modern Design (estilos adicionales) */
+.bottom-nav-item {
+    position: relative;
+    overflow: visible;
+}
+
+/* Ripple effect for regular items */
+.bottom-nav-item::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--color-primary);
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0);
+    transition: transform 0.5s, opacity 0.5s;
+}
+
+.bottom-nav-item:active::after {
+    transform: translate(-50%, -50%) scale(1.5);
+    opacity: 0.2;
+    transition: transform 0s, opacity 0s;
+}
+
+/* Enhanced hover states */
+.bottom-nav-item:hover .bottom-nav-item__icon {
+    transform: translateY(-2px);
 }
 
 /* Responsive - Ocultar en móvil */

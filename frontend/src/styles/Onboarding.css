@@ -1,0 +1,60 @@
+/**
+ * LORAPP - Onboarding Screen Styles
+ */
+
+.onboarding {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #10b981, #059669);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+}
+
+.onboarding-card {
+    max-width: 500px;
+    width: 100%;
+    text-align: center;
+}
+
+.onboarding-icon {
+    font-size: 5rem;
+    margin-bottom: 2rem;
+}
+
+.onboarding-description {
+    font-size: 1.125rem;
+}
+
+.onboarding-dots {
+    display: flex;
+    justify-content: center;
+    gap: var(--space-2);
+    margin-bottom: var(--space-8);
+}
+
+.onboarding-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background-color: var(--color-gray-300);
+    transition: all 0.3s ease;
+}
+
+.onboarding-dot.is-active {
+    background-color: var(--color-primary);
+}
+
+.onboarding-actions {
+    display: flex;
+    gap: var(--space-4);
+}
+
+.onboarding-action {
+    flex: 1;
+}
+
+.onboarding-action--primary {
+    flex: 2;
+}

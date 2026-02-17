@@ -14,5 +14,6 @@ export { Planting } from './Sfg';
 export { Calendar } from './Calendar';
 export { CalendarLunaTiempo } from './CalendarLunaTiempo';
 export { CalendarMonthDetails } from './CalendarMonthDetails';
+export { CalendarSeedsSummary } from './CalendarSeedsSummary';
 export { Settings } from './Settings';
 export { CSVManager } from './CSVManager';

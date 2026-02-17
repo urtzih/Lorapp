@@ -1,10 +1,11 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import { calendarAPI } from '../services/api';
 import '../styles/Calendar.css';
 
 export function CalendarMonthDetails() {
     const { year, month } = useParams();
+    const navigate = useNavigate();
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [tasks, setTasks] = useState({ planting: [] });
@@ -13,9 +14,31 @@ export function CalendarMonthDetails() {
         'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
         'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
     ];
+    const shortMonthNames = [
+        'Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun',
+        'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'
+    ];
 
     const numericMonth = Number(month);
     const numericYear = Number(year);
+    const today = new Date();
+    const currentMonth = today.getMonth() + 1;
+    const currentYear = today.getFullYear();
+    const yearOptions = Array.from({ length: 5 }, (_, idx) => currentYear - 2 + idx);
+
+    const getPrevMonthLink = () => {
+        if (numericMonth === 1) {
+            return { year: numericYear - 1, month: 12 };
+        }
+        return { year: numericYear, month: numericMonth - 1 };
+    };
+
+    const getNextMonthLink = () => {
+        if (numericMonth === 12) {
+            return { year: numericYear + 1, month: 1 };
+        }
+        return { year: numericYear, month: numericMonth + 1 };
+    };
 
     useEffect(() => {
         loadMonth();
@@ -48,6 +71,34 @@ export function CalendarMonthDetails() {
             .map((name) => ({ name, items: groups[name] }));
     }, [tasks]);
 
+    const renderMonthBadges = (months = []) => {
+        if (!months || months.length === 0) {
+            return <span className="calendar-month-badge is-empty">Sin meses</span>;
+        }
+
+        return months.map((monthNumber) => (
+            <span
+                key={monthNumber}
+                className={`calendar-month-badge${monthNumber === numericMonth ? ' is-current' : ''}`}
+            >
+                {shortMonthNames[monthNumber - 1]}
+            </span>
+        ));
+    };
+
+    const getMonthProgress = (months = []) => {
+        if (!months || months.length === 0) return null;
+        const index = months.indexOf(numericMonth);
+        if (index === -1) return null;
+        if (months.length === 1) {
+            return { phase: 'full', label: 'Unico' };
+        }
+        const ratio = index / (months.length - 1);
+        if (ratio < 0.34) return { phase: 'start', label: 'Inicio' };
+        if (ratio < 0.67) return { phase: 'mid', label: 'Mitad' };
+        return { phase: 'end', label: 'Final' };
+    };
+
     return (
         <div className="calendar-container">
             <div className="calendar-header">
@@ -55,6 +106,73 @@ export function CalendarMonthDetails() {
                 <p className="calendar-header__description text-gray">
                     Detalle de siembras del mes agrupadas por especie
                 </p>
+            </div>
+
+            <div className="calendar-nav calendar-nav--month-details">
+                <button
+                    type="button"
+                    onClick={() => navigate(-1)}
+                    className="calendar-nav__btn btn btn-secondary"
+                >
+                    ← Volver atras
+                </button>
+                <Link
+                    to={`/calendar/mes/${getPrevMonthLink().year}/${getPrevMonthLink().month}`}
+                    className="calendar-nav__btn btn btn-secondary"
+                >
+                    ← Mes anterior
+                </Link>
+                <Link
+                    to={`/calendar/mes/${currentYear}/${currentMonth}`}
+                    className="calendar-nav__btn btn btn-secondary"
+                >
+                    Volver a mes actual
+                </Link>
+                <Link
+                    to={`/calendar/mes/${getNextMonthLink().year}/${getNextMonthLink().month}`}
+                    className="calendar-nav__btn btn btn-secondary"
+                >
+                    Mes siguiente →
+                </Link>
+            </div>
+
+            <div className="card mb-4 calendar-month-controls">
+                <div className="calendar-month-controls__row">
+                    <label className="calendar-month-controls__label">
+                        Mes
+                        <select
+                            className="input"
+                            value={numericMonth}
+                            onChange={(event) => {
+                                const nextMonth = Number(event.target.value);
+                                navigate(`/calendar/mes/${numericYear}/${nextMonth}`);
+                            }}
+                        >
+                            {monthNames.map((name, index) => (
+                                <option key={name} value={index + 1}>
+                                    {name}
+                                </option>
+                            ))}
+                        </select>
+                    </label>
+                    <label className="calendar-month-controls__label">
+                        Ano
+                        <select
+                            className="input"
+                            value={numericYear}
+                            onChange={(event) => {
+                                const nextYear = Number(event.target.value);
+                                navigate(`/calendar/mes/${nextYear}/${numericMonth}`);
+                            }}
+                        >
+                            {yearOptions.map((optionYear) => (
+                                <option key={optionYear} value={optionYear}>
+                                    {optionYear}
+                                </option>
+                            ))}
+                        </select>
+                    </label>
+                </div>
             </div>
 
             <div className="tabs-container mb-4">
@@ -65,9 +183,9 @@ export function CalendarMonthDetails() {
             </div>
 
             {loading && (
-                <div className="flex justify-center items-center" style={{ minHeight: '240px', flexDirection: 'column', gap: '12px' }}>
-                    <div className="spinner"></div>
-                    <p className="text-gray" style={{ fontSize: '14px' }}>Cargando detalle del mes...</p>
+                <div className="shared-loading shared-loading--compact">
+                    <div className="spinner shared-loading__spinner"></div>
+                    <p className="text-gray shared-loading__text">Cargando detalle del mes...</p>
                 </div>
             )}
 
@@ -90,32 +208,40 @@ export function CalendarMonthDetails() {
             {!loading && !error && grouped.length > 0 && (
                 <div className="grid gap-3">
                     {grouped.map((group) => (
-                        <div key={group.name} className="card" style={{ padding: '12px' }}>
-                            <h4 style={{ fontWeight: '600', marginBottom: '8px' }}>🌱 {group.name}</h4>
+                        <div key={group.name} className="card calendar-month-group">
+                            <h4 className="calendar-month-group__title">🌱 {group.name}</h4>
                             <div className="grid gap-2">
                                 {group.items.map((item, index) => (
-                                    <div key={`${group.name}-${index}`} style={{
-                                        display: 'flex',
-                                        justifyContent: 'space-between',
-                                        alignItems: 'center',
-                                        padding: '8px 10px',
-                                        background: '#f8fafc',
-                                        borderRadius: '8px',
-                                        border: '1px solid #e2e8f0'
-                                    }}>
-                                        <div style={{ fontSize: '13px', fontWeight: '600' }}>
+                                    <div key={`${group.name}-${index}`} className="calendar-month-item">
+                                        <div className="calendar-month-item__name">
                                             {item.variety || item.seed_name}
                                         </div>
-                                        <span style={{
-                                            fontSize: '11px',
-                                            background: item.type === 'indoor' ? '#f3e8ff' : '#dcfce7',
-                                            color: item.type === 'indoor' ? '#6d28d9' : '#166534',
-                                            padding: '2px 8px',
-                                            borderRadius: '999px',
-                                            fontWeight: '600'
-                                        }}>
-                                            {item.type === 'indoor' ? 'Interior' : 'Exterior'}
-                                        </span>
+                                        <div className="calendar-month-item__badges">
+                                            {item.planting_months?.length
+                                                ? renderMonthBadges(item.planting_months)
+                                                : (item.planting_months_total ? (
+                                                    <span className="calendar-month-badge">
+                                                        {item.planting_months_total} meses
+                                                    </span>
+                                                ) : null)
+                                            }
+                                            <span className={`calendar-type-badge ${item.type === 'indoor' ? 'calendar-type-badge--indoor' : 'calendar-type-badge--outdoor'}`}>
+                                                {item.type === 'indoor' ? 'Interior' : 'Exterior'}
+                                            </span>
+                                        </div>
+                                        {(() => {
+                                            const progress = getMonthProgress(item.planting_months);
+                                            if (!progress) return null;
+                                            return (
+                                                <div className={`calendar-progress calendar-progress--${progress.phase}`}>
+                                                    <span className="calendar-progress__track">
+                                                        <span className="calendar-progress__fill" />
+                                                        <span className="calendar-progress__dot" />
+                                                    </span>
+                                                    <span className="calendar-progress__label">{progress.label}</span>
+                                                </div>
+                                            );
+                                        })()}
                                     </div>
                                 ))}
                             </div>
