@@ -9,6 +9,8 @@ import Inventory from './screens/Inventory'
 import SeedDetail from './screens/SeedDetail'
 import Planting from './screens/Sfg'
 import Calendar from './screens/Calendar'
+import CalendarLunaTiempo from './screens/CalendarLunaTiempo'
+import CalendarMonthDetails from './screens/CalendarMonthDetails'
 import Settings from './screens/Settings'
 import CSVManager from './screens/CSVManager'
 import Layout from './components/layout/Layout'
@@ -51,6 +53,8 @@ function App() {
                                         <Route path="/seeds/:id" element={<SeedDetail />} />
                                         <Route path="/sfg" element={<Planting />} />
                                         <Route path="/calendar" element={<Calendar />} />
+                                        <Route path="/calendar/mes/:year/:month" element={<CalendarMonthDetails />} />
+                                        <Route path="/calendar/luna-tiempo" element={<CalendarLunaTiempo />} />
                                         <Route path="/settings" element={<Settings />} />
                                         <Route path="/csv-manager" element={<CSVManager />} />
                                     </Routes>

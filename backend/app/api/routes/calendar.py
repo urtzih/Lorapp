@@ -176,3 +176,30 @@ async def get_expiring_seeds(
     )
     
     return expiring
+
+
+@router.get("/year-summary", response_model=Dict[str, Any])
+async def get_year_summary(
+    year: int = Query(..., ge=2020, le=2100, description="Year"),
+    pending_only: bool = Query(True, description="Only pending lots"),
+    mode: str = Query("all", description="all|indoor|outdoor"),
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """
+    Get planting summary for the year without lunar/weather dependencies.
+
+    Returns counts of pending planting tasks per month.
+    """
+    summary = calendar_service.get_year_planting_summary(
+        user=current_user,
+        year=year,
+        pending_only=pending_only,
+        mode=mode,
+        db=db
+    )
+
+    return {
+        "year": year,
+        "months": summary
+    }

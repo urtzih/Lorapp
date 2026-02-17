@@ -32,22 +32,26 @@
     align-items: center;
     gap: var(--space-2);
     padding: var(--space-2);
-    background: var(--background);
+    background: #ffffff;
     border-radius: var(--radius-md);
-    border: 2px solid var(--color-primary);
+    border: 1px solid rgba(16, 185, 129, 0.25);
+    box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
     margin-top: var(--space-2);
 }
 
 .sfg-header__stats-label {
     font-size: 0.875rem;
-    color: var(--text-gray);
+    color: #475569;
     font-weight: 500;
 }
 
 .sfg-header__stats-value {
     font-size: 1.25rem;
-    color: var(--color-primary);
+    color: #0f766e;
     font-weight: 700;
+    background: rgba(20, 184, 166, 0.12);
+    padding: 4px 10px;
+    border-radius: 999px;
 }
 
 /* Info Box */

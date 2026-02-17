@@ -91,6 +91,7 @@ export const calendarAPI = {
         api.get('/calendar/upcoming-transplants', { params: { days } }),
     getExpiring: (days = 30) =>
         api.get('/calendar/expiring-seeds', { params: { days } }),
+    getYearSummary: (params) => api.get('/calendar/year-summary', { params }),
 };
 
 // ===== LUNAR API (NEW) =====

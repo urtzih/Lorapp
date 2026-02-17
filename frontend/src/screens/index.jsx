@@ -12,5 +12,7 @@ export { Inventory } from './Inventory';
 export { SeedDetail } from './SeedDetail';
 export { Planting } from './Sfg';
 export { Calendar } from './Calendar';
+export { CalendarLunaTiempo } from './CalendarLunaTiempo';
+export { CalendarMonthDetails } from './CalendarMonthDetails';
 export { Settings } from './Settings';
 export { CSVManager } from './CSVManager';

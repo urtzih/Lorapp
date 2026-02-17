@@ -222,6 +222,74 @@ class CalendarService:
             "current_phase": current_phase,
             "significant_phases": significant_phases
         }
+
+
+    def get_year_planting_summary(
+        self,
+        user: User,
+        year: int,
+        pending_only: bool,
+        mode: str,
+        db: Session
+    ) -> List[Dict[str, Any]]:
+        """
+        Get pending planting counts per month for a given year.
+
+        Args:
+            user: User object
+            year: Year
+            pending_only: Only include active lots when True
+            mode: all|indoor|outdoor
+            db: Database session
+
+        Returns:
+            List of {month, total}
+        """
+        if mode not in {"all", "indoor", "outdoor"}:
+            mode = "all"
+
+        lotes_query = db.query(LoteSemillas).filter(
+            LoteSemillas.usuario_id == user.id
+        ).options(
+            joinedload(LoteSemillas.variedad).joinedload(Variedad.especie)
+        )
+
+        if pending_only:
+            lotes_query = lotes_query.filter(
+                LoteSemillas.estado == EstadoLoteSemillas.ACTIVO
+            )
+
+        lotes = lotes_query.all()
+
+        counts = {month: 0 for month in range(1, 13)}
+
+        for lote in lotes:
+            variedad = lote.variedad
+            if not variedad:
+                continue
+
+            meses_interior_ajustados = self.adjust_planting_months(
+                variedad.meses_siembra_interior or [],
+                user.latitude,
+                user.climate_zone
+            )
+            meses_exterior_ajustados = self.adjust_planting_months(
+                variedad.meses_siembra_exterior or [],
+                user.latitude,
+                user.climate_zone
+            )
+
+            if mode == "indoor":
+                meses = set(meses_interior_ajustados)
+            elif mode == "outdoor":
+                meses = set(meses_exterior_ajustados)
+            else:
+                meses = set(meses_interior_ajustados) | set(meses_exterior_ajustados)
+
+            for mes in meses:
+                counts[mes] += 1
+
+        return [{"month": month, "total": counts[month]} for month in range(1, 13)]
     
     
     def get_current_month_recommendations(
