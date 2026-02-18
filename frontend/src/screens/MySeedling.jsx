@@ -3,7 +3,6 @@ import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { mySeedlingAPI } from '../services/api';
 import CreateSeedlingModal from '../components/CreateSeedlingModal';
-import EditSeedlingModal from '../components/EditSeedlingModal';
 import '../styles/MySeedling.css';
 
 /**
@@ -20,8 +19,6 @@ export function MySeedling() {
         search: ''
     });
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-    const [seedlingToEdit, setSeedlingToEdit] = useState(null);
 
     const { user } = useAuth();
 
@@ -58,24 +55,24 @@ export function MySeedling() {
         }
     };
 
-    const handleDelete = async (id) => {
-        if (!confirm('¿Estás seguro de que quieres eliminar este semillero?')) {
+    const handleDelete = async (seedlingGroup) => {
+        if (!confirm(`¿Estás seguro de que quieres eliminar este semillero completo (${seedlingGroup.variedades.length} variedades)?`)) {
             return;
         }
         try {
-            await mySeedlingAPI.delete(id);
+            // Borrar todas las variedades del grupo
+            const deletePromises = seedlingGroup.variedades.map(variety =>
+                mySeedlingAPI.delete(variety.id)
+            );
+            await Promise.all(deletePromises);
             loadSeedlings();
             loadStats();
         } catch (error) {
-            console.error('Error deleting seedling:', error);
+            console.error('Error deleting seedling group:', error);
             alert('Error al eliminar el semillero');
         }
     };
 
-    const handleEdit = (seedling) => {
-        setSeedlingToEdit(seedling);
-        setIsEditModalOpen(true);
-    };
 
     const formatDate = (dateString) => {
         if (!dateString) return '-';
@@ -85,11 +82,18 @@ export function MySeedling() {
 
     const getStatusBadge = (estado) => {
         const badges = {
-            'SEMBRADA': { className: 'myseedling-badge--germinating', label: '🌱 Germinando' },
-            'GERMINADA': { className: 'myseedling-badge--germinated', label: '🌿 Germinada' },
-            'PLANIFICADA': { className: 'myseedling-badge--planned', label: '📋 Planificada' },
+            PLANIFICADA: { className: 'myseedling-badge--planned', label: '📋 Planificada' },
+            SEMBRADA: { className: 'myseedling-badge--germinating', label: '🌱 Germinando' },
+            GERMINADA: { className: 'myseedling-badge--germinated', label: '🌿 Germinada' },
+            LISTA: { className: 'myseedling-badge--default', label: '🌿 Lista' },
+            TRASPLANTADA: { className: 'myseedling-badge--default', label: '🪴 Trasplantada' },
+            planned: { className: 'myseedling-badge--planned', label: '📋 Planificada' },
+            sown: { className: 'myseedling-badge--germinating', label: '🌱 Germinando' },
+            germinating: { className: 'myseedling-badge--germinated', label: '🌿 Germinada' },
+            ready: { className: 'myseedling-badge--default', label: '🌿 Lista' },
+            transplanted: { className: 'myseedling-badge--default', label: '🪴 Trasplantada' }
         };
-        const badge = badges[estado] || { className: 'myseedling-badge--default', label: estado };
+        const badge = badges[estado] || { className: 'myseedling-badge--default', label: 'Estado desconocido' };
         return (
             <span className={`myseedling-badge ${badge.className}`}>
                 {badge.label}
@@ -122,11 +126,29 @@ export function MySeedling() {
                 especie_nombre: seedling.especie_nombre,
                 variedad_nombre: seedling.variedad_nombre,
                 origen: seedling.origen,
-                cantidad_semillas_plantadas: seedling.cantidad_semillas_plantadas,
-                dias_desde_siembra: seedling.dias_desde_siembra
+                dias_desde_siembra: seedling.dias_desde_siembra,
+                estado: seedling.estado,
+                fecha_siembra: seedling.fecha_siembra,
+                fecha_germinacion: seedling.fecha_germinacion
             });
         });
         return Object.values(grouped);
+    };
+
+    const getVarietyProgress = (variety) => {
+        const states = {
+            PLANIFICADA: { percentage: 0, color: '#4CAF50', label: 'Planificada' },
+            SEMBRADA: { percentage: 25, color: '#4CAF50', label: 'Sembrada' },
+            GERMINADA: { percentage: 50, color: '#4CAF50', label: 'Germinada' },
+            LISTA: { percentage: 75, color: '#FFC107', label: 'Lista' },
+            TRASPLANTADA: { percentage: 100, color: '#8BC34A', label: 'Trasplantada' },
+            planned: { percentage: 0, color: '#4CAF50', label: 'Planificada' },
+            sown: { percentage: 25, color: '#4CAF50', label: 'Sembrada' },
+            germinating: { percentage: 50, color: '#4CAF50', label: 'Germinada' },
+            ready: { percentage: 75, color: '#FFC107', label: 'Lista' },
+            transplanted: { percentage: 100, color: '#8BC34A', label: 'Trasplantada' }
+        };
+        return states[variety.estado] || states.PLANIFICADA;
     };
 
     if (loading) {
@@ -182,7 +204,7 @@ export function MySeedling() {
                     <div className="myseedling-filters__search">
                         <input
                             type="text"
-                            placeholder="Buscar en semillero..."
+                            placeholder="🔍 Buscar variedad, especie..."
                             className="input"
                             value={filters.search}
                             onChange={(e) => setFilters({ ...filters, search: e.target.value })}
@@ -257,21 +279,40 @@ export function MySeedling() {
                                     Variedades ({seedlingGroup.variedades.length})
                                 </div>
                                 <div className="myseedling-varieties__list">
-                                    {seedlingGroup.variedades.map((variety, idx) => (
-                                        <div key={idx} className="myseedling-variety-item">
-                                            <div className="myseedling-variety-item__name">
-                                                {variety.variedad_nombre || variety.especie_nombre}
+                                    {seedlingGroup.variedades.map((variety, idx) => {
+                                        const progress = getVarietyProgress(variety);
+                                        return (
+                                            <div key={idx} className="myseedling-variety-item">
+                                                <div className="myseedling-variety-item__name">
+                                                    {variety.especie_nombre && (
+                                                        <span className="myseedling-variety-item__especie">
+                                                            {variety.especie_nombre}
+                                                        </span>
+                                                    )}
+                                                    {variety.variedad_nombre}
+                                                </div>
+                                                <div className="myseedling-variety-item__info">
+                                                    {variety.origen && (
+                                                        <span className="myseedling-variety-item__origin">{variety.origen}</span>
+                                                    )}
+                                                </div>
+                                                <div className="myseedling-variety-item__progress">
+                                                    <div className="myseedling-variety-progress-bar">
+                                                        <div
+                                                            className="myseedling-variety-progress-fill"
+                                                            style={{
+                                                                width: `${progress.percentage}%`,
+                                                                backgroundColor: progress.color
+                                                            }}
+                                                        ></div>
+                                                    </div>
+                                                    <span className="myseedling-variety-progress-label">
+                                                        {progress.label}
+                                                    </span>
+                                                </div>
                                             </div>
-                                            <div className="myseedling-variety-item__info">
-                                                {variety.origen && (
-                                                    <span className="myseedling-variety-item__origin">{variety.origen}</span>
-                                                )}
-                                                {variety.cantidad_semillas_plantadas && (
-                                                    <span className="myseedling-variety-item__quantity">{variety.cantidad_semillas_plantadas} semillas</span>
-                                                )}
-                                            </div>
-                                        </div>
-                                    ))}
+                                        );
+                                    })}
                                 </div>
                             </div>
 
@@ -284,26 +325,12 @@ export function MySeedling() {
 
                             {/* Actions */}
                             <div className="myseedling-card__actions">
-                                <button 
-                                    onClick={() => handleEdit(seedlingGroup)}
-                                    className="myseedling-card__action-btn myseedling-card__action-btn--edit"
-                                    title="Editar semillero"
-                                >
-                                    ✏️
-                                </button>
                                 <Link 
                                     to={`/my-seedling/${seedlingGroup.id}`}
-                                    className="myseedling-card__action-btn btn btn-secondary"
+                                    className="myseedling-card__action-btn"
                                 >
                                     Ver detalles
                                 </Link>
-                                <button 
-                                    onClick={() => handleDelete(seedlingGroup.id)}
-                                    className="myseedling-card__action-btn myseedling-card__action-btn--delete"
-                                    title="Eliminar semillero"
-                                >
-                                    🗑️
-                                </button>
                             </div>
                         </div>
                     ))}
@@ -344,19 +371,6 @@ export function MySeedling() {
                 }}
             />
 
-            {/* Edit Modal */}
-            <EditSeedlingModal 
-                isOpen={isEditModalOpen}
-                onClose={() => {
-                    setIsEditModalOpen(false);
-                    setSeedlingToEdit(null);
-                }}
-                seedling={seedlingToEdit}
-                onSuccess={() => {
-                    loadSeedlings();
-                    loadStats();
-                }}
-            />
         </div>
     );
 }

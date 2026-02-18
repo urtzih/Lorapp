@@ -37,13 +37,13 @@
 /* Stats Grid */
 .myseedling-stats {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-    gap: var(--space-2);
-    margin-bottom: var(--space-3);
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: var(--space-3);
+    margin-bottom: var(--space-4);
 }
 
 .myseedling-stat-card {
-    padding: var(--space-2);
+    padding: var(--space-3);
     text-align: center;
     border-radius: var(--radius-lg);
     background: var(--card-background);
@@ -52,24 +52,25 @@
 }
 
 .myseedling-stat-card:hover {
-    box-shadow: var(--shadow-sm);
     border-color: var(--color-primary);
+    box-shadow: 0 4px 12px rgba(76, 175, 80, 0.15);
 }
 
 .myseedling-stat-card__icon {
-    font-size: 1.5rem;
-    margin-bottom: var(--space-1);
+    font-size: 2rem;
+    margin-bottom: var(--space-2);
 }
 
 .myseedling-stat-card__value {
-    font-size: 1.5rem;
+    font-size: 1.75rem;
     font-weight: bold;
     margin-bottom: var(--space-1);
+    color: var(--text-primary);
 }
 
 .myseedling-stat-card__label {
     color: var(--text-gray);
-    font-size: 0.75rem;
+    font-size: 0.875rem;
 }
 
 /* Filters */
@@ -110,6 +111,33 @@
     font-size: 0.75rem;
     white-space: nowrap;
     min-height: 44px;
+}
+
+@media (max-width: 640px) {
+    .myseedling-filters__content {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .myseedling-filters__search {
+        min-width: auto;
+        width: 100%;
+    }
+
+    .myseedling-filters__search .input {
+        width: 100%;
+        font-size: 1rem; /* Prevenir zoom en iOS */
+    }
+
+    .myseedling-filters__select {
+        flex: 1;
+        width: 100%;
+        font-size: 0.9rem;
+    }
+
+    .myseedling-filters__add-btn {
+        width: 100%;
+    }
 }
 
 /* Empty State */
@@ -254,6 +282,17 @@
     font-size: 0.85rem;
     color: var(--text-primary);
     margin-bottom: 4px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.myseedling-variety-item__especie {
+    font-size: 0.7rem;
+    color: var(--text-gray);
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
 }
 
 .myseedling-variety-item__info {
@@ -275,6 +314,37 @@
     font-weight: 500;
 }
 
+.myseedling-variety-item__progress {
+    margin-top: var(--space-1);
+    display: flex;
+    align-items: center;
+    gap: var(--space-1);
+}
+
+.myseedling-variety-progress-bar {
+    flex: 1;
+    height: 8px;
+    background: #e0e0e0;
+    border-radius: 4px;
+    overflow: hidden;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.myseedling-variety-progress-fill {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 0.3s ease, background-color 0.3s ease;
+}
+
+.myseedling-variety-progress-label {
+    font-size: 0.65rem;
+    font-weight: 600;
+    color: var(--text-gray);
+    white-space: nowrap;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+
 .myseedling-card__notes {
     padding: var(--space-1);
     margin-bottom: var(--space-2);
@@ -289,50 +359,53 @@
     display: flex;
     gap: var(--space-1);
     align-items: center;
+    margin-top: var(--space-2);
+    padding-top: var(--space-2);
+    border-top: 1px solid var(--border-color);
 }
 
 .myseedling-card__action-btn {
-    padding: var(--space-2);
-    font-size: 0.8rem;
+    flex: 1;
+    padding: 8px 16px;
+    font-size: 0.85rem;
     border: none;
-    background: transparent;
+    background: var(--color-primary);
+    color: white;
+    cursor: pointer;
+    transition: all var(--transition-base);
+    border-radius: var(--radius-md);
+    text-decoration: none;
+    text-align: center;
+    font-weight: 500;
+    min-height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.myseedling-card__action-btn:hover {
+    opacity: 0.9;
+}
+
+.myseedling-card__actions .btn-icon--edit {
+    flex: 0 0 auto;
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    background: rgba(76, 175, 80, 0.1);
+    border-radius: var(--radius-md);
+    border: 1px solid rgba(76, 175, 80, 0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
     cursor: pointer;
     transition: all var(--transition-base);
 }
 
-.myseedling-card__action-btn.btn-secondary {
-    flex: 1;
-    background: var(--color-gray-100);
-    border-radius: var(--radius-md);
-    text-decoration: none;
-    text-align: center;
-}
-
-.myseedling-card__action-btn--edit,
-.myseedling-card__action-btn--delete {
-    width: 2.5rem;
-    height: 2.5rem;
-    border-radius: var(--radius-md);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.2rem;
-}
-
-.myseedling-card__action-btn--edit {
-    background: rgba(33, 150, 243, 0.1);
-}
-
-.myseedling-card__action-btn--edit:hover {
-    background: rgba(33, 150, 243, 0.2);
-}
-
-.myseedling-card__action-btn--delete {
-    background: rgba(244, 67, 54, 0.1);
-}
-
-.myseedling-card__action-btn--delete:hover {
-    background: rgba(244, 67, 54, 0.2);
+.myseedling-card__actions .btn-icon--edit:hover {
+    background: rgba(76, 175, 80, 0.2);
+    border-color: var(--color-primary);
 }
 
 /* Tips Card */

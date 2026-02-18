@@ -299,9 +299,9 @@ export function SeedDetail() {
                 <div className="seeddetail-header__content">
                     <button 
                         onClick={() => navigate('/inventory')} 
-                        className="seeddetail-header__back-btn"
+                        className="btn-back"
                     >
-                        ←
+                        ← Volver
                     </button>
                     <div className="seeddetail-header__actions">
                         {!editing ? (

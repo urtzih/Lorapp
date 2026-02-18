@@ -38,6 +38,15 @@
 .mygarden-stat-card {
     padding: var(--space-3);
     text-align: center;
+    border-radius: var(--radius-lg);
+    background: var(--card-background);
+    border: 1px solid var(--border-color);
+    transition: all var(--transition-base);
+}
+
+.mygarden-stat-card:hover {
+    border-color: var(--color-primary);
+    box-shadow: 0 4px 12px rgba(76, 175, 80, 0.15);
 }
 
 .mygarden-stat-card__icon {
@@ -49,6 +58,7 @@
     font-size: 1.75rem;
     font-weight: bold;
     margin-bottom: var(--space-1);
+    color: var(--text-primary);
 }
 
 .mygarden-stat-card__label {

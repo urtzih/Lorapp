@@ -6,11 +6,8 @@ import '../styles/EditSeedlingModal.css';
 export default function EditSeedlingModal({ isOpen, onClose, seedling, onSuccess }) {
     const [formData, setFormData] = useState({
         fecha_siembra: '',
-        fecha_germinacion: '',
-        cantidad_semillas_plantadas: '',
         ubicacion_descripcion: '',
-        notas: '',
-        estado: 'germinating'
+        notas: ''
     });
     const [photos, setPhotos] = useState([]);
     const [loading, setLoading] = useState(false);
@@ -20,11 +17,8 @@ export default function EditSeedlingModal({ isOpen, onClose, seedling, onSuccess
         if (seedling) {
             setFormData({
                 fecha_siembra: seedling.fecha_siembra ? seedling.fecha_siembra.split('T')[0] : '',
-                fecha_germinacion: seedling.fecha_germinacion ? seedling.fecha_germinacion.split('T')[0] : '',
-                cantidad_semillas_plantadas: seedling.cantidad_semillas_plantadas || '',
                 ubicacion_descripcion: seedling.ubicacion_descripcion || '',
-                notas: seedling.notas || '',
-                estado: seedling.estado || 'germinating'
+                notas: seedling.notas || ''
             });
             // Cargar fotos existentes
             setPhotos(seedling.fotos || []);
@@ -63,23 +57,15 @@ export default function EditSeedlingModal({ isOpen, onClose, seedling, onSuccess
         setLoading(true);
 
         try {
-            // Preparar datos con fotos
-            const formDataToSend = new FormData();
+            // Preparar datos: convertir strings vacíos a null para campos opcionales
+            const dataToSend = {
+                ...formData,
+                notas: formData.notas || null,
+                ubicacion_descripcion: formData.ubicacion_descripcion || null
+            };
             
-            // Agregar datos del formulario
-            Object.keys(formData).forEach(key => {
-                formDataToSend.append(key, formData[key]);
-            });
-
-            // Agregar solo fotos nuevas
-            const newPhotos = photos.filter(p => p.isNew);
-            newPhotos.forEach((photo, idx) => {
-                if (photo.file) {
-                    formDataToSend.append(`fotos`, photo.file);
-                }
-            });
-
-            await mySeedlingAPI.update(seedling.id, formDataToSend);
+            // Enviar solo los datos del formulario (sin fotos - no soportado en backend aún)
+            await mySeedlingAPI.update(seedling.id, dataToSend);
             onSuccess();
             onClose();
         } catch (error) {
@@ -93,11 +79,8 @@ export default function EditSeedlingModal({ isOpen, onClose, seedling, onSuccess
     const handleClose = () => {
         setFormData({
             fecha_siembra: '',
-            fecha_germinacion: '',
-            cantidad_semillas_plantadas: '',
             ubicacion_descripcion: '',
-            notas: '',
-            estado: 'germinating'
+            notas: ''
         });
         setPhotos([]);
         onClose();
@@ -137,32 +120,6 @@ export default function EditSeedlingModal({ isOpen, onClose, seedling, onSuccess
                     </div>
 
                     <div className="esm-form-group">
-                        <label htmlFor="fecha_germinacion">Fecha de germinación</label>
-                        <input
-                            type="date"
-                            id="fecha_germinacion"
-                            name="fecha_germinacion"
-                            value={formData.fecha_germinacion}
-                            onChange={handleChange}
-                            className="input"
-                        />
-                        <small>Deja vacío si aún no ha germinado</small>
-                    </div>
-
-                    <div className="esm-form-group">
-                        <label htmlFor="cantidad_semillas_plantadas">Cantidad de semillas</label>
-                        <input
-                            type="number"
-                            id="cantidad_semillas_plantadas"
-                            name="cantidad_semillas_plantadas"
-                            value={formData.cantidad_semillas_plantadas}
-                            onChange={handleChange}
-                            className="input"
-                            min="1"
-                        />
-                    </div>
-
-                    <div className="esm-form-group">
                         <label htmlFor="ubicacion_descripcion">Ubicación</label>
                         <input
                             type="text"
@@ -173,23 +130,6 @@ export default function EditSeedlingModal({ isOpen, onClose, seedling, onSuccess
                             className="input"
                             placeholder="Ej: Bandeja 1, Fila A"
                         />
-                    </div>
-
-                    <div className="esm-form-group">
-                        <label htmlFor="estado">Estado</label>
-                        <select
-                            id="estado"
-                            name="estado"
-                            value={formData.estado}
-                            onChange={handleChange}
-                            className="input"
-                            required
-                        >
-                            <option value="germinating">Germinando</option>
-                            <option value="ready">Listo para trasplantar</option>
-                            <option value="transplanted">Trasplantado</option>
-                            <option value="planned">Planificado</option>
-                        </select>
                     </div>
 
                     <div className="esm-form-group">
@@ -216,6 +156,7 @@ export default function EditSeedlingModal({ isOpen, onClose, seedling, onSuccess
                                 type="file"
                                 multiple
                                 accept="image/*"
+                                capture="environment"
                                 onChange={handlePhotoSelect}
                             />
                             <div className="esm-photo-icon">📸</div>

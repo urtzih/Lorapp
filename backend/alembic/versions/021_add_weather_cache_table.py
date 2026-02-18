@@ -1,6 +1,6 @@
 """add weather cache table
 
-Revision ID: 021_add_weather_cache
+Revision ID: 021_add_weather_cache_table
 Revises: 020_add_lunar_cache
 Create Date: 2026-02-16
 
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 from sqlalchemy.dialects.postgresql import JSONB
 
 # revision identifiers, used by Alembic.
-revision = '021_add_weather_cache'
+revision = '021_add_weather_cache_table'
 down_revision = '020_add_lunar_cache'
 branch_labels = None
 depends_on = None

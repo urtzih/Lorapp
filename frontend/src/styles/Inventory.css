@@ -42,7 +42,7 @@
 
 @media (max-width: 768px) {
     .inventory-header {
-        flex-direction: column;
+        flex-direction: row;
         align-items: flex-start;
         gap: var(--space-2);
     }

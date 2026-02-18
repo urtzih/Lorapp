@@ -1885,6 +1885,68 @@ body {
   background-color: #dc2626;
 }
 
+/* Icon buttons - Standard across app */
+.btn-icon {
+  width: 44px;
+  height: 44px;
+  border: 2px solid transparent;
+  background: var(--card-background);
+  cursor: pointer;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  transition: all var(--transition-base);
+  font-weight: 600;
+  padding: 0;
+}
+
+.btn-icon--edit {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+.btn-icon--edit:hover:not(:disabled) {
+  background: rgba(76, 175, 80, 0.1);
+  transform: translateY(-2px);
+  box-shadow: 0 2px 8px rgba(76, 175, 80, 0.3);
+}
+
+.btn-icon--edit-active {
+  background: rgba(76, 175, 80, 0.15);
+}
+
+.btn-icon--delete {
+  border-color: #f44336;
+  color: #f44336;
+}
+
+.btn-icon--delete:hover:not(:disabled) {
+  background: rgba(244, 67, 54, 0.1);
+  transform: translateY(-2px);
+  box-shadow: 0 2px 8px rgba(244, 67, 54, 0.3);
+}
+
+/* Back button - Standard across app */
+.btn-back {
+  background: var(--card-background);
+  border: 2px solid var(--color-primary);
+  color: var(--color-primary);
+  cursor: pointer;
+  font-size: 0.9rem;
+  padding: 8px 16px;
+  border-radius: var(--radius-md);
+  font-weight: 600;
+  transition: all var(--transition-base);
+}
+
+.btn-back:hover:not(:disabled) {
+  background: rgba(76, 175, 80, 0.1);
+  transform: translateY(-2px);
+  box-shadow: 0 2px 8px rgba(76, 175, 80, 0.3);
+}
+
 @media (min-width: 768px) {
   .btn-danger:hover {
     background-color: #dc2626;

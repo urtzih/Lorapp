@@ -1,8 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { mySeedlingAPI } from '../services/api';
-import EditSeedlingModal from '../components/EditSeedlingModal';
-import EditVarietyStatusModal from '../components/EditVarietyStatusModal';
+
 import '../styles/SeedlingDetail.css';
 
 export default function SeedlingDetail() {
@@ -11,9 +10,11 @@ export default function SeedlingDetail() {
     const [seedling, setSeedling] = useState(null);
     const [varietiesInBatch, setVarietiesInBatch] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-    const [isStatusModalOpen, setIsStatusModalOpen] = useState(false);
-    const [selectedVariety, setSelectedVariety] = useState(null);
+    const [editingVarietyId, setEditingVarietyId] = useState(null);
+    const [updatingVarietyId, setUpdatingVarietyId] = useState(null);
+    const [isEditingSeedling, setIsEditingSeedling] = useState(false);
+    const [editSeedlingData, setEditSeedlingData] = useState({});
+    const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0);
 
     useEffect(() => {
         loadSeedling();
@@ -31,12 +32,21 @@ export default function SeedlingDetail() {
             const allResponse = await mySeedlingAPI.list();
             const allSeedlings = allResponse.data;
 
+            // Normalizar las fechas para comparación (tomar solo la parte de fecha YYYY-MM-DD)
+            const mainDate = mainSeedling.fecha_siembra ? mainSeedling.fecha_siembra.split('T')[0] : '';
+            const mainUbicacion = mainSeedling.ubicacion_descripcion || '';
+            const mainNotas = mainSeedling.notas || '';
+
             // Filtrar por las que tengan la misma fecha + ubicación + notas
-            const batchVarieties = allSeedlings.filter(s =>
-                s.fecha_siembra === mainSeedling.fecha_siembra &&
-                s.ubicacion_descripcion === mainSeedling.ubicacion_descripcion &&
-                s.notas === mainSeedling.notas
-            );
+            const batchVarieties = allSeedlings.filter(s => {
+                const sDate = s.fecha_siembra ? s.fecha_siembra.split('T')[0] : '';
+                const sUbicacion = s.ubicacion_descripcion || '';
+                const sNotas = s.notas || '';
+                
+                return sDate === mainDate && 
+                       sUbicacion === mainUbicacion && 
+                       sNotas === mainNotas;
+            });
 
             setVarietiesInBatch(batchVarieties);
         } catch (error) {
@@ -59,9 +69,86 @@ export default function SeedlingDetail() {
         }
     };
 
-    const openStatusModal = (variety) => {
-        setSelectedVariety(variety);
-        setIsStatusModalOpen(true);
+    const toggleEditVariety = (varietyId) => {
+        setEditingVarietyId(editingVarietyId === varietyId ? null : varietyId);
+    };
+
+    const handleVarietyStatusChange = async (varietyId, newStatus) => {
+        setUpdatingVarietyId(varietyId);
+        try {
+            const updateData = { estado: newStatus };
+            
+            // Si el estado es "GERMINADA" y no hay fecha de germinación, llenarla con hoy
+            const variety = varietiesInBatch.find(v => v.id === varietyId);
+            if (newStatus === 'GERMINADA' && !variety?.fecha_germinacion) {
+                const today = new Date().toISOString().split('T')[0];
+                updateData.fecha_germinacion = today;
+            }
+            
+            await mySeedlingAPI.update(varietyId, updateData);
+            
+            // Actualizar el estado local inmediatamente
+            setVarietiesInBatch(prev => prev.map(v => 
+                v.id === varietyId ? { ...v, estado: newStatus } : v
+            ));
+            
+            if (updateData.fecha_germinacion) {
+                setVarietiesInBatch(prev => prev.map(v =>
+                    v.id === varietyId ? { ...v, fecha_germinacion: updateData.fecha_germinacion } : v
+                ));
+            }
+            
+            setEditingVarietyId(null);
+        } catch (error) {
+            console.error('Error updating variety status:', error);
+            alert('Error al actualizar el estado');
+            loadSeedling(); // Reload si falla
+        } finally {
+            setUpdatingVarietyId(null);
+        }
+    };
+
+    const handleDeleteVariety = async (varietyId) => {
+        if (!confirm('¿Estás seguro de que quieres eliminar esta variedad del semillero?')) {
+            return;
+        }
+        try {
+            await mySeedlingAPI.delete(varietyId);
+            // Si solo queda una variedad, ir a mi-semillero
+            if (varietiesInBatch.length === 1) {
+                navigate('/my-seedling');
+            } else {
+                loadSeedling();
+            }
+        } catch (error) {
+            console.error('Error deleting variety:', error);
+            alert('Error al eliminar la variedad');
+        }
+    };
+
+    const handleVarietyDateChange = async (varietyId, newDate) => {
+        setUpdatingVarietyId(varietyId);
+        try {
+            await mySeedlingAPI.update(varietyId, { fecha_germinacion: newDate || null });
+            loadSeedling();
+            setEditingVarietyId(null);
+        } catch (error) {
+            console.error('Error updating germination date:', error);
+            alert('Error al actualizar fecha');
+        } finally {
+            setUpdatingVarietyId(null);
+        }
+    };
+
+    const handleSaveSeedlingEdit = async () => {
+        try {
+            await mySeedlingAPI.update(id, editSeedlingData);
+            setIsEditingSeedling(false);
+            loadSeedling();
+        } catch (error) {
+            console.error('Error updating seedling:', error);
+            alert('Error al actualizar semillero');
+        }
     };
 
     const formatDate = (dateString) => {
@@ -87,7 +174,7 @@ export default function SeedlingDetail() {
     };
 
     const getVarietyProgressStage = (variety) => {
-        if (variety.estado === 'transplanted') return 100;
+        if (variety.estado === 'TRASPLANTADA') return 100;
         if (variety.fecha_germinacion) return 60;
         return getDaysFromDate(variety.fecha_siembra) > 7 ? 30 : 15;
     };
@@ -121,14 +208,14 @@ export default function SeedlingDetail() {
             <div className="seedling-detail-header">
                 <button 
                     onClick={() => navigate('/my-seedling')}
-                    className="seedling-detail-back"
+                    className="btn-back"
                     title="Volver atrás"
                 >
                     ← Volver
                 </button>
                 <div className="seedling-detail-title-section">
                     <h1 className="seedling-detail-title">
-                        🌱 Lote del {formatDate(seedling.fecha_siembra)}
+                        Lote del {formatDate(seedling.fecha_siembra)}
                     </h1>
                     <p className="seedling-detail-subtitle">
                         {varietiesInBatch.length} {varietiesInBatch.length === 1 ? 'variedad' : 'variedades'} • {seedling.ubicacion_descripcion || 'Sin ubicación'}
@@ -136,15 +223,22 @@ export default function SeedlingDetail() {
                 </div>
                 <div className="seedling-detail-actions">
                     <button 
-                        onClick={() => setIsEditModalOpen(true)}
-                        className="seedling-detail-btn seedling-detail-btn--edit"
+                        onClick={() => {
+                            setIsEditingSeedling(!isEditingSeedling);
+                            setEditSeedlingData({
+                                fecha_siembra: seedling.fecha_siembra ? seedling.fecha_siembra.split('T')[0] : '',
+                                ubicacion_descripcion: seedling.ubicacion_descripcion || '',
+                                notas: seedling.notas || ''
+                            });
+                        }}
+                        className={`btn-icon btn-icon--edit ${isEditingSeedling ? 'btn-icon--edit-active' : ''}`}
                         title="Editar"
                     >
                         ✏️
                     </button>
                     <button 
                         onClick={handleDelete}
-                        className="seedling-detail-btn seedling-detail-btn--delete"
+                        className="btn-icon btn-icon--delete"
                         title="Eliminar"
                     >
                         🗑️
@@ -154,109 +248,85 @@ export default function SeedlingDetail() {
 
             {/* Main Info Card */}
             <div className="seedling-detail-card card">
-                <div className="seedling-detail-info">
-                    <div className="seedling-detail-row">
-                        <span className="seedling-detail-label">Estado</span>
-                        <span className="seedling-detail-value">
-                            {seedling.estado === 'germinating' && '🌱 Germinando'}
-                            {seedling.estado === 'ready' && '🌿 Listo para trasplantar'}
-                            {seedling.estado === 'transplanted' && '🪴 Trasplantado'}
-                            {seedling.estado === 'planned' && '📋 Planificado'}
-                        </span>
-                    </div>
-
-                    <div className="seedling-detail-row">
-                        <span className="seedling-detail-label">Fecha de siembra</span>
-                        <span className="seedling-detail-value">{formatDate(seedling.fecha_siembra)}</span>
-                    </div>
-
-                    {seedling.fecha_germinacion && (
+                {!isEditingSeedling ? (
+                    <div className="seedling-detail-info">
                         <div className="seedling-detail-row">
-                            <span className="seedling-detail-label">Germinó el</span>
-                            <span className="seedling-detail-value">{formatDate(seedling.fecha_germinacion)}</span>
+                            <span className="seedling-detail-label">Estado del Lote</span>
+                            <span className="seedling-detail-value">
+                                {seedling && seedling.estado === 'SEMBRADA' && '🌱 Sembrado'}
+                                {seedling && seedling.estado === 'GERMINADA' && '🌱 Germinando'}
+                                {seedling && seedling.estado === 'LISTA' && '🌿 Listo para trasplantar'}
+                                {seedling && seedling.estado === 'TRASPLANTADA' && '🪴 Trasplantado'}
+                                {!seedling?.estado && '—'}
+                            </span>
                         </div>
-                    )}
 
-                    {seedling.cantidad_semillas_plantadas && (
                         <div className="seedling-detail-row">
-                            <span className="seedling-detail-label">Cantidad de semillas</span>
-                            <span className="seedling-detail-value">{seedling.cantidad_semillas_plantadas}</span>
+                            <span className="seedling-detail-label">Fecha de siembra</span>
+                            <span className="seedling-detail-value">{formatDate(seedling.fecha_siembra)}</span>
                         </div>
-                    )}
 
-                    {seedling.ubicacion_descripcion && (
-                        <div className="seedling-detail-row">
-                            <span className="seedling-detail-label">Ubicación</span>
-                            <span className="seedling-detail-value">{seedling.ubicacion_descripcion}</span>
+                        {seedling.ubicacion_descripcion && (
+                            <div className="seedling-detail-row">
+                                <span className="seedling-detail-label">Ubicación</span>
+                                <span className="seedling-detail-value">{seedling.ubicacion_descripcion}</span>
+                            </div>
+                        )}
+
+                        {seedling.notas && (
+                            <div className="seedling-detail-row">
+                                <span className="seedling-detail-label">Notas</span>
+                                <span className="seedling-detail-value">{seedling.notas}</span>
+                            </div>
+                        )}
+                    </div>
+                ) : (
+                    <div className="seedling-detail-edit-form">
+                        <div className="seedling-detail-form-group">
+                            <label>Fecha de siembra</label>
+                            <input
+                                type="date"
+                                value={editSeedlingData.fecha_siembra || ''}
+                                onChange={(e) => setEditSeedlingData({...editSeedlingData, fecha_siembra: e.target.value})}
+                                className="input"
+                            />
                         </div>
-                    )}
-                </div>
-            </div>
-
-            {/* Timeline / Progress */}
-            <div className="seedling-detail-card card">
-                <h3 className="seedling-detail-section-title">Progreso del Semillero</h3>
-                
-                <div className="seedling-timeline">
-                    <div className="seedling-timeline-item">
-                        <div className="seedling-timeline-dot seedling-timeline-dot--active"></div>
-                        <div className="seedling-timeline-content">
-                            <div className="seedling-timeline-title">Sembrado</div>
-                            <div className="seedling-timeline-date">{formatDate(seedling.fecha_siembra)}</div>
-                            <div className="seedling-timeline-days">Hace {getDaysFromDate(seedling.fecha_siembra)} días</div>
+                        <div className="seedling-detail-form-group">
+                            <label>Ubicación</label>
+                            <input
+                                type="text"
+                                value={editSeedlingData.ubicacion_descripcion || ''}
+                                onChange={(e) => setEditSeedlingData({...editSeedlingData, ubicacion_descripcion: e.target.value})}
+                                placeholder="Ej: Semillero, Bandeja 1"
+                                className="input"
+                            />
+                        </div>
+                        <div className="seedling-detail-form-group">
+                            <label>Notas</label>
+                            <textarea
+                                value={editSeedlingData.notas || ''}
+                                onChange={(e) => setEditSeedlingData({...editSeedlingData, notas: e.target.value})}
+                                placeholder="Observaciones sobre el semillero..."
+                                className="input"
+                                rows="2"
+                            />
+                        </div>
+                        <div className="seedling-detail-edit-actions">
+                            <button
+                                onClick={() => setIsEditingSeedling(false)}
+                                className="btn btn-secondary"
+                            >
+                                Cancelar
+                            </button>
+                            <button
+                                onClick={handleSaveSeedlingEdit}
+                                className="btn btn-primary"
+                            >
+                                Guardar
+                            </button>
                         </div>
                     </div>
-
-                    <div className={`seedling-timeline-item ${seedling.fecha_germinacion ? 'seedling-timeline-item--completed' : ''}`}>
-                        <div className={`seedling-timeline-dot ${seedling.fecha_germinacion ? 'seedling-timeline-dot--active' : ''}`}></div>
-                        <div className="seedling-timeline-content">
-                            <div className="seedling-timeline-title">Germinación</div>
-                            {seedling.fecha_germinacion ? (
-                                <>
-                                    <div className="seedling-timeline-date">{formatDate(seedling.fecha_germinacion)}</div>
-                                    <div className="seedling-timeline-days">
-                                        Tardó {Math.floor((new Date(seedling.fecha_germinacion) - new Date(seedling.fecha_siembra)) / (1000 * 60 * 60 * 24))} días
-                                    </div>
-                                </>
-                            ) : (
-                                <div className="seedling-timeline-days text-gray">Aún no germinado</div>
-                            )}
-                        </div>
-                    </div>
-
-                    <div className={`seedling-timeline-item ${seedling.estado === 'ready' || seedling.estado === 'transplanted' ? 'seedling-timeline-item--completed' : ''}`}>
-                        <div className={`seedling-timeline-dot ${seedling.estado === 'ready' || seedling.estado === 'transplanted' ? 'seedling-timeline-dot--active' : ''}`}></div>
-                        <div className="seedling-timeline-content">
-                            <div className="seedling-timeline-title">Listo para trasplantar</div>
-                            {seedling.estado === 'ready' || seedling.estado === 'transplanted' ? (
-                                <div className="seedling-timeline-days">✓ Completado</div>
-                            ) : (
-                                <div className="seedling-timeline-days text-gray">Pendiente</div>
-                            )}
-                        </div>
-                    </div>
-
-                    <div className={`seedling-timeline-item ${seedling.estado === 'transplanted' ? 'seedling-timeline-item--completed' : ''}`}>
-                        <div className={`seedling-timeline-dot ${seedling.estado === 'transplanted' ? 'seedling-timeline-dot--active' : ''}`}></div>
-                        <div className="seedling-timeline-content">
-                            <div className="seedling-timeline-title">Trasplantado</div>
-                            <div className="seedling-timeline-days">Pendiente</div>
-                        </div>
-                    </div>
-                </div>
-
-                {/* Progress Bar */}
-                <div className="seedling-progress-section">
-                    <div className="seedling-progress-label">
-                        Progreso general: {Math.floor(getVarietyProgressPercentage(seedling))}%
-                    </div>
-                    <div className="seedling-progress-bar">
-                        <div 
-                            className="seedling-progress-bar-fill"
-                            style={{ width: `${getVarietyProgressPercentage(seedling)}%` }}
-                        ></div>
-                    </div>
-                </div>
+                )}
             </div>
 
             {/* Variedades del Lote */}
@@ -269,73 +339,126 @@ export default function SeedlingDetail() {
                         {varietiesInBatch.map((variety, idx) => (
                             <div key={variety.id} className="seedling-detail-variety-item">
                                 <div className="seedling-detail-variety-header">
-                                    <span className="seedling-detail-variety-name">
-                                        {variety.variedad_nombre || variety.especie_nombre}
-                                    </span>
+                                    <div className="seedling-detail-variety-names">
+                                        {variety.especie_nombre && (
+                                            <span className="seedling-detail-variety-especie">
+                                                {variety.especie_nombre}
+                                            </span>
+                                        )}
+                                        <span className="seedling-detail-variety-name">
+                                            {variety.variedad_nombre}
+                                        </span>
+                                    </div>
                                     {variety.origen && (
                                         <span className="seedling-detail-variety-origin">
                                             {variety.origen}
                                         </span>
                                     )}
                                     <button
-                                        onClick={() => openStatusModal(variety)}
-                                        className="seedling-detail-variety-status-btn"
-                                        title="Editar estado"
+                                        onClick={() => toggleEditVariety(variety.id)}
+                                        className={`seedling-detail-variety-status-btn ${editingVarietyId === variety.id ? 'seedling-detail-variety-status-btn--active' : ''}`}
+                                        title={editingVarietyId === variety.id ? "Cancelar" : "Editar estado"}
                                     >
-                                        ✏️
+                                        {editingVarietyId === variety.id ? '✕' : '✏️'}
                                     </button>
                                 </div>
-                                {variety.cantidad_semillas_plantadas && (
-                                    <div className="seedling-detail-variety-quantity">
-                                        {variety.cantidad_semillas_plantadas} semillas
+
+                                {/* Inline Editor */}
+                                {editingVarietyId === variety.id && (
+                                    <div className="seedling-detail-variety-inline-editor">
+                                        <div className="seedling-detail-variety-status-options">
+                                            <button
+                                                onClick={() => handleVarietyStatusChange(variety.id, 'SEMBRADA')}
+                                                disabled={updatingVarietyId === variety.id || variety.estado === 'SEMBRADA'}
+                                                className={`seedling-detail-status-option seedling-detail-status-option--sown ${variety.estado === 'SEMBRADA' ? 'seedling-detail-status-option--selected' : ''}`}
+                                            >
+                                                🌱 Sembrado
+                                            </button>
+                                            <button
+                                                onClick={() => handleVarietyStatusChange(variety.id, 'GERMINADA')}
+                                                disabled={updatingVarietyId === variety.id || variety.estado === 'GERMINADA'}
+                                                className={`seedling-detail-status-option seedling-detail-status-option--germinating ${variety.estado === 'GERMINADA' ? 'seedling-detail-status-option--selected' : ''}`}
+                                            >
+                                                🌱 Germinando
+                                            </button>
+                                            <button
+                                                onClick={() => handleVarietyStatusChange(variety.id, 'LISTA')}
+                                                disabled={updatingVarietyId === variety.id || variety.estado === 'LISTA'}
+                                                className={`seedling-detail-status-option seedling-detail-status-option--ready ${variety.estado === 'LISTA' ? 'seedling-detail-status-option--selected' : ''}`}
+                                            >
+                                                🌿 Listo
+                                            </button>
+                                            <button
+                                                onClick={() => handleVarietyStatusChange(variety.id, 'TRASPLANTADA')}
+                                                disabled={updatingVarietyId === variety.id || variety.estado === 'TRASPLANTADA'}
+                                                className={`seedling-detail-status-option seedling-detail-status-option--transplanted ${variety.estado === 'TRASPLANTADA' ? 'seedling-detail-status-option--selected' : ''}`}
+                                            >
+                                                🪴 Trasplantado
+                                            </button>
+                                        </div>
+                                        <div className="seedling-detail-germination-editor">
+                                            <label className="seedling-detail-germination-label">Fecha de germinación</label>
+                                            <input
+                                                type="date"
+                                                value={variety.fecha_germinacion ? variety.fecha_germinacion.split('T')[0] : ''}
+                                                onChange={(e) => handleVarietyDateChange(variety.id, e.target.value)}
+                                                className="input"
+                                            />
+                                        </div>
+                                        <div className="seedling-detail-variety-editor-actions">
+                                            <button
+                                                onClick={() => handleDeleteVariety(variety.id)}
+                                                className="btn-icon btn-icon--delete btn-sm"
+                                                title="Eliminar esta variedad"
+                                                disabled={updatingVarietyId === variety.id}
+                                            >
+                                                🗑️
+                                            </button>
+                                        </div>
+                                        {updatingVarietyId === variety.id && (
+                                            <div className="seedling-detail-variety-updating">Actualizando...</div>
+                                        )}
                                     </div>
                                 )}
                                 
-                                {/* Timeline horizontal por variedad */}
-                                <div className="seedling-variety-horizontal-timeline">
-                                    <div className="seedling-variety-timeline-item seedling-variety-timeline-item--active">
-                                        <div className="seedling-variety-timeline-dot"></div>
-                                        <div className="seedling-variety-timeline-stage">
-                                            <div className="seedling-variety-timeline-stage-title">Sembrado</div>
-                                            <div className="seedling-variety-timeline-stage-date">{formatDate(variety.fecha_siembra)}</div>
+                                {/* Timeline horizontal por variedad (sin Trasplantado) */}
+                                <div className="seedling-variety-timeline-wrapper">
+                                    <div className="seedling-variety-horizontal-timeline">
+                                        <div className="seedling-variety-timeline-item seedling-variety-timeline-item--active">
+                                            <div className="seedling-variety-timeline-dot"></div>
+                                            <div className="seedling-variety-timeline-stage">
+                                                <div className="seedling-variety-timeline-stage-title">Sembrado</div>
+                                                <div className="seedling-variety-timeline-stage-date">{formatDate(variety.fecha_siembra)}</div>
+                                            </div>
                                         </div>
-                                    </div>
 
-                                    <div className={`seedling-variety-timeline-connector ${variety.fecha_germinacion ? 'seedling-variety-timeline-connector--completed' : ''}`}></div>
+                                        <div className={`seedling-variety-timeline-connector ${variety.fecha_germinacion ? 'seedling-variety-timeline-connector--completed' : ''}`}></div>
 
-                                    <div className={`seedling-variety-timeline-item ${variety.fecha_germinacion ? 'seedling-variety-timeline-item--active' : ''}`}>
-                                        <div className="seedling-variety-timeline-dot"></div>
-                                        <div className="seedling-variety-timeline-stage">
-                                            <div className="seedling-variety-timeline-stage-title">Germinación</div>
-                                            <div className="seedling-variety-timeline-stage-date">
-                                                {variety.fecha_germinacion ? formatDate(variety.fecha_germinacion) : '-'}
+                                        <div className={`seedling-variety-timeline-item ${variety.fecha_germinacion ? 'seedling-variety-timeline-item--active' : ''}`}>
+                                            <div className="seedling-variety-timeline-dot"></div>
+                                            <div className="seedling-variety-timeline-stage">
+                                                <div className="seedling-variety-timeline-stage-title">Germinación</div>
+                                                <div className="seedling-variety-timeline-stage-date">
+                                                    {variety.fecha_germinacion ? formatDate(variety.fecha_germinacion) : '-'}
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div className={`seedling-variety-timeline-connector ${variety.estado === 'LISTA' || variety.estado === 'TRASPLANTADA' ? 'seedling-variety-timeline-connector--completed' : ''}`}></div>
+
+                                        <div className={`seedling-variety-timeline-item ${variety.estado === 'LISTA' || variety.estado === 'TRASPLANTADA' ? 'seedling-variety-timeline-item--active' : ''}`}>
+                                            <div className="seedling-variety-timeline-dot"></div>
+                                            <div className="seedling-variety-timeline-stage">
+                                                <div className="seedling-variety-timeline-stage-title">Listo</div>
+                                                <div className="seedling-variety-timeline-stage-date">
+                                                    {variety.estado === 'LISTA' || variety.estado === 'TRASPLANTADA' ? '✓' : '-'}
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
-
-                                    <div className={`seedling-variety-timeline-connector ${variety.estado === 'ready' || variety.estado === 'transplanted' ? 'seedling-variety-timeline-connector--completed' : ''}`}></div>
-
-                                    <div className={`seedling-variety-timeline-item ${variety.estado === 'ready' || variety.estado === 'transplanted' ? 'seedling-variety-timeline-item--active' : ''}`}>
-                                        <div className="seedling-variety-timeline-dot"></div>
-                                        <div className="seedling-variety-timeline-stage">
-                                            <div className="seedling-variety-timeline-stage-title">Listo</div>
-                                            <div className="seedling-variety-timeline-stage-date">
-                                                {variety.estado === 'ready' || variety.estado === 'transplanted' ? '✓' : '-'}
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div className={`seedling-variety-timeline-connector ${variety.estado === 'transplanted' ? 'seedling-variety-timeline-connector--completed' : ''}`}></div>
-
-                                    <div className={`seedling-variety-timeline-item ${variety.estado === 'transplanted' ? 'seedling-variety-timeline-item--active' : ''}`}>
-                                        <div className="seedling-variety-timeline-dot"></div>
-                                        <div className="seedling-variety-timeline-stage">
-                                            <div className="seedling-variety-timeline-stage-title">Trasplantado</div>
-                                            <div className="seedling-variety-timeline-stage-date">
-                                                {variety.estado === 'transplanted' ? '✓' : '-'}
-                                            </div>
-                                        </div>
-                                    </div>
+                                    {variety.estado === 'TRASPLANTADA' && (
+                                        <div className="seedling-variety-transplanted-badge">🪴 Trasplantado</div>
+                                    )}
                                 </div>
                             </div>
                         ))}
@@ -354,46 +477,64 @@ export default function SeedlingDetail() {
             {/* Photos Section */}
             {seedling.fotos && seedling.fotos.length > 0 && (
                 <div className="seedling-detail-card card">
-                    <h3 className="seedling-detail-section-title">Fotos</h3>
-                    <div className="seedling-detail-photos">
-                        {seedling.fotos.map((foto, idx) => (
+                    <h3 className="seedling-detail-section-title">📸 Fotos del Lote</h3>
+                    <div className="seedling-detail-photos-carousel">
+                        {/* Main Photo Display */}
+                        <div className="seedling-detail-carousel-viewport">
                             <img 
-                                key={idx}
-                                src={foto.url} 
-                                alt={`Foto ${idx + 1}`}
-                                className="seedling-detail-photo"
+                                src={typeof seedling.fotos[currentPhotoIndex] === 'string' 
+                                    ? seedling.fotos[currentPhotoIndex]
+                                    : seedling.fotos[currentPhotoIndex].url}
+                                alt={`Foto ${currentPhotoIndex + 1}`}
+                                className="seedling-detail-carousel-image"
                             />
-                        ))}
+                            {seedling.fotos.length > 1 && (
+                                <>
+                                    <button 
+                                        className="seedling-detail-carousel-btn seedling-detail-carousel-btn--prev"
+                                        onClick={() => setCurrentPhotoIndex((currentPhotoIndex - 1 + seedling.fotos.length) % seedling.fotos.length)}
+                                    >
+                                        ◀
+                                    </button>
+                                    <button 
+                                        className="seedling-detail-carousel-btn seedling-detail-carousel-btn--next"
+                                        onClick={() => setCurrentPhotoIndex((currentPhotoIndex + 1) % seedling.fotos.length)}
+                                    >
+                                        ▶
+                                    </button>
+                                </>
+                            )}
+                        </div>
+
+                        {/* Thumbnails */}
+                        {seedling.fotos.length > 1 && (
+                            <div className="seedling-detail-carousel-thumbnails">
+                                {seedling.fotos.map((foto, idx) => {
+                                    const fotoUrl = typeof foto === 'string' ? foto : foto.url;
+                                    return (
+                                        <img
+                                            key={idx}
+                                            src={fotoUrl}
+                                            alt={`Thumbnail ${idx + 1}`}
+                                            className={`seedling-detail-carousel-thumbnail ${idx === currentPhotoIndex ? 'active' : ''}`}
+                                            onClick={() => setCurrentPhotoIndex(idx)}
+                                        />
+                                    );
+                                })}
+                            </div>
+                        )}
+
+                        {/* Counter */}
+                        {seedling.fotos.length > 1 && (
+                            <div className="seedling-detail-carousel-counter">
+                                {currentPhotoIndex + 1} / {seedling.fotos.length}
+                            </div>
+                        )}
                     </div>
                 </div>
             )}
 
-            {/* Edit Modal */}
-            <EditSeedlingModal 
-                isOpen={isEditModalOpen}
-                onClose={() => setIsEditModalOpen(false)}
-                seedling={seedling}
-                onSuccess={() => {
-                    loadSeedling();
-                    setIsEditModalOpen(false);
-                }}
-            />
 
-            {/* Edit Variety Status Modal */}
-            <EditVarietyStatusModal
-                isOpen={isStatusModalOpen}
-                onClose={() => {
-                    setIsStatusModalOpen(false);
-                    setSelectedVariety(null);
-                }}
-                variety={selectedVariety}
-                seedling={seedling}
-                onSuccess={() => {
-                    loadSeedling();
-                    setIsStatusModalOpen(false);
-                    setSelectedVariety(null);
-                }}
-            />
         </div>
     );
 }

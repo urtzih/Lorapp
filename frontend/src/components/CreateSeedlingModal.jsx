@@ -31,7 +31,6 @@ export function CreateSeedlingModal({ isOpen, onClose, onSuccess }) {
         nombre_plantacion: '',
         fecha_siembra: new Date().toISOString().split('T')[0],
         ubicacion_descripcion: 'Semillero',
-        cantidad_semillas_plantadas: null,
         notas: ''
     });
 
@@ -176,7 +175,6 @@ export function CreateSeedlingModal({ isOpen, onClose, onSuccess }) {
                     nombre_plantacion: `${seed.variedad?.nombre_variedad} - ${new Date().toLocaleDateString()}`,
                     fecha_siembra: seedlingData.fecha_siembra,
                     ubicacion_descripcion: seedlingData.ubicacion_descripcion,
-                    cantidad_semillas_plantadas: seedlingData.cantidad_semillas_plantadas,
                     notas: seedlingData.notas
                 };
                 return mySeedlingAPI.create(data);
@@ -212,7 +210,6 @@ export function CreateSeedlingModal({ isOpen, onClose, onSuccess }) {
             nombre_plantacion: '',
             fecha_siembra: new Date().toISOString().split('T')[0],
             ubicacion_descripcion: 'Semillero',
-            cantidad_semillas_plantadas: null,
             notas: ''
         });
         setMessage(null);
@@ -441,23 +438,6 @@ export function CreateSeedlingModal({ isOpen, onClose, onSuccess }) {
                                 value={seedlingData.ubicacion_descripcion}
                                 onChange={(e) =>
                                     updateField('ubicacion_descripcion', e.target.value)
-                                }
-                                disabled={loading}
-                            />
-                        </div>
-
-                        <div className="csm-form-group">
-                            <label>Cantidad de Semillas Plantadas</label>
-                            <input
-                                type="number"
-                                placeholder="Ej: 50"
-                                className="input csm-input"
-                                value={seedlingData.cantidad_semillas_plantadas || ''}
-                                onChange={(e) =>
-                                    updateField(
-                                        'cantidad_semillas_plantadas',
-                                        e.target.value ? parseInt(e.target.value) : null
-                                    )
                                 }
                                 disabled={loading}
                             />

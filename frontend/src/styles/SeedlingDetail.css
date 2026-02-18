@@ -1,8 +1,9 @@
 /* Seedling Detail */
 .seedling-detail-container {
-    padding: var(--space-2);
-    max-width: 800px;
+    padding: var(--space-3);
+    max-width: 900px;
     margin: 0 auto;
+    padding-bottom: 80px; /* Espacio para nav inferior */
 }
 
 .seedling-detail-loading {
@@ -33,17 +34,22 @@
     position: absolute;
     top: 0;
     left: 0;
-    background: transparent;
-    border: none;
+    background: var(--card-background);
+    border: 2px solid var(--color-primary);
     color: var(--color-primary);
     cursor: pointer;
     font-size: 0.9rem;
-    padding: 0;
-    margin-top: -8px;
+    padding: 8px 16px;
+    border-radius: var(--radius-md);
+    margin-top: 0;
+    font-weight: 600;
+    transition: all var(--transition-base);
 }
 
 .seedling-detail-back:hover {
-    text-decoration: underline;
+    background: rgba(76, 175, 80, 0.1);
+    transform: translateY(-2px);
+    box-shadow: 0 2px 8px rgba(76, 175, 80, 0.3);
 }
 
 .seedling-detail-title-section {
@@ -73,8 +79,8 @@
 .seedling-detail-btn {
     width: 44px;
     height: 44px;
-    border: none;
-    background: transparent;
+    border: 2px solid transparent;
+    background: var(--card-background);
     cursor: pointer;
     border-radius: var(--radius-md);
     display: flex;
@@ -82,22 +88,33 @@
     justify-content: center;
     font-size: 1.2rem;
     transition: all var(--transition-base);
+    font-weight: 600;
 }
 
 .seedling-detail-btn--edit {
-    background: rgba(33, 150, 243, 0.1);
+    border-color: var(--color-primary);
+    color: var(--color-primary);
 }
 
 .seedling-detail-btn--edit:hover {
-    background: rgba(33, 150, 243, 0.2);
+    background: rgba(76, 175, 80, 0.1);
+    transform: translateY(-2px);
+    box-shadow: 0 2px 8px rgba(76, 175, 80, 0.3);
+}
+
+.seedling-detail-btn--edit-active {
+    background: rgba(76, 175, 80, 0.15);
 }
 
 .seedling-detail-btn--delete {
-    background: rgba(244, 67, 54, 0.1);
+    border-color: #f44336;
+    color: #f44336;
 }
 
 .seedling-detail-btn--delete:hover {
-    background: rgba(244, 67, 54, 0.2);
+    background: rgba(244, 67, 54, 0.1);
+    transform: translateY(-2px);
+    box-shadow: 0 2px 8px rgba(244, 67, 54, 0.3);
 }
 
 /* Card Container */
@@ -134,6 +151,44 @@
     font-size: 0.85rem;
     color: var(--text-gray);
     font-weight: 500;
+}
+
+.seedling-detail-value {
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: var(--text-primary);
+}
+
+/* Edit Form */
+.seedling-detail-edit-form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+}
+
+.seedling-detail-form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.seedling-detail-form-group label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-gray);
+}
+
+.seedling-detail-form-group .input {
+    padding: var(--space-1);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    font-size: 0.9rem;
+}
+
+.seedling-detail-edit-actions {
+    display: flex;
+    gap: var(--space-1);
+    justify-content: flex-end;
 }
 
 .seedling-detail-value {
@@ -250,24 +305,39 @@
 }
 
 .seedling-detail-variety-item {
-    padding: var(--space-2);
+    padding: var(--space-1) var(--space-2);
     background: rgba(76, 175, 80, 0.05);
     border-left: 4px solid var(--color-primary);
     border-radius: var(--radius-md);
+    margin-bottom: var(--space-1);
 }
 
 .seedling-detail-variety-header {
     display: flex;
     align-items: center;
-    gap: var(--space-2);
+    gap: var(--space-1);
     margin-bottom: var(--space-1);
+}
+
+.seedling-detail-variety-names {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    flex: 1;
 }
 
 .seedling-detail-variety-name {
     font-weight: 600;
-    font-size: 0.95rem;
+    font-size: 0.9rem;
     color: var(--text-primary);
-    flex: 1;
+}
+
+.seedling-detail-variety-especie {
+    font-size: 0.75rem;
+    color: var(--text-gray);
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
 }
 
 .seedling-detail-variety-origin {
@@ -299,6 +369,96 @@
     transform: scale(1.1);
 }
 
+.seedling-detail-variety-status-btn--active {
+    background: rgba(244, 67, 54, 0.15);
+}
+
+.seedling-detail-variety-status-display {
+    padding: var(--space-1) 0;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--color-primary);
+}
+
+.seedling-detail-variety-current-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+/* Inline Editor */
+.seedling-detail-variety-inline-editor {
+    margin-top: var(--space-1);
+    padding: var(--space-1);
+    background: rgba(76, 175, 80, 0.05);
+    border-radius: var(--radius-md);
+    border-left: 3px solid var(--color-primary);
+}
+
+.seedling-detail-variety-status-options {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-1);
+    margin-bottom: var(--space-1);
+}
+
+.seedling-detail-germination-editor {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: var(--space-1);
+    background: white;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border-color);
+}
+
+.seedling-detail-germination-label {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--text-gray);
+}
+
+.seedling-detail-germination-editor .input {
+    padding: 6px 8px;
+    font-size: 0.85rem;
+}
+
+.seedling-detail-status-option {
+    padding: var(--space-1);
+    border: 2px solid transparent;
+    border-radius: var(--radius-md);
+    background: white;
+    cursor: pointer;
+    font-size: 0.85rem;
+    font-weight: 500;
+    transition: all var(--transition-base);
+    white-space: nowrap;
+}
+
+.seedling-detail-status-option:hover:not(:disabled) {
+    border-color: var(--color-primary);
+    background: rgba(76, 175, 80, 0.05);
+}
+
+.seedling-detail-status-option:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.seedling-detail-status-option--selected {
+    border-color: var(--color-primary);
+    background: rgba(76, 175, 80, 0.15);
+    font-weight: 600;
+}
+
+.seedling-detail-variety-updating {
+    margin-top: var(--space-1);
+    font-size: 0.85rem;
+    color: var(--color-primary);
+    text-align: center;
+    font-weight: 500;
+}
+
 .seedling-detail-variety-quantity {
     font-size: 0.8rem;
     color: var(--text-gray);
@@ -307,24 +467,30 @@
 }
 
 /* Horizontal Timeline por Variedad */
+.seedling-variety-timeline-wrapper {
+    margin-top: var(--space-2);
+    padding-top: var(--space-2);
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
+}
+
 .seedling-variety-horizontal-timeline {
     display: flex;
     align-items: center;
     gap: var(--space-1);
-    margin-top: var(--space-2);
-    padding-top: var(--space-2);
-    border-top: 1px solid rgba(0, 0, 0, 0.1);
-    overflow-x: auto;
+    justify-content: space-between;
+    flex-wrap: nowrap;
     padding-bottom: var(--space-1);
+    width: 100%;
 }
 
 .seedling-variety-timeline-item {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 2px;
-    min-width: max-content;
+    gap: 4px;
+    flex: 1;
     opacity: 0.6;
+    min-width: 50px;
 }
 
 .seedling-variety-timeline-item--active {
@@ -332,11 +498,11 @@
 }
 
 .seedling-variety-timeline-dot {
-    width: 12px;
-    height: 12px;
+    width: 14px;
+    height: 14px;
     border-radius: 50%;
-    background: #ddd;
-    border: 2px solid #ddd;
+    background: #e0e0e0;
+    border: 2px solid #e0e0e0;
 }
 
 .seedling-variety-timeline-item--active .seedling-variety-timeline-dot {
@@ -347,33 +513,68 @@
 
 .seedling-variety-timeline-stage {
     text-align: center;
+    width: 100%;
 }
 
 .seedling-variety-timeline-stage-title {
-    font-size: 0.65rem;
-    font-weight: 600;
+    font-size: 0.7rem;
+    font-weight: 700;
     color: var(--text-primary);
     white-space: nowrap;
     text-transform: uppercase;
-    letter-spacing: 0.3px;
+    letter-spacing: 0.4px;
+    line-height: 1.2;
 }
 
 .seedling-variety-timeline-stage-date {
-    font-size: 0.6rem;
+    font-size: 0.65rem;
     color: var(--text-gray);
     white-space: nowrap;
-    margin-top: 1px;
+    margin-top: 2px;
+    font-weight: 500;
 }
 
 .seedling-variety-timeline-connector {
-    width: 20px;
+    flex: 1;
     height: 2px;
     background: #ddd;
-    flex-shrink: 0;
+    min-width: 20px;
+    max-width: 40px;
 }
 
 .seedling-variety-timeline-connector--completed {
     background: var(--color-primary);
+}
+
+/* Badge de Trasplantado */
+.seedling-variety-transplanted-badge {
+    display: inline-block;
+    margin-top: var(--space-2);
+    padding: var(--space-1) var(--space-2);
+    background: rgba(139, 195, 74, 0.15);
+    border: 2px solid #8BC34A;
+    border-radius: var(--radius-md);
+    color: #558B2F;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+/* Inline Editor Actions */
+.seedling-detail-variety-editor-actions {
+    display: flex;
+    gap: var(--space-1);
+    margin-top: var(--space-1);
+    padding-top: var(--space-1);
+    border-top: 1px solid rgba(76, 175, 80, 0.2);
+    justify-content: flex-end;
+}
+
+.seedling-detail-variety-editor-actions .btn-icon--delete {
+    padding: 6px 10px;
+    font-size: 0.8rem;
+    display: flex;
+    align-items: center;
+    gap: 4px;
 }
 
 /* Notes */
@@ -388,16 +589,114 @@
     margin: 0;
 }
 
+/* Photos Carousel */
+.seedling-detail-photos-carousel {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    padding: var(--space-2) 0;
+}
+
+.seedling-detail-carousel-viewport {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    background: #f5f5f5;
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.seedling-detail-carousel-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: var(--radius-md);
+}
+
+.seedling-detail-carousel-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(0, 0, 0, 0.5);
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    font-size: 1.2rem;
+    cursor: pointer;
+    border-radius: var(--radius-sm);
+    transition: background var(--transition-base);
+    z-index: 10;
+}
+
+.seedling-detail-carousel-btn:hover {
+    background: rgba(0, 0, 0, 0.8);
+}
+
+.seedling-detail-carousel-btn--prev {
+    left: 12px;
+}
+
+.seedling-detail-carousel-btn--next {
+    right: 12px;
+}
+
+.seedling-detail-carousel-thumbnails {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    padding: 8px 0;
+    -webkit-overflow-scrolling: touch;
+}
+
+.seedling-detail-carousel-thumbnail {
+    flex-shrink: 0;
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+    border-radius: var(--radius-sm);
+    border: 2px solid transparent;
+    cursor: pointer;
+    transition: border-color var(--transition-base);
+}
+
+.seedling-detail-carousel-thumbnail:hover {
+    border-color: var(--color-primary);
+}
+
+.seedling-detail-carousel-thumbnail.active {
+    border-color: var(--color-primary);
+    box-shadow: 0 0 8px rgba(76, 175, 80, 0.4);
+}
+
+.seedling-detail-carousel-counter {
+    text-align: center;
+    font-size: 0.85rem;
+    color: var(--text-gray);
+    font-weight: 500;
+}
+
 /* Photos */
 .seedling-detail-photos {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
     gap: var(--space-2);
+    padding: var(--space-2) 0;
+}
+
+.seedling-detail-photo-wrapper {
+    position: relative;
+    overflow: hidden;
+    border-radius: var(--radius-md);
+    aspect-ratio: 1;
+    background: #f5f5f5;
 }
 
 .seedling-detail-photo {
     width: 100%;
-    height: 150px;
+    height: 100%;
     object-fit: cover;
     border-radius: var(--radius-md);
     cursor: pointer;
@@ -411,17 +710,20 @@
 /* Mobile Responsive */
 @media (max-width: 768px) {
     .seedling-detail-container {
-        padding: var(--space-1);
+        padding: var(--space-2);
+        padding-bottom: 80px;
     }
 
     .seedling-detail-header {
         flex-direction: column;
         gap: var(--space-2);
+        margin-bottom: var(--space-2);
     }
 
     .seedling-detail-back {
         position: static;
         margin-top: 0;
+        margin-bottom: var(--space-2);
     }
 
     .seedling-detail-title-section {
@@ -434,6 +736,7 @@
 
     .seedling-detail-card {
         padding: var(--space-2);
+        margin-bottom: var(--space-2);
     }
 
     .seedling-detail-row {
@@ -456,31 +759,103 @@
     }
 
     /* Responsive Timeline for Variety */
+    .seedling-variety-timeline-wrapper {
+        margin-top: 6px;
+        padding-top: 6px;
+        border-top: 1px solid rgba(0, 0, 0, 0.08);
+    }
+
     .seedling-variety-horizontal-timeline {
-        gap: var(--space-0);
-        padding: var(--space-1);
-        -webkit-overflow-scrolling: touch;
+        gap: 1px;
+        padding-bottom: 4px;
     }
 
     .seedling-variety-timeline-item {
-        gap: 1px;
+        min-width: 40px;
+        gap: 2px;
+        flex: 1;
     }
 
     .seedling-variety-timeline-stage-title {
-        font-size: 0.6rem;
+        font-size: 0.55rem;
+        font-weight: 700;
+        line-height: 1;
     }
 
     .seedling-variety-timeline-stage-date {
-        font-size: 0.55rem;
+        font-size: 0.5rem;
+        line-height: 1;
     }
 
     .seedling-variety-timeline-connector {
-        width: 12px;
-        height: 1.5px;
+        flex: 0.5;
+        min-width: 4px;
+        max-width: 12px;
+        height: 1px;
     }
 
     .seedling-variety-timeline-dot {
         width: 10px;
         height: 10px;
+    }
+
+    /* Responsive Variety Items */
+    .seedling-detail-variety-item {
+        padding: 6px var(--space-1);
+        margin-bottom: 6px;
+    }
+
+    .seedling-detail-variety-header {
+        gap: 6px;
+        margin-bottom: 4px;
+    }
+
+    .seedling-detail-variety-name {
+        font-size: 0.8rem;
+    }
+
+    .seedling-detail-variety-especie {
+        font-size: 0.65rem;
+    }
+
+    .seedling-detail-germination-editor {
+        padding: 4px 0;
+        gap: 2px;
+    }
+
+    .seedling-detail-germination-label {
+        font-size: 0.7rem;
+        margin-bottom: 2px;
+    }
+
+    .seedling-detail-germination-editor .input {
+        padding: 4px 6px;
+        font-size: 0.75rem;
+        height: auto;
+    }
+
+    .seedling-variety-transplanted-badge {
+        display: inline-block;
+        margin-top: var(--space-1);
+        padding: 6px 12px;
+        font-size: 0.8rem;
+    }
+
+    .seedling-detail-photos {
+        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+        gap: var(--space-2);
+    }
+
+    .seedling-detail-variety-status-options {
+        grid-template-columns: 1fr;
+    }
+
+    .seedling-detail-variety-inline-editor {
+        padding: var(--space-1);
+    }
+
+    .seedling-detail-status-option {
+        padding: var(--space-1);
+        font-size: 0.8rem;
     }
 }

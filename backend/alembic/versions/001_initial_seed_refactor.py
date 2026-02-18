@@ -23,23 +23,43 @@ def upgrade() -> None:
     - Add ENUMs for state management
     """
     
-    # Create ENUMs
-    estado_lote_enum = postgresql.ENUM('activo', 'agotado', 'vencido', 'descartado', name='estadolotesemillas', create_type=True)
-    estado_lote_enum.create(op.get_bind(), checkfirst=True)  # type: ignore
+    # Create ENUMs with IF NOT EXISTS using raw SQL
+    op.execute("""
+        DO $$ BEGIN
+            CREATE TYPE estadolotesemillas AS ENUM ('activo', 'agotado', 'vencido', 'descartado');
+        EXCEPTION WHEN duplicate_object THEN null;
+        END $$;
+    """)
     
-    tipo_exposicion_enum = postgresql.ENUM('total', 'parcial', 'sombra', name='tipoexposicionsolar', create_type=True)
-    tipo_exposicion_enum.create(op.get_bind(), checkfirst=True)
+    op.execute("""
+        DO $$ BEGIN
+            CREATE TYPE tipoexposicionsolar AS ENUM ('total', 'parcial', 'sombra');
+        EXCEPTION WHEN duplicate_object THEN null;
+        END $$;
+    """)
     
-    frecuencia_riego_enum = postgresql.ENUM('diario', 'cada_dos_dias', 'semanal', 'cada_dos_semanas', 'mensual', name='frecuenciariego', create_type=True)
-    frecuencia_riego_enum.create(op.get_bind(), checkfirst=True)
+    op.execute("""
+        DO $$ BEGIN
+            CREATE TYPE frecuenciariego AS ENUM ('diario', 'cada_dos_dias', 'semanal', 'cada_dos_semanas', 'mensual');
+        EXCEPTION WHEN duplicate_object THEN null;
+        END $$;
+    """)
     
-    estado_plantacion_enum = postgresql.ENUM('planificada', 'sembrada', 'germinada', 'trasplantada', 'crecimiento', 'cosecha_cercana', 'cosechada', 'cancelada', name='estadoplantacion', create_type=True)
-    estado_plantacion_enum.create(op.get_bind(), checkfirst=True)
+    op.execute("""
+        DO $$ BEGIN
+            CREATE TYPE estadoplantacion AS ENUM ('PLANIFICADA', 'SEMBRADA', 'GERMINADA', 'TRASPLANTADA', 'CRECIMIENTO', 'COSECHA_CERCANA', 'COSECHADA', 'CANCELADA');
+        EXCEPTION WHEN duplicate_object THEN null;
+        END $$;
+    """)
     
-    tipo_cosecha_enum = postgresql.ENUM('consumo','semilla', 'mixta', name='tipocosecha', create_type=True)
-    tipo_cosecha_enum.create(op.get_bind(), checkfirst=True)
+    op.execute("""
+        DO $$ BEGIN
+            CREATE TYPE tipocosecha AS ENUM ('consumo', 'semilla', 'mixta');
+        EXCEPTION WHEN duplicate_object THEN null;
+        END $$;
+    """)
     
-    # Create especies table
+    # Create especies table - use sa.Enum with sqlite_enum_type for type specifications
     op.create_table('especies',
         sa.Column('id', sa.Integer(), nullable=False),
         sa.Column('nombre_comun', sa.String(length=255), nullable=False),
@@ -51,8 +71,8 @@ def upgrade() -> None:
         sa.Column('profundidad_siembra_cm', sa.Float(), nullable=True),
         sa.Column('distancia_plantas_cm', sa.Float(), nullable=True),
         sa.Column('distancia_surcos_cm', sa.Float(), nullable=True),
-        sa.Column('frecuencia_riego', tipo_exposicion_enum, nullable=True),
-        sa.Column('exposicion_solar', tipo_exposicion_enum, nullable=True),
+        sa.Column('frecuencia_riego', sa.Text(), nullable=True),  # Use Text for now
+        sa.Column('exposicion_solar', sa.Text(), nullable=True),  # Use Text for now
         sa.Column('dias_germinacion_min', sa.Integer(), nullable=True),
         sa.Column('dias_germinacion_max', sa.Integer(), nullable=True),
         sa.Column('dias_hasta_trasplante', sa.Integer(), nullable=True),

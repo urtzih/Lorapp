@@ -25,7 +25,6 @@ class SeedlingCreate(BaseModel):
     nombre_plantacion: str
     fecha_siembra: date
     ubicacion_descripcion: Optional[str] = "Semillero"
-    cantidad_semillas_plantadas: Optional[int] = None
     notas: Optional[str] = None
 
 
@@ -33,9 +32,9 @@ class SeedlingUpdate(BaseModel):
     """Schema para actualizar una siembra en semillero"""
     nombre_plantacion: Optional[str] = None
     estado: Optional[str] = None
+    fecha_siembra: Optional[date] = None
     fecha_germinacion: Optional[date] = None
     ubicacion_descripcion: Optional[str] = None
-    cantidad_semillas_plantadas: Optional[int] = None
     notas: Optional[str] = None
 
 
@@ -53,7 +52,6 @@ class SeedlingResponse(BaseModel):
     nombre_plantacion: str
     fecha_siembra: datetime
     tipo_siembra: str
-    cantidad_semillas_plantadas: Optional[int] = None
     ubicacion_descripcion: Optional[str] = None
     estado: str
     fecha_germinacion: Optional[datetime] = None
@@ -169,7 +167,6 @@ async def create_seedling(
         fecha_siembra=seedling.fecha_siembra,
         tipo_siembra="semillero",
         ubicacion_descripcion=seedling.ubicacion_descripcion or "Semillero",
-        cantidad_semillas_plantadas=seedling.cantidad_semillas_plantadas,
         notas=seedling.notas,
         estado=EstadoPlantacion.SEMBRADA  # En semillero
     )

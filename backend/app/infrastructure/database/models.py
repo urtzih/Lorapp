@@ -41,15 +41,16 @@ class FrecuenciaRiego(str, enum.Enum):
 
 
 class EstadoPlantacion(str, enum.Enum):
-    """Estados de una plantación"""
-    PLANIFICADA = "planificada"
-    SEMBRADA = "sembrada"
-    GERMINADA = "germinada"
-    TRASPLANTADA = "trasplantada"
-    CRECIMIENTO = "crecimiento"
-    COSECHA_CERCANA = "cosecha_cercana"
-    COSECHADA = "cosechada"
-    CANCELADA = "cancelada"
+    """Estados de una plantación - Using Spanish values that match database"""
+    PLANIFICADA = "PLANIFICADA"
+    SEMBRADA = "SEMBRADA"
+    GERMINADA = "GERMINADA"
+    LISTA = "LISTA"
+    TRASPLANTADA = "TRASPLANTADA"
+    CRECIMIENTO = "CRECIMIENTO"
+    COSECHA_CERCANA = "COSECHA_CERCANA"
+    COSECHADA = "COSECHADA"
+    CANCELADA = "CANCELADA"
 
 
 class TipoCosecha(str, enum.Enum):
