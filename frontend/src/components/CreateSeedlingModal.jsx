@@ -16,7 +16,7 @@ export function CreateSeedlingModal({ isOpen, onClose, onSuccess }) {
     const [seeds, setSeeds] = useState([]);
     const [searchQuery, setSearchQuery] = useState('');
     const [filteredSeeds, setFilteredSeeds] = useState([]);
-    const [selectedSeed, setSelectedSeed] = useState(null);
+    const [selectedSeeds, setSelectedSeeds] = useState([]); // Cambiado a array para multiselección
     
     // Foto
     const cameraRef = useRef(null);
@@ -74,12 +74,24 @@ export function CreateSeedlingModal({ isOpen, onClose, onSuccess }) {
     };
 
     const handleSelectSeed = (seed) => {
-        setSelectedSeed(seed);
-        setSeedlingData(prev => ({
-            ...prev,
-            lote_semillas_id: seed.id,
-            nombre_plantacion: `${seed.variedad?.especie?.nombre_comun} - ${seed.variedad?.nombre_variedad} (${new Date().toLocaleDateString()})`
-        }));
+        setSelectedSeeds(prev => {
+            const isSelected = prev.find(s => s.id === seed.id);
+            if (isSelected) {
+                // Deseleccionar
+                return prev.filter(s => s.id !== seed.id);
+            } else {
+                // Seleccionar
+                return [...prev, seed];
+            }
+        });
+    };
+
+    const proceedToPhoto = () => {
+        if (selectedSeeds.length === 0) {
+            setMessage({ type: 'error', text: 'Selecciona al menos una variedad' });
+            return;
+        }
+        setMessage(null);
         setStep('photo');
     };
 
@@ -145,44 +157,43 @@ export function CreateSeedlingModal({ isOpen, onClose, onSuccess }) {
 
     const handleSubmit = async () => {
         try {
-            if (!seedlingData.lote_semillas_id) {
-                setMessage({ type: 'error', text: 'Selecciona una variedad' });
+            if (selectedSeeds.length === 0) {
+                setMessage({ type: 'error', text: 'Selecciona al menos una variedad' });
                 return;
             }
-            if (!seedlingData.nombre_plantacion?.trim()) {
-                setMessage({ type: 'error', text: 'El nombre de la plantación es obligatorio' });
+            if (!seedlingData.ubicacion_descripcion?.trim()) {
+                setMessage({ type: 'error', text: 'La ubicación es obligatoria' });
                 return;
             }
 
             setLoading(true);
             setMessage(null);
 
-            // Crear semillero
-            const response = await mySeedlingAPI.create(seedlingData);
+            // Crear un semillero para cada variedad seleccionada
+            const promises = selectedSeeds.map(seed => {
+                const data = {
+                    lote_semillas_id: seed.id,
+                    nombre_plantacion: `${seed.variedad?.nombre_variedad} - ${new Date().toLocaleDateString()}`,
+                    fecha_siembra: seedlingData.fecha_siembra,
+                    ubicacion_descripcion: seedlingData.ubicacion_descripcion,
+                    cantidad_semillas_plantadas: seedlingData.cantidad_semillas_plantadas,
+                    notas: seedlingData.notas
+                };
+                return mySeedlingAPI.create(data);
+            });
 
-            // Si hay foto, subirla después
-            if (photoData && response.data?.id) {
-                try {
-                    const formData = new FormData();
-                    const blob = await fetch(photoData).then(res => res.blob());
-                    formData.append('file', blob, 'seedling.jpg');
-                    // Nota: Asume que existe un endpoint para subir fotos a semillero
-                    // Si no existe, simplemente se ignora
-                } catch (error) {
-                    console.warn('No se pudo subir la foto:', error);
-                }
-            }
+            await Promise.all(promises);
 
-            setMessage({ type: 'success', text: 'Semillero creado correctamente' });
+            setMessage({ type: 'success', text: `${selectedSeeds.length} semillero(s) creado(s) correctamente` });
             setTimeout(() => {
                 handleClose();
                 onSuccess?.();
             }, 1500);
         } catch (error) {
-            console.error('Error creating seedling:', error);
+            console.error('Error creating seedlings:', error);
             setMessage({
                 type: 'error',
-                text: error.response?.data?.detail || 'Error creando el semillero'
+                text: error.response?.data?.detail || 'Error creando los semilleros'
             });
         } finally {
             setLoading(false);
@@ -193,7 +204,7 @@ export function CreateSeedlingModal({ isOpen, onClose, onSuccess }) {
         stopCamera();
         setStep('search');
         setSearchQuery('');
-        setSelectedSeed(null);
+        setSelectedSeeds([]);
         setPhotoData(null);
         setUseCamera(false);
         setSeedlingData({
@@ -204,6 +215,7 @@ export function CreateSeedlingModal({ isOpen, onClose, onSuccess }) {
             cantidad_semillas_plantadas: null,
             notas: ''
         });
+        setMessage(null);
         onClose();
     };
 
@@ -242,51 +254,81 @@ export function CreateSeedlingModal({ isOpen, onClose, onSuccess }) {
                                 <p>No hay semillas disponibles</p>
                             </div>
                         ) : (
-                            <div className="csm-seeds-list">
-                                {filteredSeeds.map(seed => (
-                                    <div
-                                        key={seed.id}
-                                        className="csm-seed-item"
-                                        onClick={() => handleSelectSeed(seed)}
-                                    >
-                                        <div className="csm-seed-item__content">
-                                            <div className="csm-seed-item__name">
-                                                {seed.variedad?.especie?.nombre_comun}
-                                            </div>
-                                            <div className="csm-seed-item__variety">
-                                                {seed.variedad?.nombre_variedad}
-                                            </div>
-                                            <div className="csm-seed-item__details">
-                                                <span>{seed.cantidad_restante} semillas</span>
-                                                {seed.numero_lote && (
-                                                    <span>Lote: {seed.numero_lote}</span>
-                                                )}
-                                            </div>
-                                        </div>
-                                        <div className="csm-seed-item__arrow">→</div>
+                            <>
+                                {selectedSeeds.length > 0 && (
+                                    <div className="csm-selected-count">
+                                        {selectedSeeds.length} variedad(es) seleccionada(s)
                                     </div>
-                                ))}
-                            </div>
+                                )}
+                                <div className="csm-seeds-list">
+                                    {filteredSeeds.map(seed => {
+                                        const isSelected = selectedSeeds.find(s => s.id === seed.id);
+                                        return (
+                                            <div
+                                                key={seed.id}
+                                                className={`csm-seed-item ${isSelected ? 'selected' : ''}`}
+                                                onClick={() => handleSelectSeed(seed)}
+                                            >
+                                                <div className="csm-seed-item__checkbox">
+                                                    <input
+                                                        type="checkbox"
+                                                        checked={!!isSelected}
+                                                        readOnly
+                                                    />
+                                                </div>
+                                                <div className="csm-seed-item__content">
+                                                    <div className="csm-seed-item__name">
+                                                        {seed.variedad?.nombre_variedad}
+                                                    </div>
+                                                    <div className="csm-seed-item__variety">
+                                                        {seed.variedad?.especie?.nombre_comun}
+                                                    </div>
+                                                    <div className="csm-seed-item__details">
+                                                        {seed.origen && <span>📍 {seed.origen}</span>}
+                                                        {seed.fecha_recoleccion && (
+                                                            <span>📅 {new Date(seed.fecha_recoleccion).toLocaleDateString('es-ES', { month: 'short', year: 'numeric' })}</span>
+                                                        )}
+                                                        <span>💧 {seed.cantidad_restante} semillas</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                                {selectedSeeds.length > 0 && (
+                                    <button
+                                        className="btn btn-primary csm-continue-btn"
+                                        onClick={proceedToPhoto}
+                                    >
+                                        Continuar con {selectedSeeds.length} variedad(es)
+                                    </button>
+                                )}
+                            </>
                         )}
                     </div>
                 )}
 
                 {/* Step 2: Photo */}
-                {step === 'photo' && selectedSeed && (
+                {step === 'photo' && selectedSeeds.length > 0 && (
                     <div className="csm-step csm-step--photo">
                         <div className="csm-selected-seed">
-                            <div className="csm-selected-seed__name">
-                                {selectedSeed.variedad?.especie?.nombre_comun} -
-                                {selectedSeed.variedad?.nombre_variedad}
+                            <div className="csm-selected-seed__title">
+                                Variedades seleccionadas ({selectedSeeds.length}):
+                            </div>
+                            <div className="csm-selected-seeds-list">
+                                {selectedSeeds.map(seed => (
+                                    <div key={seed.id} className="csm-selected-seed__item">
+                                        • {seed.variedad?.nombre_variedad}
+                                    </div>
+                                ))}
                             </div>
                             <button
                                 className="csm-change-btn"
                                 onClick={() => {
-                                    setSelectedSeed(null);
                                     setStep('search');
                                 }}
                             >
-                                Cambiar variedad
+                                Cambiar selección
                             </button>
                         </div>
 
@@ -373,17 +415,8 @@ export function CreateSeedlingModal({ isOpen, onClose, onSuccess }) {
                             </div>
                         )}
 
-                        <div className="csm-form-group">
-                            <label>Nombre de Plantación</label>
-                            <input
-                                type="text"
-                                className="input csm-input"
-                                value={seedlingData.nombre_plantacion}
-                                onChange={(e) =>
-                                    updateField('nombre_plantacion', e.target.value)
-                                }
-                                disabled={loading}
-                            />
+                        <div className="csm-info-note">
+                            ℹ️ Se creará un semillero para cada una de las {selectedSeeds.length} variedad(es) seleccionadas
                         </div>
 
                         <div className="csm-form-group">
@@ -400,7 +433,7 @@ export function CreateSeedlingModal({ isOpen, onClose, onSuccess }) {
                         </div>
 
                         <div className="csm-form-group">
-                            <label>Ubicación</label>
+                            <label>Ubicación*</label>
                             <input
                                 type="text"
                                 placeholder="Ej: Semillero bandeja A"

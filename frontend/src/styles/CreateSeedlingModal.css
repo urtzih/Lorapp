@@ -107,15 +107,32 @@
     gap: var(--space-1);
     max-height: 400px;
     overflow-y: auto;
+    margin-bottom: var(--space-2);
+}
+
+.csm-selected-count {
+    padding: var(--space-2);
+    background: rgba(76, 175, 80, 0.1);
+    border: 1px solid var(--color-primary);
+    border-radius: var(--radius-md);
+    text-align: center;
+    font-weight: 600;
+    color: var(--color-primary);
+    margin-bottom: var(--space-2);
+}
+
+.csm-continue-btn {
+    width: 100%;
+    margin-top: var(--space-2);
 }
 
 .csm-seed-item {
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    gap: var(--space-2);
     padding: var(--space-2);
     background: var(--card-background);
-    border: 1px solid var(--border-color);
+    border: 2px solid var(--border-color);
     border-radius: var(--radius-md);
     cursor: pointer;
     transition: all var(--transition-base);
@@ -125,6 +142,22 @@
     background: rgba(76, 175, 80, 0.05);
     border-color: var(--color-primary);
     box-shadow: var(--shadow-sm);
+}
+
+.csm-seed-item.selected {
+    background: rgba(76, 175, 80, 0.1);
+    border-color: var(--color-primary);
+    border-width: 2px;
+}
+
+.csm-seed-item__checkbox {
+    flex-shrink: 0;
+}
+
+.csm-seed-item__checkbox input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
 }
 
 .csm-seed-item__content {
@@ -149,12 +182,40 @@
     gap: var(--space-2);
     font-size: 0.75rem;
     color: var(--text-gray);
+    flex-wrap: wrap;
 }
 
-.csm-seed-item__arrow {
-    font-size: 1.5rem;
-    color: var(--color-primary);
-    margin-left: var(--space-1);
+/* Selected Seeds Display */
+.csm-selected-seed__title {
+    font-weight: 600;
+    margin-bottom: var(--space-2);
+    font-size: 0.95rem;
+}
+
+.csm-selected-seeds-list {
+    max-height: 120px;
+    overflow-y: auto;
+    margin-bottom: var(--space-2);
+    padding: var(--space-2);
+    background: rgba(76, 175, 80, 0.05);
+    border-radius: var(--radius-sm);
+}
+
+.csm-selected-seed__item {
+    font-size: 0.85rem;
+    padding: 0.25rem 0;
+    color: var(--text-primary);
+}
+
+/* Info Note */
+.csm-info-note {
+    padding: var(--space-2);
+    background: rgba(33, 150, 243, 0.1);
+    border-left: 3px solid var(--color-info);
+    border-radius: var(--radius-sm);
+    font-size: 0.85rem;
+    color: var(--text-primary);
+    margin-bottom: var(--space-3);
 }
 
 /* Photo Step */

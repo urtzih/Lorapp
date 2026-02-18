@@ -79,31 +79,37 @@
 }
 
 .myseedling-filters__content {
-    display: grid;
-    grid-template-columns: 1fr;
+    display: flex;
+    align-items: center;
     gap: var(--space-2);
+    flex-wrap: wrap;
 }
 
 .myseedling-filters__search {
-    width: 100%;
+    flex: 1;
+    min-width: 200px;
 }
 
 .myseedling-filters__search .input {
     width: 100%;
-    font-size: 1rem;
+    font-size: 0.875rem;
     padding: var(--space-2);
+    height: 44px;
 }
 
 .myseedling-filters__select {
-    width: 100%;
-    font-size: 0.875rem;
+    flex: 0 1 150px;
+    font-size: 0.8rem;
     padding: var(--space-2);
+    height: 44px;
 }
 
 .myseedling-filters__add-btn {
-    width: 100%;
-    padding: var(--space-2);
-    font-size: 0.875rem;
+    flex: 0 1 auto;
+    padding: var(--space-2) var(--space-3);
+    font-size: 0.75rem;
+    white-space: nowrap;
+    min-height: 44px;
 }
 
 /* Empty State */
@@ -197,20 +203,6 @@
     color: var(--text-gray);
 }
 
-.myseedling-card__info {
-    margin-bottom: var(--space-2);
-    font-size: 0.85rem;
-}
-
-.myseedling-card__species {
-    font-weight: 600;
-}
-
-.myseedling-card__variety {
-    font-size: 0.8rem;
-    margin-top: 0.25rem;
-}
-
 .myseedling-card__details {
     margin-bottom: var(--space-2);
 }
@@ -227,6 +219,62 @@
     border-bottom: none;
 }
 
+/* Variedades dentro del semillero */
+.myseedling-card__varieties {
+    margin-bottom: var(--space-2);
+    padding: var(--space-2);
+    background: var(--card-background);
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border-color);
+}
+
+.myseedling-varieties__title {
+    margin-bottom: var(--space-1);
+    padding-bottom: var(--space-1);
+    border-bottom: 1px solid var(--border-color);
+    color: var(--text-gray);
+    display: block;
+}
+
+.myseedling-varieties__list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+}
+
+.myseedling-variety-item {
+    padding: var(--space-1) var(--space-2);
+    background: rgba(76, 175, 80, 0.05);
+    border-radius: var(--radius-md);
+    border-left: 3px solid var(--color-primary);
+}
+
+.myseedling-variety-item__name {
+    font-weight: 600;
+    font-size: 0.85rem;
+    color: var(--text-primary);
+    margin-bottom: 4px;
+}
+
+.myseedling-variety-item__info {
+    display: flex;
+    gap: var(--space-1);
+    font-size: 0.75rem;
+    color: var(--text-gray);
+}
+
+.myseedling-variety-item__origin {
+    font-style: italic;
+}
+
+.myseedling-variety-item__quantity {
+    padding: 2px 6px;
+    background: rgba(33, 150, 243, 0.1);
+    border-radius: 3px;
+    color: var(--color-primary);
+    font-weight: 500;
+}
+
 .myseedling-card__notes {
     padding: var(--space-1);
     margin-bottom: var(--space-2);
@@ -240,12 +288,51 @@
 .myseedling-card__actions {
     display: flex;
     gap: var(--space-1);
+    align-items: center;
 }
 
 .myseedling-card__action-btn {
-    flex: 1;
     padding: var(--space-2);
     font-size: 0.8rem;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    transition: all var(--transition-base);
+}
+
+.myseedling-card__action-btn.btn-secondary {
+    flex: 1;
+    background: var(--color-gray-100);
+    border-radius: var(--radius-md);
+    text-decoration: none;
+    text-align: center;
+}
+
+.myseedling-card__action-btn--edit,
+.myseedling-card__action-btn--delete {
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+}
+
+.myseedling-card__action-btn--edit {
+    background: rgba(33, 150, 243, 0.1);
+}
+
+.myseedling-card__action-btn--edit:hover {
+    background: rgba(33, 150, 243, 0.2);
+}
+
+.myseedling-card__action-btn--delete {
+    background: rgba(244, 67, 54, 0.1);
+}
+
+.myseedling-card__action-btn--delete:hover {
+    background: rgba(244, 67, 54, 0.2);
 }
 
 /* Tips Card */
@@ -375,10 +462,6 @@
         grid-template-columns: repeat(2, 1fr);
     }
 
-    .myseedling-filters__content {
-        grid-template-columns: 1fr;
-    }
-
     .myseedling-card__detail-row {
         flex-direction: column;
         gap: 0.25rem;
@@ -423,8 +506,21 @@
     }
 
     .myseedling-filters__content {
-        grid-template-columns: 1fr 200px auto;
-        align-items: end;
+        flex-wrap: nowrap;
+    }
+
+    .myseedling-filters__search {
+        flex: 1;
+        min-width: auto;
+    }
+
+    .myseedling-filters__select {
+        flex: 0 1 auto;
+    }
+
+    .myseedling-filters__add-btn {
+        flex: 0 1 auto;
+        font-size: 0.875rem;
     }
 
     .myseedling-grid {

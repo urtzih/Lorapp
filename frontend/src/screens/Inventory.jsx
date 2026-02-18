@@ -30,6 +30,11 @@ export function Inventory() {
         loadSeeds();
     }, [filters]);
 
+    // Cerrar el menú FAB al montar el componente (evita que se muestre al navegar)
+    useEffect(() => {
+        setFabOpen(false);
+    }, []);
+
     const loadSeeds = async () => {
         try {
             console.log('[Inventory] loadSeeds called with filters:', filters);

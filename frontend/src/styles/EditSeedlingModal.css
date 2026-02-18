@@ -1,0 +1,205 @@
+/* Edit Seedling Modal */
+.esm-container {
+    padding: var(--space-2);
+    max-height: 80vh;
+    overflow-y: auto;
+}
+
+/* Seedling Info */
+.esm-info {
+    margin-bottom: var(--space-4);
+    padding: var(--space-3);
+    background: rgba(76, 175, 80, 0.1);
+    border-radius: var(--radius-md);
+    border-left: 4px solid var(--color-primary);
+}
+
+.esm-info__title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0 0 var(--space-1) 0;
+}
+
+.esm-info__variety {
+    font-size: 0.9rem;
+    color: var(--text-gray);
+}
+
+.esm-info__variety-name {
+    font-weight: 500;
+    color: var(--text-primary);
+}
+
+.esm-info__origin {
+    font-style: italic;
+}
+
+/* Form */
+.esm-form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+}
+
+.esm-form-group {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+}
+
+.esm-form-group label {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--text-primary);
+}
+
+.esm-form-group small {
+    font-size: 0.75rem;
+    color: var(--text-gray);
+    font-style: italic;
+}
+
+.esm-form-group .input {
+    width: 100%;
+}
+
+.esm-form-group textarea.input {
+    resize: vertical;
+    min-height: 80px;
+}
+
+/* Photo Section */
+.esm-photo-section {
+    border: 2px dashed var(--border-color);
+    border-radius: var(--radius-md);
+    padding: var(--space-3);
+    text-align: center;
+    cursor: pointer;
+    transition: all var(--transition-base);
+}
+
+.esm-photo-section:hover {
+    border-color: var(--color-primary);
+    background: rgba(33, 150, 243, 0.05);
+}
+
+.esm-photo-section input[type="file"] {
+    display: none;
+}
+
+.esm-photo-icon {
+    font-size: 2rem;
+    margin-bottom: var(--space-1);
+}
+
+.esm-photo-text {
+    font-size: 0.85rem;
+    color: var(--text-gray);
+}
+
+.esm-photos-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+    gap: var(--space-2);
+    margin-top: var(--space-2);
+}
+
+.esm-photo-item {
+    position: relative;
+    width: 100%;
+    padding-bottom: 100%;
+    border-radius: var(--radius-md);
+    overflow: hidden;
+}
+
+.esm-photo-item img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.esm-photo-item__remove {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    width: 24px;
+    height: 24px;
+    background: rgba(0, 0, 0, 0.6);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    padding: 0;
+}
+
+.esm-photo-item__remove:hover {
+    background: rgba(0, 0, 0, 0.8);
+}
+
+/* Actions */
+.esm-actions {
+    display: flex;
+    gap: var(--space-2);
+    margin-top: var(--space-2);
+    position: sticky;
+    bottom: 0;
+    background: var(--card-background);
+    padding: var(--space-2) 0;
+}
+
+.esm-actions .btn {
+    flex: 1;
+    padding: var(--space-2);
+    font-size: 0.9rem;
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+    .esm-container {
+        padding: var(--space-1);
+        max-height: 85vh;
+    }
+
+    .esm-info {
+        padding: var(--space-2);
+    }
+
+    .esm-info__title {
+        font-size: 1rem;
+    }
+
+    .esm-form {
+        gap: var(--space-2);
+    }
+
+    .esm-form-group {
+        gap: 6px;
+    }
+
+    .esm-form-group label {
+        font-size: 0.85rem;
+    }
+
+    .esm-actions {
+        gap: var(--space-1);
+        padding: var(--space-1) 0;
+    }
+
+    .esm-actions .btn {
+        padding: var(--space-1) var(--space-2);
+        font-size: 0.8rem;
+    }
+
+    .esm-photos-list {
+        grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
+        gap: var(--space-1);
+    }
+}

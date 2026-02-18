@@ -97,11 +97,11 @@ export function MyGarden() {
                 </p>
             </div>
 
-            {/* CTA to Seedling */}
-            <Link to="/my-seedling" className="card calendar-cta calendar-cta--dark">
+            {/* CTA to SFG */}
+            <Link to="/sfg" className="card calendar-cta calendar-cta--dark">
                 <div>
-                    <div className="calendar-cta__title">🌱 Ver Mi Semillero</div>
-                    <div className="calendar-cta__subtitle">Gestiona tus semilleros y trasplantes pendientes</div>
+                    <div className="calendar-cta__title">🌾 Guía de Siembra en SFG</div>
+                    <div className="calendar-cta__subtitle">Aprende técnicas de cultivo en sistemas SFG para maximizar tu cosecha</div>
                 </div>
                 <span className="calendar-cta__arrow">→</span>
             </Link>

@@ -113,6 +113,29 @@
 .calendar-cta__subtitle {
     font-size: 0.75rem;
     opacity: 0.85;
+    margin-bottom: 8px;
+}
+
+.calendar-cta__stats {
+    display: flex;
+    gap: 8px;
+    font-size: 0.75rem;
+    opacity: 0.9;
+    flex-wrap: wrap;
+}
+
+.calendar-cta__stat {
+    display: inline-flex;
+    gap: 4px;
+}
+
+.calendar-cta__stat strong {
+    color: #ffffff;
+    font-weight: 700;
+}
+
+.calendar-cta__stat-separator {
+    opacity: 0.7;
 }
 
 .calendar-cta__arrow {

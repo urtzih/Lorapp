@@ -5,6 +5,7 @@ import Login from './screens/Login'
 import Register from './screens/Register'
 import MyGarden from './screens/MyGarden'
 import MySeedling from './screens/MySeedling'
+import SeedlingDetail from './screens/SeedlingDetail'
 import Inventory from './screens/Inventory'
 import SeedDetail from './screens/SeedDetail'
 import SeedScan from './screens/SeedScan'
@@ -51,6 +52,7 @@ function App() {
                                         <Route path="/" element={<Navigate to="/my-garden" replace />} />
                                         <Route path="/my-garden" element={<MyGarden />} />
                                         <Route path="/my-seedling" element={<MySeedling />} />
+                                        <Route path="/my-seedling/:id" element={<SeedlingDetail />} />
                                         <Route path="/inventory" element={<Inventory />} />
                                         <Route path="/seeds/:id" element={<SeedDetail />} />
                                         <Route path="/scan" element={<SeedScan />} />

@@ -164,15 +164,15 @@ export function Layout({ children }) {
                     </Link>
 
                     <Link
-                        to="/sfg"
-                        className={`bottom-nav-item ${isActive('/sfg') ? 'active' : ''}`}
+                        to="/my-seedling"
+                        className={`bottom-nav-item ${isActive('/my-seedling') ? 'active' : ''}`}
                         onClick={() => navigator.vibrate && navigator.vibrate(5)}
                     >
                         <div className="bottom-nav-item__icon">
-                            {getIcon('planting')}
+                            {getIcon('seedling')}
                         </div>
-                        <span className="bottom-nav-item__label">Guía</span>
-                        {isActive('/sfg') && <span className="bottom-nav-item__indicator" />}
+                        <span className="bottom-nav-item__label">Semillero</span>
+                        {isActive('/my-seedling') && <span className="bottom-nav-item__indicator" />}
                     </Link>
                 </div>
             </nav>

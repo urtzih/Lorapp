@@ -3,8 +3,6 @@
  * Modal reutilizable para diálogos, confirmaciones, etc.
  */
 
-import Button from './Button';
-
 function Modal({ 
     isOpen, 
     onClose, 
@@ -25,26 +23,19 @@ function Modal({
                 <div className="shared-modal__body">
                     {children}
                 </div>
-                {footer ? (
+                {footer && (
                     <div className="shared-modal__footer">
                         {footer}
                     </div>
-                ) : (
-                    <div className="shared-modal__footer">
-                        <Button 
-                            variant="secondary"
-                            onClick={onClose}
-                        >
-                            Cancelar
-                        </Button>
-                        <Button 
-                            variant="primary"
-                            onClick={onClose}
-                        >
-                            Aceptar
-                        </Button>
-                    </div>
                 )}
+                <button 
+                    className="shared-modal__close"
+                    onClick={onClose}
+                    title="Cerrar"
+                    aria-label="Cerrar"
+                >
+                    ×
+                </button>
             </div>
         </div>
     );
